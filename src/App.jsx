@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "./supabase";
 
 const INITIAL_DATA = {
   goals: [
@@ -69,15 +70,41 @@ function pct(current, target) { return Math.min(100, Math.round((current / targe
 function fmt(n) { return n >= 1000 ? "$" + (n / 1000).toFixed(1) + "K" : String(n); }
 
 export default function App() {
-  const [data, setData] = useState(() => {
-    try { const s = localStorage.getItem("ripple-4dx-v3"); return s ? JSON.parse(s) : INITIAL_DATA; } catch { return INITIAL_DATA; }
-  });
+  const [data, setData] = useState(INITIAL_DATA);
   const [nav, setNav] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const saveTimer = useRef(null);
 
+  // Load from Supabase on mount
   useEffect(() => {
-    try { localStorage.setItem("ripple-4dx-v3", JSON.stringify(data)); } catch {}
-  }, [data]);
+    async function load() {
+      try {
+        const { data: rows } = await supabase
+          .from('app_data')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        if (rows?.payload) {
+          setData({ ...INITIAL_DATA, ...rows.payload });
+        }
+      } catch (e) {
+        // table may not exist yet, use initial data
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  // Save to Supabase whenever data changes (debounced)
+  useEffect(() => {
+    if (loading) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      await supabase.from('app_data').upsert({ id: 1, payload: data });
+    }, 800);
+    return () => clearTimeout(saveTimer.current);
+  }, [data, loading]);
 
   const updateGoal = (id, f, v) => setData(d => ({ ...d, goals: d.goals.map(g => g.id === id ? { ...g, [f]: v } : g) }));
   const updateLog  = (gid, mid, v) => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [gid]: { ...d.weeklyLogs[gid], [mid]: v } } }));
@@ -99,6 +126,14 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", background: "#fff", minHeight: "100vh", color: "#1a1a1a" }}>
+      {loading && (
+        <div style={{ position: "fixed", inset: 0, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
+          <div style={{ textAlign: "center" }}>
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 60, marginBottom: 16 }} />
+            <div className="inter" style={{ fontSize: 13, color: "#888" }}>Loading...</div>
+          </div>
+        </div>
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
