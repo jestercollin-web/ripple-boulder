@@ -320,13 +320,13 @@ function Goals({ data, setData, updateGoal }) {
         </div>
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {data.goals.map(g => <GoalCard key={g.id} goal={g} updateGoal={updateGoal} />)}
+        {data.goals.map(g => <GoalCard key={g.id} goal={g} updateGoal={updateGoal} onDelete={id => setData(d => ({ ...d, goals: d.goals.filter(g => g.id !== id) }))} />)}
       </div>
     </div>
   );
 }
 
-function GoalCard({ goal: g, updateGoal }) {
+function GoalCard({ goal: g, updateGoal, onDelete }) {
   const [open, setOpen] = useState(false);
   const p = pct(g.current, g.target);
   const s = sc[g.status];
@@ -335,15 +335,27 @@ function GoalCard({ goal: g, updateGoal }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
         <div style={{ flex: 1, paddingRight: 12 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
-            <span className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>{g.title}</span>
+            <input type="text" value={g.title}
+              onChange={e => updateGoal(g.id, "title", e.target.value)}
+              onClick={e => e.stopPropagation()}
+              style={{ border: "none", padding: 0, fontSize: 14, fontWeight: 600, color: "#1a1a1a", background: "transparent", fontFamily: "Inter, sans-serif", flex: 1, minWidth: 120 }} />
             <span style={{ fontSize: 11, color: "#333", fontFamily: "Inter, sans-serif" }}>{g.category}</span>
           </div>
-          <span className="inter" style={{ fontSize: 12, color: "#222" }}>Owner: {g.owner}{g.endDate ? ` · Due ${g.endDate}` : ""}</span>
+          <span className="inter" style={{ fontSize: 12, color: "#222" }}>
+            Owners: {Array.isArray(g.owners) && g.owners.length > 0 ? g.owners.join(", ") : g.owner}
+            {g.endDate ? ` · Due ${g.endDate}` : ""}
+          </span>
         </div>
-        <span className="badge" style={{ background: s.bg, color: s.text, flexShrink: 0 }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
-          {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Heads up" : "Off track"}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <span className="badge" style={{ background: s.bg, color: s.text }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
+            {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Heads up" : "Off track"}
+          </span>
+          <button onClick={e => { e.stopPropagation(); if (window.confirm("Delete this goal?")) onDelete(g.id); }}
+            style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 8px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>
+            Delete
+          </button>
+        </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div className="pbar" style={{ flex: 1 }}>
@@ -353,10 +365,18 @@ function GoalCard({ goal: g, updateGoal }) {
       </div>
       {open && (
         <div onClick={e => e.stopPropagation()} style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid #f0f0f0" }}>
-          {g.why && <p className="inter" style={{ fontSize: 13, color: "#222", fontStyle: "italic", marginBottom: 14, lineHeight: 1.7 }}>{g.why}</p>}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          <div style={{ marginBottom: 10 }}>
+            <div className="lbl">Why this goal matters</div>
+            <textarea rows={2} value={g.why} onChange={e => updateGoal(g.id, "why", e.target.value)}
+              placeholder="Why does this goal matter?" style={{ fontStyle: "italic" }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
             <div>
-              <div className="lbl">Current number</div>
+              <div className="lbl">Target</div>
+              <input type="number" value={g.target} onChange={e => updateGoal(g.id, "target", Number(e.target.value))} onClick={e => e.stopPropagation()} />
+            </div>
+            <div>
+              <div className="lbl">Current</div>
               <input type="number" value={g.current} onChange={e => updateGoal(g.id, "current", Number(e.target.value))} onClick={e => e.stopPropagation()} />
             </div>
             <div>
@@ -366,6 +386,42 @@ function GoalCard({ goal: g, updateGoal }) {
                 <option value="needs-attention">Needs attention</option>
                 <option value="off-track">Off track</option>
               </select>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+            <div>
+              <div className="lbl">Owners</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {TEAM.map(t => {
+                  const owners = Array.isArray(g.owners) ? g.owners : [g.owner];
+                  const checked = owners.includes(t);
+                  return (
+                    <label key={t} onClick={e => e.stopPropagation()} style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", color: "#333", background: checked ? "#e6f4f5" : "#f5f5f5", padding: "5px 12px", borderRadius: 99, border: `1px solid ${checked ? "#005764" : "#e0e0e0"}` }}>
+                      <input type="checkbox" checked={checked} style={{ width: 13, height: 13 }}
+                        onChange={e => {
+                          const cur = Array.isArray(g.owners) ? g.owners : [g.owner];
+                          const next = e.target.checked ? [...cur, t] : cur.filter(x => x !== t);
+                          updateGoal(g.id, "owners", next.length ? next : cur);
+                        }} />
+                      {t}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <div className="lbl">Category</div>
+              <select value={g.category} onChange={e => updateGoal(g.id, "category", e.target.value)} onClick={e => e.stopPropagation()}>
+                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <div className="lbl">Start date</div>
+              <input type="date" value={g.startDate} onChange={e => updateGoal(g.id, "startDate", e.target.value)} onClick={e => e.stopPropagation()} />
+            </div>
+            <div>
+              <div className="lbl">End date</div>
+              <input type="date" value={g.endDate} onChange={e => updateGoal(g.id, "endDate", e.target.value)} onClick={e => e.stopPropagation()} />
             </div>
           </div>
           <textarea placeholder="Notes..." rows={2} value={g.notes} onChange={e => updateGoal(g.id, "notes", e.target.value)} onClick={e => e.stopPropagation()} />
@@ -403,7 +459,7 @@ function Scoreboard({ data }) {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span className="inter" style={{ fontSize: 11, color: "#222" }}>{g.category}</span>
-                <span className="inter" style={{ fontSize: 11, color: "#222" }}>{p}% · {g.owner}</span>
+                <span className="inter" style={{ fontSize: 11, color: "#222" }}>{p}% · {Array.isArray(g.owners) && g.owners.length ? g.owners.join(", ") : g.owner}</span>
               </div>
             </div>
           );
