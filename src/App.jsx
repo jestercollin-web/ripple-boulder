@@ -132,8 +132,9 @@ export default function App() {
   const wigGoal = data.goals.reduce((a, b) => pct(b.current, b.target) < pct(a.current, a.target) ? b : a, data.goals[0]);
 
   const TEAM = data.team || DEFAULT_TEAM;
+  const isOwner = data.viewMode === "owner";
 
-  const navItems = [
+  const ownerNavItems = [
     { key: "dashboard", label: "Home" },
     { key: "goals", label: "Goals" },
     { key: "scoreboard", label: "Scoreboard" },
@@ -142,6 +143,16 @@ export default function App() {
     { key: "tasks", label: "Tasks" },
     { key: "settings", label: "Settings" },
   ];
+
+  const staffNavItems = [
+    { key: "staff_home", label: "My Week" },
+    { key: "scoreboard", label: "Scoreboard" },
+    { key: "leads", label: "Lead Measures" },
+    { key: "tasks", label: "Tasks" },
+    { key: "meetings", label: "Check-ins" },
+  ];
+
+  const navItems = isOwner ? ownerNavItems : staffNavItems;
 
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", background: "#fff", minHeight: "100vh", color: "#1a1a1a" }}>
@@ -198,7 +209,7 @@ export default function App() {
               <button key={item.key} className={`nav-link${nav === item.key ? " active" : ""}`} onClick={() => setNav(item.key)}>{item.label}</button>
             ))}
             <div style={{ width: 1, height: 18, background: "#e8e8e8", margin: "0 8px" }} />
-            <button onClick={() => setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" }))}
+            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(data.viewMode === "owner" ? "staff_home" : "dashboard"); }}
               style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif", fontWeight: 500 }}>
               Switch view
             </button>
@@ -220,7 +231,7 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setMenuOpen(false); }}
+            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(data.viewMode === "owner" ? "staff_home" : "dashboard"); setMenuOpen(false); }}
               style={{ display: "block", width: "100%", textAlign: "left", padding: "13px 20px", background: "none", border: "none", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: "#005764", fontWeight: 500 }}>
               Switch to {data.viewMode === "owner" ? "Staff" : "Owner"} view
             </button>
@@ -229,14 +240,15 @@ export default function App() {
       </header>
 
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 16px" }}>
-        {nav === "dashboard"  && <Dashboard data={data} setData={setData} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
-        {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
+        {nav === "dashboard"  && <Dashboard data={data} setData={setData} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} isOwner={isOwner} />}
+        {nav === "staff_home" && <StaffHome data={data} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} />}
+        {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "scoreboard" && <Scoreboard data={data} />}
-        {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} isOwner={data.viewMode === "owner"} />}
-        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
-        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
-        {nav === "settings"   && data.viewMode === "owner" && <Settings data={data} setData={setData} />}
-        {nav === "settings"   && data.viewMode !== "owner" && (
+        {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} isOwner={isOwner} />}
+        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
+        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
+        {nav === "settings"   && isOwner && <Settings data={data} setData={setData} />}
+        {nav === "settings"   && !isOwner && (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div className="lora" style={{ fontSize: 22, color: "#888", fontStyle: "italic" }}>Settings are owner-only.</div>
             <p className="inter" style={{ fontSize: 14, color: "#aaa", marginTop: 8 }}>Switch to Owner view to manage settings.</p>
@@ -919,6 +931,115 @@ function Settings({ data, setData }) {
           ))}
         </div>
         <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 12 }}>These names appear in goal ownership, tasks, and check-ins.</div>
+      </div>
+    </div>
+  );
+}
+
+function StaffHome({ data, updateLog, updateTask, TEAM }) {
+  const myTasks = data.tasks.filter(t => t.status !== "done");
+  const lastMeeting = data.meetings[data.meetings.length - 1];
+  const myCommitments = lastMeeting?.commitments || [];
+  const wigId = data.wigId || data.goals[0]?.id;
+  const wigGoal = data.goals.find(g => g.id === wigId) || data.goals[0];
+
+  return (
+    <div>
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>My Week</h1>
+        <p className="inter" style={{ fontSize: 14, color: "#555", marginTop: 4 }}>Here's what needs your attention this week.</p>
+      </div>
+
+      {/* Score */}
+      {wigGoal && (
+        <div style={{ background: "#005764", borderRadius: 14, padding: "20px 24px", marginBottom: 20, color: "#fff" }}>
+          <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 8 }}>The Score Right Now</div>
+          <div className="lora" style={{ fontSize: 18, fontStyle: "italic", marginBottom: 12 }}>{wigGoal.title}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.15)", borderRadius: 99 }}>
+              <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#5DCAA5", borderRadius: 99 }} />
+            </div>
+            <span className="inter" style={{ fontSize: 14, color: "#5DCAA5", fontWeight: 700 }}>
+              {fmt(wigGoal.current)} / {fmt(wigGoal.target)} · {pct(wigGoal.current, wigGoal.target)}%
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+        {/* Tasks */}
+        <div className="card">
+          <div className="lbl">My Tasks</div>
+          {myTasks.length === 0 ? (
+            <p className="inter" style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>All caught up!</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {myTasks.map(t => (
+                <div key={t.id} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                  <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} style={{ marginTop: 2 }} />
+                  <div>
+                    <div className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>{t.title}</div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center" }}>
+                      <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text, fontSize: 10 }}>{t.priority}</span>
+                      {t.due && <span className="inter" style={{ fontSize: 11, color: "#888" }}>Due {t.due}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Commitments */}
+        <div className="card">
+          <div className="lbl">This Week's Commitments</div>
+          {myCommitments.length === 0 ? (
+            <p className="inter" style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>No commitments yet.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {myCommitments.map((c, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 12px", background: c.done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${c.done ? "#c5e8d8" : "#f0f0f0"}` }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.done ? "#2ECC71" : "#ddd", marginTop: 4, flexShrink: 0 }} />
+                  <div>
+                    <span className="inter" style={{ fontSize: 13, color: "#1a1a1a", fontWeight: 500 }}>{c.person}</span>
+                    <p className="inter" style={{ fontSize: 12, color: "#555", marginTop: 2, lineHeight: 1.5 }}>{c.commitment}</p>
+                    {c.due && <p className="inter" style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Due {c.due}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Lead Measures quick update */}
+      <div className="card">
+        <div className="lbl">This Week's Lead Measures</div>
+        <p className="inter" style={{ fontSize: 12, color: "#888", marginBottom: 14 }}>Update your numbers for the week below.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {data.leadMeasures.map(m => {
+            const g = data.goals.find(g => g.id === m.goalId);
+            const val = data.weeklyLogs[m.goalId]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
+            const done = m.type === "checkbox" ? val : val >= m.target;
+            return (
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${done ? "#c5e8d8" : "#ebebeb"}` }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#333" }}>{m.title}</div>
+                  {g && <div className="inter" style={{ fontSize: 11, color: "#aaa", marginTop: 1 }}>{g.title}</div>}
+                </div>
+                {m.type === "checkbox" ? (
+                  <input type="checkbox" checked={!!val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} />
+                ) : (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <input type="number" value={val} min={0} style={{ width: 64, fontSize: 13 }} onChange={e => updateLog(m.goalId, m.id, Number(e.target.value))} />
+                    <span className="inter" style={{ fontSize: 11, color: "#888" }}>/ {m.target}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
