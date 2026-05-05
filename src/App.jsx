@@ -48,10 +48,11 @@ const INITIAL_DATA = {
   ],
   currentUser: "Pineapple guy",
   viewMode: "owner",
+  team: ["Collin","Jordan","Mia","Sam"],
 };
 
 const CATEGORIES = ["Memberships","Marketing","Community","Events","Retail","Operations","Staff","Retention","Partnerships"];
-const TEAM = ["Collin","Jordan","Mia","Sam"];
+const DEFAULT_TEAM = ["Collin","Jordan","Mia","Sam"];
 
 const sc = {
   "on-track":        { bg: "#EEFAF4", text: "#1E7A4A", bar: "#2ECC71", dot: "#2ECC71" },
@@ -84,6 +85,8 @@ export default function App() {
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
   const wigGoal = data.goals.reduce((a, b) => pct(b.current, b.target) < pct(a.current, a.target) ? b : a, data.goals[0]);
 
+  const TEAM = data.team || DEFAULT_TEAM;
+
   const navItems = [
     { key: "dashboard", label: "Home" },
     { key: "goals", label: "Goals" },
@@ -91,6 +94,7 @@ export default function App() {
     { key: "leads", label: "Lead Measures" },
     { key: "meetings", label: "Check-ins" },
     { key: "tasks", label: "Tasks" },
+    { key: "settings", label: "Settings" },
   ];
 
   return (
@@ -120,37 +124,64 @@ export default function App() {
         .metric { background: #f4f4f4; border-radius: 10px; padding: 18px 20px; }
         hr { border: none; border-top: 1px solid #ebebeb; margin: 18px 0; }
         @media(max-width:680px){ .g4{grid-template-columns:1fr 1fr!important} .g2{grid-template-columns:1fr!important} }
+        @media(max-width:680px){ .desktop-nav{ display: none !important; } .mobile-menu-btn{ display: flex !important; } }
+        @media(min-width:681px){ .mobile-menu-btn{ display: none !important; } .mobile-dropdown{ display: none !important; } }
       `}</style>
 
       {/* Header */}
-      <header style={{ background: "#fff", borderBottom: "1px solid #ebebeb", padding: "0 28px", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 42, width: "auto" }} />
-            <span className="inter" style={{ fontSize: 10, color: "#005764", background: "#e6f4f5", padding: "3px 9px", borderRadius: 99, fontWeight: 700, letterSpacing: "0.06em" }}>
+      <header style={{ background: "#fff", borderBottom: "1px solid #ebebeb", position: "sticky", top: 0, zIndex: 100 }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56, padding: "0 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 34, width: "auto" }} />
+            <span className="inter" style={{ fontSize: 10, color: "#005764", background: "#e6f4f5", padding: "2px 8px", borderRadius: 99, fontWeight: 700, letterSpacing: "0.06em" }}>
               {data.viewMode === "owner" ? "OWNER" : "STAFF"}
             </span>
           </div>
-          <nav style={{ display: "flex", alignItems: "center", gap: 0 }}>
+
+          {/* Desktop nav */}
+          <nav className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 0 }}>
             {navItems.map(item => (
               <button key={item.key} className={`nav-link${nav === item.key ? " active" : ""}`} onClick={() => setNav(item.key)}>{item.label}</button>
             ))}
-            <div style={{ width: 1, height: 18, background: "#e8e8e8", margin: "0 10px" }} />
+            <div style={{ width: 1, height: 18, background: "#e8e8e8", margin: "0 8px" }} />
             <button onClick={() => setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" }))}
               style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif", fontWeight: 500 }}>
               Switch view
             </button>
           </nav>
+
+          {/* Mobile hamburger */}
+          <button className="mobile-menu-btn" onClick={() => setMenuOpen(o => !o)}
+            style={{ display: "none", background: "none", border: "1px solid #e0e0e0", borderRadius: 8, padding: "6px 12px", cursor: "pointer", alignItems: "center", gap: 6, fontFamily: "Inter, sans-serif", fontSize: 13, color: "#333" }}>
+            <span style={{ fontSize: 16 }}>{menuOpen ? "✕" : "☰"}</span>
+          </button>
         </div>
+
+        {/* Mobile dropdown */}
+        {menuOpen && (
+          <div className="mobile-dropdown" style={{ borderTop: "1px solid #ebebeb", background: "#fff" }}>
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => { setNav(item.key); setMenuOpen(false); }}
+                style={{ display: "block", width: "100%", textAlign: "left", padding: "13px 20px", background: nav === item.key ? "#f0fafa" : "none", border: "none", borderBottom: "1px solid #f5f5f5", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: nav === item.key ? "#005764" : "#1a1a1a", fontWeight: nav === item.key ? 600 : 400 }}>
+                {item.label}
+              </button>
+            ))}
+            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setMenuOpen(false); }}
+              style={{ display: "block", width: "100%", textAlign: "left", padding: "13px 20px", background: "none", border: "none", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: "#005764", fontWeight: 500 }}>
+              Switch to {data.viewMode === "owner" ? "Staff" : "Owner"} view
+            </button>
+          </div>
+        )}
       </header>
 
-      <main style={{ maxWidth: 1080, margin: "0 auto", padding: "44px 28px" }}>
-        {nav === "dashboard"  && <Dashboard data={data} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} />}
-        {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} />}
+      <main style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 16px" }}>
+        {nav === "dashboard"  && <Dashboard data={data} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} />}
+        {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} />}
         {nav === "scoreboard" && <Scoreboard data={data} />}
         {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} />}
-        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} />}
-        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} />}
+        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} />}
+        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} />}
+        {nav === "settings"   && <Settings data={data} setData={setData} />}
       </main>
 
       <footer style={{ borderTop: "1px solid #ebebeb", padding: "28px", textAlign: "center", marginTop: 40 }}>
@@ -283,9 +314,18 @@ function Dashboard({ data, wigGoal: autoWig, setNav, updateGoal }) {
   );
 }
 
-function Goals({ data, setData, updateGoal }) {
+function Goals({ data, setData, updateGoal, TEAM }) {
   const [adding, setAdding] = useState(false);
   const [ng, setNg] = useState({ title: "", category: "Memberships", startDate: "", endDate: "", target: "", current: 0, owner: "Collin", team: [], status: "on-track", why: "", notes: "" });
+
+  const moveGoal = (idx, dir) => {
+    const goals = [...data.goals];
+    const swap = idx + dir;
+    if (swap < 0 || swap >= goals.length) return;
+    [goals[idx], goals[swap]] = [goals[swap], goals[idx]];
+    setData(d => ({ ...d, goals }));
+  };
+
   const save = () => {
     if (!ng.title || !ng.target) return;
     const id = Math.max(...data.goals.map(g => g.id)) + 1;
@@ -320,13 +360,25 @@ function Goals({ data, setData, updateGoal }) {
         </div>
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {data.goals.map(g => <GoalCard key={g.id} goal={g} updateGoal={updateGoal} onDelete={id => setData(d => ({ ...d, goals: d.goals.filter(g => g.id !== id) }))} />)}
+        {data.goals.map((g, idx) => (
+          <div key={g.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 14, flexShrink: 0 }}>
+              <button onClick={() => moveGoal(idx, -1)} disabled={idx === 0}
+                style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, width: 28, height: 28, cursor: idx === 0 ? "default" : "pointer", color: idx === 0 ? "#ddd" : "#555", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>↑</button>
+              <button onClick={() => moveGoal(idx, 1)} disabled={idx === data.goals.length - 1}
+                style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, width: 28, height: 28, cursor: idx === data.goals.length - 1 ? "default" : "pointer", color: idx === data.goals.length - 1 ? "#ddd" : "#555", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>↓</button>
+            </div>
+            <div style={{ flex: 1 }}>
+              <GoalCard goal={g} updateGoal={updateGoal} TEAM={TEAM} onDelete={id => setData(d => ({ ...d, goals: d.goals.filter(g => g.id !== id) }))} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function GoalCard({ goal: g, updateGoal, onDelete }) {
+function GoalCard({ goal: g, updateGoal, onDelete, TEAM }) {
   const [open, setOpen] = useState(false);
   const p = pct(g.current, g.target);
   const s = sc[g.status];
@@ -671,6 +723,62 @@ function Tasks({ data, updateTask, setData }) {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function Settings({ data, setData }) {
+  const team = data.team || ["Collin","Jordan","Mia","Sam"];
+
+  const updateName = (idx, val) => {
+    const next = [...team];
+    next[idx] = val;
+    setData(d => ({ ...d, team: next }));
+  };
+
+  const addPerson = () => setData(d => ({ ...d, team: [...(d.team || team), "New person"] }));
+  const removePerson = (idx) => {
+    const next = team.filter((_, i) => i !== idx);
+    setData(d => ({ ...d, team: next }));
+  };
+  const updateUser = (val) => setData(d => ({ ...d, currentUser: val }));
+
+  return (
+    <div>
+      <div style={{ marginBottom: 32 }}>
+        <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>Settings</h1>
+        <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 4, fontWeight: 500 }}>Manage your team and preferences.</p>
+      </div>
+
+      <div className="card" style={{ marginBottom: 20, maxWidth: 480 }}>
+        <div className="lbl">Your name</div>
+        <input type="text" value={data.currentUser} onChange={e => updateUser(e.target.value)}
+          style={{ marginBottom: 4 }} />
+        <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 4 }}>This is the name shown in the greeting and staff view.</div>
+      </div>
+
+      <div className="card" style={{ maxWidth: 480 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div className="lbl" style={{ marginBottom: 0 }}>Team members</div>
+          <button className="btn btn-teal" onClick={addPerson} style={{ padding: "6px 14px", fontSize: 12 }}>+ Add person</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {team.map((name, idx) => (
+            <div key={idx} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#e6f4f5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: "#005764", flexShrink: 0 }}>
+                {name.charAt(0).toUpperCase()}
+              </div>
+              <input type="text" value={name} onChange={e => updateName(idx, e.target.value)}
+                style={{ flex: 1, fontWeight: 500 }} />
+              <button onClick={() => removePerson(idx)}
+                style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 12 }}>These names appear in goal ownership, tasks, and check-ins.</div>
       </div>
     </div>
   );
