@@ -627,80 +627,261 @@ function LeadMeasures({ data, updateLog, setData, isOwner }) {
   const updateMeasure = (id, field, value) => setData(d => ({ ...d, leadMeasures: d.leadMeasures.map(m => m.id === id ? { ...m, [field]: value } : m) }));
   const deleteMeasure = (id) => setData(d => ({ ...d, leadMeasures: d.leadMeasures.filter(m => m.id !== id) }));
 
+  const allMeasures = data.leadMeasures.map(m => {
+    const val = data.weeklyLogs[m.goalId]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
+    const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
+    const progress = m.type === "checkbox" ? (done ? 100 : 0) : Math.min(100, Math.round((Number(val) / m.target) * 100));
+    return { ...m, val, done, progress };
+  });
+  const doneCount = allMeasures.filter(m => m.done).length;
+  const total = allMeasures.length;
+
   return (
     <div>
-      <div style={{ marginBottom: 32 }}>
-        <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>Lead Measures</h1>
-        <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 4 }}>The weekly actions that predict your results. Track these every week.</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 28 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 28, fontWeight: 600, color: "#111" }}>Lead Measures</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#666", marginTop: 3 }}>Weekly actions that move the needle. Update as you go.</p>
+        </div>
+        {total > 0 && (
+          <div style={{ textAlign: "right" }}>
+            <div className="lora" style={{ fontSize: 26, color: doneCount === total ? "#1E7A4A" : "#111" }}>{doneCount}<span style={{ fontSize: 16, color: "#aaa" }}>/{total}</span></div>
+            <div className="inter" style={{ fontSize: 11, color: "#aaa" }}>completed this week</div>
+          </div>
+        )}
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {data.goals.map(g => {
-          const measures = data.leadMeasures.filter(m => m.goalId === g.id);
-          const p = pct(g.current, g.target);
-          return (
-            <div key={g.id} className="card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                <div>
-                  <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a", marginBottom: 3 }}>{g.title}</div>
-                  <div className="inter" style={{ fontSize: 12, color: "#444" }}>{g.category} · {p}% complete</div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ textAlign: "right" }}>
-                    <div className="inter" style={{ fontSize: 12, color: "#444", marginBottom: 5 }}>{fmt(g.current)} / {fmt(g.target)}</div>
-                    <div className="pbar" style={{ width: 72 }}>
-                      <div className="pfill" style={{ width: `${p}%`, background: sc[g.status].bar }} />
+      {total > 0 && (
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ height: 6, background: "#f0f0f0", borderRadius: 99, overflow: "hidden" }}>
+            <div style={{ width: `${Math.round((doneCount/total)*100)}%`, height: "100%", background: "#005764", borderRadius: 99, transition: "width 0.5s ease" }} />
+          </div>
+          <div className="inter" style={{ fontSize: 11, color: "#aaa", marginTop: 6 }}>{Math.round((doneCount/total)*100)}% of this week's measures complete</div>
+        </div>
+      )}
+      {data.goals.map(g => {
+        const measures = allMeasures.filter(m => m.goalId === g.id);
+        if (!measures.length && !isOwner) return null;
+        return (
+          <div key={g.id} style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#005764", textTransform: "uppercase", letterSpacing: "0.07em" }}>{g.title}</div>
+              {isOwner && <button onClick={() => addMeasure(g.id)} style={{ background: "none", border: "1px solid #c8e8e8", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#005764", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
+            </div>
+            {measures.length === 0 && isOwner && (
+              <div style={{ padding: "12px 16px", background: "#f9f9f9", borderRadius: 8, border: "1px dashed #e0e0e0" }}>
+                <span className="inter" style={{ fontSize: 13, color: "#bbb" }}>No measures yet — click + Add</span>
+              </div>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {measures.map(m => (
+                <div key={m.id} style={{ background: m.done ? "#eefaf4" : "#fff", border: `1px solid ${m.done ? "#b8e8cc" : "#ebebeb"}`, borderRadius: 10, padding: "14px 16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: m.type === "number" ? 10 : 0 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: m.done ? "#2ECC71" : "#e0e0e0", flexShrink: 0 }} />
+                    {isOwner ? (
+                      <input type="text" value={m.title} onChange={e => updateMeasure(m.id, "title", e.target.value)}
+                        style={{ flex: 1, border: "none", padding: 0, fontSize: 14, fontWeight: 500, background: "transparent", fontFamily: "Inter, sans-serif", color: "#1a1a1a" }} />
+                    ) : (
+                      <span className="inter" style={{ flex: 1, fontSize: 14, fontWeight: 500, color: "#1a1a1a" }}>{m.title}</span>
+                    )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {m.type === "checkbox" ? (
+                        <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+                          <input type="checkbox" checked={!!m.val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} style={{ width: 18, height: 18 }} />
+                          <span className="inter" style={{ fontSize: 12, color: m.done ? "#1E7A4A" : "#888" }}>{m.done ? "Done!" : "Mark done"}</span>
+                        </label>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <input type="number" value={m.val} min={0} onChange={e => updateLog(m.goalId, m.id, Number(e.target.value))}
+                            style={{ width: 64, fontSize: 16, fontWeight: 700, textAlign: "center", border: "1px solid #e0e0e0", borderRadius: 8, padding: "4px 8px", color: m.done ? "#1E7A4A" : "#1a1a1a" }} />
+                          <span className="inter" style={{ fontSize: 12, color: "#aaa" }}>/ {m.target}</span>
+                        </div>
+                      )}
+                      {isOwner && <button onClick={() => deleteMeasure(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ddd", fontSize: 16, padding: "0 2px" }}>x</button>}
                     </div>
                   </div>
-                  {isOwner && <button className="btn btn-teal" onClick={() => addMeasure(g.id)} style={{ padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap" }}>+ Add</button>}
+                  {m.type === "number" && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ flex: 1, height: 4, background: "#f0f0f0", borderRadius: 99, overflow: "hidden" }}>
+                        <div style={{ width: `${m.progress}%`, height: "100%", background: m.done ? "#2ECC71" : "#005764", borderRadius: 99 }} />
+                      </div>
+                      <span className="inter" style={{ fontSize: 11, color: "#aaa", minWidth: 28 }}>{m.progress}%</span>
+                      {isOwner && (
+                        <input type="text" value={m.unit} onChange={e => updateMeasure(m.id, "unit", e.target.value)}
+                          style={{ border: "none", padding: 0, fontSize: 11, color: "#aaa", background: "transparent", width: 100, fontFamily: "Inter, sans-serif" }} placeholder="unit" />
+                      )}
+                    </div>
+                  )}
+                  {isOwner && (
+                    <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
+                      <select value={m.type} onChange={e => updateMeasure(m.id, "type", e.target.value)} style={{ fontSize: 11, width: "auto", color: "#888" }}>
+                        <option value="number">Number</option>
+                        <option value="checkbox">Checkbox</option>
+                      </select>
+                      {m.type === "number" && <input type="number" value={m.target} onChange={e => updateMeasure(m.id, "target", Number(e.target.value))} style={{ width: 60, fontSize: 11 }} placeholder="Target" />}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Meetings({ data, updateCommitment, setData, TEAM, isOwner }) {
+  const [adding, setAdding] = useState(false);
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({ date: new Date().toISOString().split("T")[0], wins: "", moved: "", didnt: "", ownerNotes: "", commitments: [] });
+
+  const save = () => {
+    if (!form.date) return;
+    const id = Math.max(...data.meetings.map(m => m.id), 0) + 1;
+    setData(d => ({ ...d, meetings: [...d.meetings, { ...form, id }] }));
+    setAdding(false); setStep(0);
+    setForm({ date: new Date().toISOString().split("T")[0], wins: "", moved: "", didnt: "", ownerNotes: "", commitments: [] });
+  };
+
+  const updateMeeting = (id, field, value) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === id ? { ...m, [field]: value } : m) }));
+  const deleteMeeting = (id) => { if (window.confirm("Delete?")) setData(d => ({ ...d, meetings: d.meetings.filter(m => m.id !== id) })); };
+  const updateCF = (mid, idx, f, v) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === mid ? { ...m, commitments: m.commitments.map((c, i) => i === idx ? { ...c, [f]: v } : c) } : m) }));
+  const addC = (mid) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === mid ? { ...m, commitments: [...(m.commitments||[]), { person: TEAM[0]||"Collin", commitment: "", due: "", done: false }] } : m) }));
+  const removeC = (mid, idx) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === mid ? { ...m, commitments: m.commitments.filter((_, i) => i !== idx) } : m) }));
+
+  const steps = [
+    { label: "Wins", prompt: "What went well last week?", field: "wins", placeholder: "Sold 8 memberships, great event..." },
+    { label: "What moved the goal?", prompt: "What actions drove real results?", field: "moved", placeholder: "Direct outreach, warm lead follow-ups..." },
+    { label: "What fell short?", prompt: "Be honest — what didn't happen?", field: "didnt", placeholder: "Instagram posts, business visits..." },
+    { label: "Commitments", prompt: "What is each person committing to?", field: "commitments" },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 28 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 28, fontWeight: 600, color: "#111" }}>Check-ins</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#666", marginTop: 3 }}>Weekly rhythm. Fast and honest.</p>
+        </div>
+        {isOwner && !adding && <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New Check-in</button>}
+      </div>
+
+      {adding && (
+        <div style={{ background: "#005764", borderRadius: 14, padding: "28px 32px", marginBottom: 28 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+            {steps.map((s, i) => (
+              <div key={i} style={{ flex: 1, height: 3, borderRadius: 99, background: i <= step ? "#5DCAA5" : "rgba(255,255,255,0.2)", cursor: "pointer" }} onClick={() => setStep(i)} />
+            ))}
+          </div>
+          <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>Step {step + 1} of {steps.length}</div>
+          <div className="lora" style={{ fontSize: 20, color: "#fff", fontStyle: "italic", marginBottom: 12 }}>{steps[step].prompt}</div>
+
+          {steps[step].field !== "commitments" ? (
+            <textarea rows={3} value={form[steps[step].field]} placeholder={steps[step].placeholder}
+              onChange={e => setForm(f => ({ ...f, [steps[step].field]: e.target.value }))}
+              style={{ width: "100%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "12px 14px", fontSize: 14, color: "#fff", fontFamily: "Inter, sans-serif", resize: "none", outline: "none" }} />
+          ) : (
+            <div>
+              {form.commitments.map((c, i) => (
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr auto", gap: 8, marginBottom: 8 }}>
+                  <select value={c.person} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, person: e.target.value } : x) }))}
+                    style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "8px 10px", fontSize: 13, color: "#fff", fontFamily: "Inter, sans-serif" }}>
+                    {TEAM.map(t => <option key={t} style={{ background: "#005764" }}>{t}</option>)}
+                  </select>
+                  <input value={c.commitment} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, commitment: e.target.value } : x) }))}
+                    placeholder="I commit to..." style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "8px 10px", fontSize: 13, color: "#fff", fontFamily: "Inter, sans-serif" }} />
+                  <button onClick={() => setForm(f => ({ ...f, commitments: f.commitments.filter((_, j) => j !== i) }))} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer" }}>x</button>
+                </div>
+              ))}
+              <button onClick={() => setForm(f => ({ ...f, commitments: [...f.commitments, { person: TEAM[0]||"Collin", commitment: "", due: "", done: false }] }))}
+                style={{ background: "rgba(255,255,255,0.1)", border: "1px dashed rgba(255,255,255,0.3)", borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, color: "rgba(255,255,255,0.7)", fontFamily: "Inter, sans-serif", width: "100%", marginTop: 4 }}>
+                + Add person
+              </button>
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 10, marginTop: 20, alignItems: "center" }}>
+            {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, padding: "10px 18px", cursor: "pointer", fontSize: 13, color: "#fff", fontFamily: "Inter, sans-serif" }}>Back</button>}
+            {step < steps.length - 1
+              ? <button onClick={() => setStep(s => s + 1)} style={{ background: "#5DCAA5", border: "none", borderRadius: 8, padding: "10px 24px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#004450", fontFamily: "Inter, sans-serif" }}>Next</button>
+              : <button onClick={save} style={{ background: "#5DCAA5", border: "none", borderRadius: 8, padding: "10px 24px", cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#004450", fontFamily: "Inter, sans-serif" }}>Save Check-in</button>
+            }
+            <button onClick={() => { setAdding(false); setStep(0); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "rgba(255,255,255,0.4)", fontFamily: "Inter, sans-serif", marginLeft: "auto" }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {[...data.meetings].reverse().map(m => {
+          const doneCount = (m.commitments||[]).filter(c => c.done).length;
+          const totalC = (m.commitments||[]).length;
+          return (
+            <div key={m.id} className="card">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+                <div>
+                  {isOwner ? (
+                    <input type="date" value={m.date} onChange={e => updateMeeting(m.id, "date", e.target.value)}
+                      style={{ border: "none", padding: 0, fontSize: 15, fontFamily: "Lora, Georgia, serif", fontStyle: "italic", fontWeight: 600, background: "transparent", color: "#111" }} />
+                  ) : (
+                    <div className="lora" style={{ fontSize: 15, fontStyle: "italic", fontWeight: 600, color: "#111" }}>{m.date}</div>
+                  )}
+                  {totalC > 0 && <div className="inter" style={{ fontSize: 12, color: doneCount === totalC ? "#1E7A4A" : "#888", marginTop: 2 }}>{doneCount}/{totalC} commitments done</div>}
+                </div>
+                {isOwner && <button onClick={() => deleteMeeting(m.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#ddd", fontFamily: "Inter, sans-serif" }}>Delete</button>}
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
+                {[
+                  { label: "Wins", field: "wins", color: "#eefaf4", border: "#c5e8d8", text: "#1E7A4A" },
+                  { label: "What worked", field: "moved", color: "#f0fafa", border: "#c8e8e8", text: "#005764" },
+                  { label: "Fell short", field: "didnt", color: "#fff8f0", border: "#f0d8c0", text: "#8B4A00" },
+                ].map(col => (
+                  <div key={col.field} style={{ background: col.color, border: `1px solid ${col.border}`, borderRadius: 8, padding: "10px 12px" }}>
+                    <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: col.text, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>{col.label}</div>
+                    {isOwner ? (
+                      <textarea rows={2} value={m[col.field] || ""} onChange={e => updateMeeting(m.id, col.field, e.target.value)} placeholder="Add notes..."
+                        style={{ width: "100%", background: "transparent", border: "none", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif", resize: "none", outline: "none", lineHeight: 1.5 }} />
+                    ) : (
+                      <p className="inter" style={{ fontSize: 12, color: "#444", lineHeight: 1.55, margin: 0 }}>{m[col.field] || "—"}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: "0.07em" }}>Commitments</span>
+                  {isOwner && <button onClick={() => addC(m.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#005764", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add</button>}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {(m.commitments||[]).map((c, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: c.done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${c.done ? "#c5e8d8" : "#f0f0f0"}` }}>
+                      <input type="checkbox" checked={c.done} onChange={e => updateCF(m.id, i, "done", e.target.checked)} style={{ width: 16, height: 16, flexShrink: 0 }} />
+                      {isOwner ? (
+                        <>
+                          <select value={c.person} onChange={e => updateCF(m.id, i, "person", e.target.value)} style={{ fontSize: 12, width: "auto", fontWeight: 600, border: "none", background: "transparent", color: "#333", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
+                          <input value={c.commitment} onChange={e => updateCF(m.id, i, "commitment", e.target.value)}
+                            style={{ flex: 1, border: "none", padding: 0, fontSize: 13, background: "transparent", textDecoration: c.done ? "line-through" : "none", color: c.done ? "#aaa" : "#333", fontFamily: "Inter, sans-serif" }} />
+                          <input type="date" value={c.due||""} onChange={e => updateCF(m.id, i, "due", e.target.value)} style={{ fontSize: 11, width: 120, color: "#888" }} />
+                          <button onClick={() => removeC(m.id, i)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ddd", fontSize: 16 }}>x</button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="inter" style={{ fontWeight: 600, fontSize: 13, color: "#333", minWidth: 60 }}>{c.person}</span>
+                          <span className="inter" style={{ flex: 1, fontSize: 13, color: c.done ? "#aaa" : "#444", textDecoration: c.done ? "line-through" : "none" }}>{c.commitment}</span>
+                          {c.due && <span className="inter" style={{ fontSize: 11, color: "#bbb" }}>{c.due}</span>}
+                        </>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-              {measures.length === 0 && (
-                <p className="inter" style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>No lead measures yet — click + Add to create one.</p>
-              )}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {measures.map(m => {
-                  const val = data.weeklyLogs[g.id]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
-                  const done = m.type === "checkbox" ? val : val >= m.target;
-                  return (
-                    <div key={m.id} style={{ background: done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${done ? "#c5e8d8" : "#f0f0f0"}`, padding: "10px 14px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
-                        {isOwner ? (
-                        <input type="text" value={m.title} onChange={e => updateMeasure(m.id, "title", e.target.value)}
-                          style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent", fontFamily: "Inter, sans-serif", color: "#333" }} />
-                      ) : (
-                        <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#333" }}>{m.title}</span>
-                      )}
-                      {isOwner && <button onClick={() => deleteMeasure(m.id)}
-                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", padding: "2px 6px", borderRadius: 4, flexShrink: 0 }}>Remove</button>}
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        {isOwner && <>
-                          <select value={m.type} onChange={e => updateMeasure(m.id, "type", e.target.value)} style={{ width: "auto", fontSize: 12 }}>
-                            <option value="number">Number</option>
-                            <option value="checkbox">Checkbox</option>
-                          </select>
-                          {m.type === "number" && (
-                            <>
-                              <input type="number" value={m.target} onChange={e => updateMeasure(m.id, "target", Number(e.target.value))} style={{ width: 64, fontSize: 12 }} placeholder="Target" />
-                              <input type="text" value={m.unit} onChange={e => updateMeasure(m.id, "unit", e.target.value)} style={{ width: 110, fontSize: 12 }} placeholder="Unit (e.g. visits/week)" />
-                            </>
-                          )}
-                        </>}
-                        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
-                          <span className="inter" style={{ fontSize: 11, color: "#444" }}>This week:</span>
-                          {m.type === "checkbox"
-                            ? <input type="checkbox" checked={!!val} onChange={e => updateLog(g.id, m.id, e.target.checked)} />
-                            : <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                <input type="number" value={val} min={0} style={{ width: 60, fontSize: 12 }} onChange={e => updateLog(g.id, m.id, Number(e.target.value))} />
-                                <span className="inter" style={{ fontSize: 11, color: "#444" }}>/ {m.target}</span>
-                              </div>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+
+              <div style={{ marginTop: 12, borderTop: "1px solid #f0f0f0", paddingTop: 12 }}>
+                <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#005764", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>Owner Note</div>
+                <textarea value={m.ownerNotes||""} onChange={e => updateMeeting(m.id, "ownerNotes", e.target.value)} placeholder="Add a note for the team..."
+                  rows={isOwner ? 2 : 1} readOnly={!isOwner}
+                  style={{ width: "100%", background: "transparent", border: "none", fontSize: 13, fontStyle: "italic", color: m.ownerNotes ? "#444" : "#bbb", fontFamily: "Lora, Georgia, serif", resize: "none", outline: "none", lineHeight: 1.6 }} />
               </div>
             </div>
           );
@@ -710,132 +891,80 @@ function LeadMeasures({ data, updateLog, setData, isOwner }) {
   );
 }
 
-function Meetings({ data, updateCommitment, setData, TEAM, isOwner }) {
-  const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ date: "", wins: "", moved: "", didnt: "", ownerNotes: "", followUp: "", commitments: [{ person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] });
-
-  const save = () => {
-    if (!form.date) return;
-    const id = Math.max(...data.meetings.map(m => m.id), 0) + 1;
-    setData(d => ({ ...d, meetings: [...d.meetings, { ...form, id }] }));
-    setAdding(false);
-    setForm({ date: "", wins: "", moved: "", didnt: "", ownerNotes: "", followUp: "", commitments: [{ person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] });
-  };
-
-  const updateMeeting = (id, field, value) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === id ? { ...m, [field]: value } : m) }));
-  const deleteMeeting = (id) => { if (window.confirm("Delete this check-in?")) setData(d => ({ ...d, meetings: d.meetings.filter(m => m.id !== id) })); };
-  const addCommitment = (meetingId) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === meetingId ? { ...m, commitments: [...m.commitments, { person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] } : m) }));
-  const removeCommitment = (meetingId, idx) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === meetingId ? { ...m, commitments: m.commitments.filter((_, i) => i !== idx) } : m) }));
-  const updateCommitmentField = (meetingId, idx, field, value) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === meetingId ? { ...m, commitments: m.commitments.map((c, i) => i === idx ? { ...c, [field]: value } : c) } : m) }));
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
-        <div>
-          <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>Weekly Check-ins</h1>
-          <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 4 }}>Wins, misses, and what we're committing to this week.</p>
-        </div>
-        {isOwner && <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New Check-in</button>}
-      </div>
-
-      {adding && (
-        <div className="card-teal" style={{ marginBottom: 20 }}>
-          <div className="lbl">New Check-in</div>
-          <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={{ maxWidth: 180, marginBottom: 10 }} />
-          <textarea placeholder="Wins from last week..." rows={2} value={form.wins} onChange={e => setForm(f => ({ ...f, wins: e.target.value }))} style={{ marginBottom: 8 }} />
-          <textarea placeholder="What moved the goal forward?" rows={2} value={form.moved} onChange={e => setForm(f => ({ ...f, moved: e.target.value }))} style={{ marginBottom: 8 }} />
-          <textarea placeholder="What didn't happen?" rows={2} value={form.didnt} onChange={e => setForm(f => ({ ...f, didnt: e.target.value }))} style={{ marginBottom: 14 }} />
-          <div className="lbl">Commitments This Week</div>
-          {form.commitments.map((c, i) => (
-            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 8, marginBottom: 8 }}>
-              <select value={c.person} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, person: e.target.value } : x) }))}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
-              <input placeholder="I'll..." value={c.commitment} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, commitment: e.target.value } : x) }))} />
-              <input type="date" value={c.due} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, due: e.target.value } : x) }))} />
-              <button onClick={() => setForm(f => ({ ...f, commitments: f.commitments.filter((_, j) => j !== i) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16 }}>✕</button>
-            </div>
-          ))}
-          <button className="btn" style={{ marginBottom: 14 }} onClick={() => setForm(f => ({ ...f, commitments: [...f.commitments, { person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] }))}>+ Add commitment</button>
-          <textarea placeholder="Owner notes..." rows={2} value={form.ownerNotes} onChange={e => setForm(f => ({ ...f, ownerNotes: e.target.value }))} style={{ marginBottom: 10 }} />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-teal" onClick={save}>Save</button>
-            <button className="btn" onClick={() => setAdding(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {[...data.meetings].reverse().map(m => (
-        <div key={m.id} className="card" style={{ marginBottom: 14 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#1a1a1a" }}>Check-in ·</span>
-              <input type="date" value={m.date} onChange={e => updateMeeting(m.id, "date", e.target.value)}
-                style={{ fontSize: 16, fontFamily: "Lora, Georgia, serif", fontStyle: "italic", border: "none", borderBottom: "1px solid #ddd", borderRadius: 0, padding: "2px 4px", background: "transparent", width: "auto", color: "#1a1a1a" }} />
-            </div>
-            {isOwner && <button onClick={() => deleteMeeting(m.id)} style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>Delete</button>}
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-            <div>
-              <div className="lbl">Wins from last week</div>
-              <textarea rows={2} value={m.wins || ""} onChange={e => updateMeeting(m.id, "wins", e.target.value)} placeholder="What went well?" style={{ background: m.wins ? "#eefaf4" : "#fff" }} />
-            </div>
-            <div>
-              <div className="lbl">What moved the goal forward?</div>
-              <textarea rows={2} value={m.moved || ""} onChange={e => updateMeeting(m.id, "moved", e.target.value)} placeholder="What worked?" />
-            </div>
-            <div>
-              <div className="lbl">What didn't happen?</div>
-              <textarea rows={2} value={m.didnt || ""} onChange={e => updateMeeting(m.id, "didnt", e.target.value)} placeholder="What fell short?" />
-            </div>
-          </div>
-
-          <hr />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <div className="lbl" style={{ marginBottom: 0 }}>Commitments</div>
-            <button className="btn" onClick={() => addCommitment(m.id)} style={{ padding: "4px 12px", fontSize: 12 }}>+ Add</button>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-            {m.commitments.map((c, i) => (
-              <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr 1fr auto auto", gap: 8, alignItems: "center" }}>
-                <input type="checkbox" checked={c.done} onChange={e => updateCommitmentField(m.id, i, "done", e.target.checked)} />
-                <select value={c.person} onChange={e => updateCommitmentField(m.id, i, "person", e.target.value)} style={{ fontSize: 12, width: "auto" }}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
-                <input value={c.commitment} onChange={e => updateCommitmentField(m.id, i, "commitment", e.target.value)}
-                  style={{ fontSize: 13, textDecoration: c.done ? "line-through" : "none" }} placeholder="Commitment..." />
-                <input type="date" value={c.due || ""} onChange={e => updateCommitmentField(m.id, i, "due", e.target.value)} style={{ fontSize: 11, width: 130 }} />
-                <button onClick={() => removeCommitment(m.id, i)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16, padding: "0 4px" }}>✕</button>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ background: "#f9f9f9", borderRadius: 8, padding: "14px 18px", borderLeft: "3px solid #005764" }}>
-            <div className="lbl" style={{ color: "#005764", marginBottom: 8 }}>Owner Note</div>
-            <textarea value={m.ownerNotes || ""} onChange={e => updateMeeting(m.id, "ownerNotes", e.target.value)}
-              placeholder="Add an owner note..." rows={3}
-              style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.7, color: "#333", background: "transparent", border: "none", padding: 0, resize: "vertical", outline: "none", width: "100%", fontFamily: "Lora, Georgia, serif" }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function Tasks({ data, updateTask, setData, TEAM, isOwner }) {
   const [filter, setFilter] = useState("all");
-  const tasks = filter === "all" ? data.tasks : data.tasks.filter(t => t.assignee === filter);
+  const today = new Date().toISOString().split("T")[0];
+  const oneWeek = new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
 
   const addTask = () => {
     const id = Math.max(...data.tasks.map(t => t.id), 0) + 1;
     setData(d => ({ ...d, tasks: [...d.tasks, { id, title: "New task", goalId: data.goals[0]?.id || 1, assignee: TEAM[0] || "Collin", due: "", priority: "medium", status: "todo", notes: "" }] }));
   };
-
   const deleteTask = (id) => setData(d => ({ ...d, tasks: d.tasks.filter(t => t.id !== id) }));
+
+  const allTasks = data.tasks.filter(t => filter === "all" || t.assignee === filter);
+  const open = allTasks.filter(t => t.status !== "done");
+  const done = allTasks.filter(t => t.status === "done");
+  const todayTasks = open.filter(t => t.due && t.due <= today);
+  const weekTasks  = open.filter(t => t.due && t.due > today && t.due <= oneWeek);
+  const laterTasks = open.filter(t => !t.due || t.due > oneWeek);
+
+  const TaskRow = ({ t }) => {
+    const goal = data.goals.find(g => g.id === t.goalId);
+    const isOverdue = t.due && t.due < today && t.status !== "done";
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: `1px solid ${isOverdue ? "#fdd" : "#ebebeb"}`, borderRadius: 10, opacity: t.status === "done" ? 0.45 : 1 }}>
+        <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} style={{ width: 18, height: 18, flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {isOwner ? (
+            <input type="text" value={t.title} onChange={e => updateTask(t.id, "title", e.target.value)}
+              style={{ border: "none", padding: 0, fontSize: 14, fontWeight: 600, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", color: "#1a1a1a", textDecoration: t.status === "done" ? "line-through" : "none" }} />
+          ) : (
+            <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a", textDecoration: t.status === "done" ? "line-through" : "none" }}>{t.title}</div>
+          )}
+          <div style={{ display: "flex", gap: 8, marginTop: 3, alignItems: "center" }}>
+            <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text, fontSize: 10 }}>{t.priority}</span>
+            {goal && <span className="inter" style={{ fontSize: 11, color: "#aaa" }}>{goal.title}</span>}
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          {isOwner ? (
+            <>
+              <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ fontSize: 12, width: "auto" }}>{TEAM.map(p => <option key={p}>{p}</option>)}</select>
+              <input type="date" value={t.due||""} onChange={e => updateTask(t.id, "due", e.target.value)} style={{ width: 120, fontSize: 12 }} />
+              <select value={t.priority} onChange={e => updateTask(t.id, "priority", e.target.value)} style={{ fontSize: 11, width: "auto" }}>
+                <option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+              </select>
+              <button onClick={() => deleteTask(t.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ddd", fontSize: 16 }}>x</button>
+            </>
+          ) : (
+            <>
+              <span className="inter" style={{ fontSize: 12, color: "#888" }}>{t.assignee}</span>
+              {t.due && <span className="inter" style={{ fontSize: 11, color: isOverdue ? "#C0392B" : "#bbb" }}>{t.due}</span>}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const Section = ({ label, tasks, accent }) => tasks.length === 0 ? null : (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+        <div style={{ width: 8, height: 8, borderRadius: "50%", background: accent, flexShrink: 0 }} />
+        <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#444", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
+        <span className="inter" style={{ fontSize: 12, color: "#bbb" }}>{tasks.length}</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{tasks.map(t => <TaskRow key={t.id} t={t} />)}</div>
+    </div>
+  );
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 28 }}>
         <div>
-          <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>Tasks</h1>
-          <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 4 }}>Connected to goals, owned by people.</p>
+          <h1 className="lora" style={{ fontSize: 28, fontWeight: 600, color: "#111" }}>Tasks</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#666", marginTop: 3 }}>{open.length} open · {done.length} done</p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
@@ -845,37 +974,16 @@ function Tasks({ data, updateTask, setData, TEAM, isOwner }) {
           {isOwner && <button className="btn btn-teal" onClick={addTask}>+ Task</button>}
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {tasks.map(t => {
-          const goal = data.goals.find(g => g.id === t.goalId);
-          return (
-            <div key={t.id} className="card" style={{ opacity: t.status === "done" ? 0.4 : 1, padding: "14px 20px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "20px 1fr auto auto", gap: 12, alignItems: "center" }}>
-                <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} />
-                <div>
-                  <input type="text" value={t.title} onChange={e => updateTask(t.id, "title", e.target.value)}
-                    style={{ border: "none", padding: 0, fontSize: 14, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", fontWeight: 600, color: "#1a1a1a", textDecoration: t.status === "done" ? "line-through" : "none" }} />
-                  <div style={{ display: "flex", gap: 8, marginTop: 4, alignItems: "center", flexWrap: "wrap" }}>
-                    <select value={t.goalId} onChange={e => updateTask(t.id, "goalId", Number(e.target.value))} style={{ fontSize: 11, width: "auto", color: "#444", border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
-                      {data.goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
-                    </select>
-                    <select value={t.priority} onChange={e => updateTask(t.id, "priority", e.target.value)} style={{ fontSize: 11, width: "auto" }}>
-                      <option value="high">High</option>
-                      <option value="medium">Medium</option>
-                      <option value="low">Low</option>
-                    </select>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                  <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ width: "auto", fontSize: 12 }}>{TEAM.map(p => <option key={p}>{p}</option>)}</select>
-                  <input type="date" value={t.due} onChange={e => updateTask(t.id, "due", e.target.value)} style={{ width: 130, fontSize: 12 }} />
-                </div>
-                {isOwner && <button onClick={() => deleteTask(t.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16, padding: "0 4px" }}>✕</button>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {open.length === 0 && <div style={{ textAlign: "center", padding: "40px 0" }}><div className="lora" style={{ fontSize: 20, color: "#bbb", fontStyle: "italic" }}>All clear!</div></div>}
+      <Section label="Overdue / Due Today" tasks={todayTasks} accent="#E74C3C" />
+      <Section label="This Week" tasks={weekTasks} accent="#F5A623" />
+      <Section label="Later" tasks={laterTasks} accent="#aaa" />
+      {done.length > 0 && (
+        <details style={{ marginTop: 8 }}>
+          <summary className="inter" style={{ fontSize: 12, color: "#bbb", cursor: "pointer", userSelect: "none", padding: "8px 0" }}>Show {done.length} completed</summary>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>{done.map(t => <TaskRow key={t.id} t={t} />)}</div>
+        </details>
+      )}
     </div>
   );
 }
