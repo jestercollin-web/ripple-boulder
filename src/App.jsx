@@ -94,6 +94,25 @@ export default function App() {
       setLoading(false);
     }
     load();
+
+    // Real-time subscription — picks up changes from any device
+    const channel = supabase
+      .channel('app_data_changes')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'app_data', filter: 'id=eq.1' },
+        (payload) => {
+          if (payload.new?.payload) {
+            setData(current => {
+              // Only update if the incoming data is different to avoid loops
+              const incoming = JSON.stringify(payload.new.payload);
+              const current_ = JSON.stringify(current);
+              return incoming !== current_ ? { ...INITIAL_DATA, ...payload.new.payload } : current;
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
   }, []);
 
   // Save to Supabase whenever data changes (debounced)
@@ -210,10 +229,10 @@ export default function App() {
       </header>
 
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 16px" }}>
-        {nav === "dashboard"  && <Dashboard data={data} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} />}
+        {nav === "dashboard"  && <Dashboard data={data} setData={setData} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} />}
         {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} />}
         {nav === "scoreboard" && <Scoreboard data={data} />}
-        {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} />}
+        {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} />}
         {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} />}
         {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} />}
         {nav === "settings"   && <Settings data={data} setData={setData} />}
@@ -226,14 +245,15 @@ export default function App() {
   );
 }
 
-function Dashboard({ data, wigGoal: autoWig, setNav, updateGoal }) {
+function Dashboard({ data, setData, wigGoal: autoWig, setNav, updateGoal, TEAM }) {
   const overallPct = Math.round(data.goals.reduce((s, g) => s + pct(g.current, g.target), 0) / data.goals.length);
   const onTrack   = data.goals.filter(g => g.status === "on-track").length;
   const atRisk    = data.goals.filter(g => g.status !== "on-track").length;
   const openTasks = data.tasks.filter(t => t.status !== "done").length;
   const lastMeeting = data.meetings[data.meetings.length - 1];
-  const [wigId, setWigId] = useState(autoWig.id);
+  const wigId = data.wigId || autoWig.id;
   const wigGoal = data.goals.find(g => g.id === wigId) || autoWig;
+  const setWigId = (id) => setData(d => ({ ...d, wigId: id }));
 
   return (
     <div>
@@ -575,7 +595,14 @@ function Scoreboard({ data }) {
   );
 }
 
-function LeadMeasures({ data, updateLog }) {
+function LeadMeasures({ data, updateLog, setData }) {
+  const addMeasure = (goalId) => {
+    const id = Math.max(...data.leadMeasures.map(m => m.id), 0) + 1;
+    setData(d => ({ ...d, leadMeasures: [...d.leadMeasures, { id, goalId, title: "New measure", type: "number", target: 1, unit: "per week" }] }));
+  };
+  const updateMeasure = (id, field, value) => setData(d => ({ ...d, leadMeasures: d.leadMeasures.map(m => m.id === id ? { ...m, [field]: value } : m) }));
+  const deleteMeasure = (id) => setData(d => ({ ...d, leadMeasures: d.leadMeasures.filter(m => m.id !== id) }));
+
   return (
     <div>
       <div style={{ marginBottom: 32 }}>
@@ -585,39 +612,62 @@ function LeadMeasures({ data, updateLog }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {data.goals.map(g => {
           const measures = data.leadMeasures.filter(m => m.goalId === g.id);
-          if (!measures.length) return null;
           const p = pct(g.current, g.target);
           return (
             <div key={g.id} className="card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                 <div>
                   <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a", marginBottom: 3 }}>{g.title}</div>
-                  <div className="inter" style={{ fontSize: 12, color: "#222" }}>{g.category} · {p}% complete</div>
+                  <div className="inter" style={{ fontSize: 12, color: "#444" }}>{g.category} · {p}% complete</div>
                 </div>
-                <div style={{ textAlign: "right" }}>
-                  <div className="inter" style={{ fontSize: 12, color: "#222", marginBottom: 5 }}>{fmt(g.current)} / {fmt(g.target)}</div>
-                  <div className="pbar" style={{ width: 72 }}>
-                    <div className="pfill" style={{ width: `${p}%`, background: sc[g.status].bar }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ textAlign: "right" }}>
+                    <div className="inter" style={{ fontSize: 12, color: "#444", marginBottom: 5 }}>{fmt(g.current)} / {fmt(g.target)}</div>
+                    <div className="pbar" style={{ width: 72 }}>
+                      <div className="pfill" style={{ width: `${p}%`, background: sc[g.status].bar }} />
+                    </div>
                   </div>
+                  <button className="btn btn-teal" onClick={() => addMeasure(g.id)} style={{ padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap" }}>+ Add</button>
                 </div>
               </div>
-              <hr />
+              {measures.length === 0 && (
+                <p className="inter" style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>No lead measures yet — click + Add to create one.</p>
+              )}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {measures.map(m => {
                   const val = data.weeklyLogs[g.id]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
                   const done = m.type === "checkbox" ? val : val >= m.target;
                   return (
-                    <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${done ? "#c5e8d8" : "#f0f0f0"}` }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
-                      <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#333" }}>{m.title}</span>
-                      <span className="inter" style={{ fontSize: 11, color: "#222" }}>{m.unit}</span>
-                      {m.type === "checkbox"
-                        ? <input type="checkbox" checked={!!val} onChange={e => updateLog(g.id, m.id, e.target.checked)} />
-                        : <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <input type="number" value={val} min={0} style={{ width: 60 }} onChange={e => updateLog(g.id, m.id, Number(e.target.value))} />
-                            <span className="inter" style={{ fontSize: 11, color: "#222" }}>/ {m.target}</span>
-                          </div>
-                      }
+                    <div key={m.id} style={{ background: done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${done ? "#c5e8d8" : "#f0f0f0"}`, padding: "10px 14px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
+                        <input type="text" value={m.title} onChange={e => updateMeasure(m.id, "title", e.target.value)}
+                          style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent", fontFamily: "Inter, sans-serif", color: "#333" }} />
+                        <button onClick={() => deleteMeasure(m.id)}
+                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", padding: "2px 6px", borderRadius: 4, flexShrink: 0 }}>Remove</button>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <select value={m.type} onChange={e => updateMeasure(m.id, "type", e.target.value)} style={{ width: "auto", fontSize: 12 }}>
+                          <option value="number">Number</option>
+                          <option value="checkbox">Checkbox</option>
+                        </select>
+                        {m.type === "number" && (
+                          <>
+                            <input type="number" value={m.target} onChange={e => updateMeasure(m.id, "target", Number(e.target.value))} style={{ width: 64, fontSize: 12 }} placeholder="Target" />
+                            <input type="text" value={m.unit} onChange={e => updateMeasure(m.id, "unit", e.target.value)} style={{ width: 110, fontSize: 12 }} placeholder="Unit (e.g. visits/week)" />
+                          </>
+                        )}
+                        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
+                          <span className="inter" style={{ fontSize: 11, color: "#444" }}>This week:</span>
+                          {m.type === "checkbox"
+                            ? <input type="checkbox" checked={!!val} onChange={e => updateLog(g.id, m.id, e.target.checked)} />
+                            : <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                <input type="number" value={val} min={0} style={{ width: 60, fontSize: 12 }} onChange={e => updateLog(g.id, m.id, Number(e.target.value))} />
+                                <span className="inter" style={{ fontSize: 11, color: "#444" }}>/ {m.target}</span>
+                              </div>
+                          }
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -630,15 +680,24 @@ function LeadMeasures({ data, updateLog }) {
   );
 }
 
-function Meetings({ data, updateCommitment, setData }) {
+function Meetings({ data, updateCommitment, setData, TEAM }) {
   const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ date: "", wins: "", moved: "", didnt: "", ownerNotes: "", followUp: "", commitments: [{ person: "Collin", commitment: "", due: "", done: false }] });
+  const [form, setForm] = useState({ date: "", wins: "", moved: "", didnt: "", ownerNotes: "", followUp: "", commitments: [{ person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] });
+
   const save = () => {
     if (!form.date) return;
     const id = Math.max(...data.meetings.map(m => m.id), 0) + 1;
     setData(d => ({ ...d, meetings: [...d.meetings, { ...form, id }] }));
     setAdding(false);
+    setForm({ date: "", wins: "", moved: "", didnt: "", ownerNotes: "", followUp: "", commitments: [{ person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] });
   };
+
+  const updateMeeting = (id, field, value) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === id ? { ...m, [field]: value } : m) }));
+  const deleteMeeting = (id) => { if (window.confirm("Delete this check-in?")) setData(d => ({ ...d, meetings: d.meetings.filter(m => m.id !== id) })); };
+  const addCommitment = (meetingId) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === meetingId ? { ...m, commitments: [...m.commitments, { person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] } : m) }));
+  const removeCommitment = (meetingId, idx) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === meetingId ? { ...m, commitments: m.commitments.filter((_, i) => i !== idx) } : m) }));
+  const updateCommitmentField = (meetingId, idx, field, value) => setData(d => ({ ...d, meetings: d.meetings.map(m => m.id === meetingId ? { ...m, commitments: m.commitments.map((c, i) => i === idx ? { ...c, [field]: value } : c) } : m) }));
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
@@ -648,6 +707,7 @@ function Meetings({ data, updateCommitment, setData }) {
         </div>
         <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New Check-in</button>
       </div>
+
       {adding && (
         <div className="card-teal" style={{ marginBottom: 20 }}>
           <div className="lbl">New Check-in</div>
@@ -657,13 +717,14 @@ function Meetings({ data, updateCommitment, setData }) {
           <textarea placeholder="What didn't happen?" rows={2} value={form.didnt} onChange={e => setForm(f => ({ ...f, didnt: e.target.value }))} style={{ marginBottom: 14 }} />
           <div className="lbl">Commitments This Week</div>
           {form.commitments.map((c, i) => (
-            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr", gap: 8, marginBottom: 8 }}>
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr auto", gap: 8, marginBottom: 8 }}>
               <select value={c.person} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, person: e.target.value } : x) }))}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
               <input placeholder="I'll..." value={c.commitment} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, commitment: e.target.value } : x) }))} />
               <input type="date" value={c.due} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, due: e.target.value } : x) }))} />
+              <button onClick={() => setForm(f => ({ ...f, commitments: f.commitments.filter((_, j) => j !== i) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16 }}>✕</button>
             </div>
           ))}
-          <button className="btn" style={{ marginBottom: 14 }} onClick={() => setForm(f => ({ ...f, commitments: [...f.commitments, { person: "Collin", commitment: "", due: "", done: false }] }))}>+ Add commitment</button>
+          <button className="btn" style={{ marginBottom: 14 }} onClick={() => setForm(f => ({ ...f, commitments: [...f.commitments, { person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] }))}>+ Add commitment</button>
           <textarea placeholder="Owner notes..." rows={2} value={form.ownerNotes} onChange={e => setForm(f => ({ ...f, ownerNotes: e.target.value }))} style={{ marginBottom: 10 }} />
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-teal" onClick={save}>Save</button>
@@ -671,43 +732,56 @@ function Meetings({ data, updateCommitment, setData }) {
           </div>
         </div>
       )}
+
       {[...data.meetings].reverse().map(m => (
         <div key={m.id} className="card" style={{ marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <span className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#1a1a1a" }}>Check-in ·</span>
-            <input type="date" value={m.date}
-              onChange={e => setData(d => ({ ...d, meetings: d.meetings.map(x => x.id === m.id ? { ...x, date: e.target.value } : x) }))}
-              style={{ fontSize: 16, fontFamily: "Lora, Georgia, serif", fontStyle: "italic", border: "none", borderBottom: "1px solid #ddd", borderRadius: 0, padding: "2px 4px", background: "transparent", width: "auto", color: "#1a1a1a" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#1a1a1a" }}>Check-in ·</span>
+              <input type="date" value={m.date} onChange={e => updateMeeting(m.id, "date", e.target.value)}
+                style={{ fontSize: 16, fontFamily: "Lora, Georgia, serif", fontStyle: "italic", border: "none", borderBottom: "1px solid #ddd", borderRadius: 0, padding: "2px 4px", background: "transparent", width: "auto", color: "#1a1a1a" }} />
+            </div>
+            <button onClick={() => deleteMeeting(m.id)} style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>Delete</button>
           </div>
-          {m.wins && <div style={{ background: "#eefaf4", border: "1px solid #c5e8d8", borderRadius: 8, padding: "10px 14px", marginBottom: 12 }}>
-            <span className="inter" style={{ fontSize: 13, color: "#1E7A4A" }}>🌱 {m.wins}</span>
-          </div>}
-          {m.moved && <p className="inter" style={{ fontSize: 13, color: "#222", marginBottom: 7, lineHeight: 1.65 }}><strong>What worked:</strong> {m.moved}</p>}
-          {m.didnt  && <p className="inter" style={{ fontSize: 13, color: "#222", marginBottom: 14, lineHeight: 1.65 }}><strong>What didn't:</strong> {m.didnt}</p>}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+            <div>
+              <div className="lbl">Wins from last week</div>
+              <textarea rows={2} value={m.wins || ""} onChange={e => updateMeeting(m.id, "wins", e.target.value)} placeholder="What went well?" style={{ background: m.wins ? "#eefaf4" : "#fff" }} />
+            </div>
+            <div>
+              <div className="lbl">What moved the goal forward?</div>
+              <textarea rows={2} value={m.moved || ""} onChange={e => updateMeeting(m.id, "moved", e.target.value)} placeholder="What worked?" />
+            </div>
+            <div>
+              <div className="lbl">What didn't happen?</div>
+              <textarea rows={2} value={m.didnt || ""} onChange={e => updateMeeting(m.id, "didnt", e.target.value)} placeholder="What fell short?" />
+            </div>
+          </div>
+
           <hr />
-          <div className="lbl">Commitments</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <div className="lbl" style={{ marginBottom: 0 }}>Commitments</div>
+            <button className="btn" onClick={() => addCommitment(m.id)} style={{ padding: "4px 12px", fontSize: 12 }}>+ Add</button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
             {m.commitments.map((c, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <input type="checkbox" checked={c.done} onChange={e => updateCommitment(m.id, i, "done", e.target.checked)} style={{ marginTop: 2 }} />
-                <span className="inter" style={{ fontSize: 13, color: c.done ? "#222" : "#333", textDecoration: c.done ? "line-through" : "none", flex: 1, lineHeight: 1.5 }}>
-                  <strong>{c.person}</strong> — {c.commitment}
-                </span>
-                {c.due && <input type="date" value={c.due}
-                  onChange={e => updateCommitment(m.id, i, "due", e.target.value)}
-                  style={{ fontSize: 11, color: "#555", border: "none", borderBottom: "1px solid #ddd", borderRadius: 0, padding: "1px 4px", background: "transparent", width: "auto", fontFamily: "Inter, sans-serif" }} />}
+              <div key={i} style={{ display: "grid", gridTemplateColumns: "auto 1fr 1fr auto auto", gap: 8, alignItems: "center" }}>
+                <input type="checkbox" checked={c.done} onChange={e => updateCommitmentField(m.id, i, "done", e.target.checked)} />
+                <select value={c.person} onChange={e => updateCommitmentField(m.id, i, "person", e.target.value)} style={{ fontSize: 12, width: "auto" }}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
+                <input value={c.commitment} onChange={e => updateCommitmentField(m.id, i, "commitment", e.target.value)}
+                  style={{ fontSize: 13, textDecoration: c.done ? "line-through" : "none" }} placeholder="Commitment..." />
+                <input type="date" value={c.due || ""} onChange={e => updateCommitmentField(m.id, i, "due", e.target.value)} style={{ fontSize: 11, width: 130 }} />
+                <button onClick={() => removeCommitment(m.id, i)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16, padding: "0 4px" }}>✕</button>
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 16, background: "#f9f9f9", borderRadius: 8, padding: "14px 18px", borderLeft: "3px solid #005764" }}>
+
+          <div style={{ background: "#f9f9f9", borderRadius: 8, padding: "14px 18px", borderLeft: "3px solid #005764" }}>
             <div className="lbl" style={{ color: "#005764", marginBottom: 8 }}>Owner Note</div>
-            <textarea
-              value={m.ownerNotes || ""}
-              onChange={e => setData(d => ({ ...d, meetings: d.meetings.map(x => x.id === m.id ? { ...x, ownerNotes: e.target.value } : x) }))}
-              placeholder="Add an owner note..."
-              rows={3}
-              style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.7, color: "#333", background: "transparent", border: "none", padding: 0, resize: "vertical", outline: "none", width: "100%", fontFamily: "Lora, Georgia, serif" }}
-            />
+            <textarea value={m.ownerNotes || ""} onChange={e => updateMeeting(m.id, "ownerNotes", e.target.value)}
+              placeholder="Add an owner note..." rows={3}
+              style={{ fontSize: 13, fontStyle: "italic", lineHeight: 1.7, color: "#333", background: "transparent", border: "none", padding: 0, resize: "vertical", outline: "none", width: "100%", fontFamily: "Lora, Georgia, serif" }} />
           </div>
         </div>
       ))}
@@ -715,13 +789,17 @@ function Meetings({ data, updateCommitment, setData }) {
   );
 }
 
-function Tasks({ data, updateTask, setData }) {
+function Tasks({ data, updateTask, setData, TEAM }) {
   const [filter, setFilter] = useState("all");
   const tasks = filter === "all" ? data.tasks : data.tasks.filter(t => t.assignee === filter);
+
   const addTask = () => {
     const id = Math.max(...data.tasks.map(t => t.id), 0) + 1;
-    setData(d => ({ ...d, tasks: [...d.tasks, { id, title: "New task", goalId: data.goals[0].id, assignee: "Collin", due: "", priority: "medium", status: "todo", notes: "" }] }));
+    setData(d => ({ ...d, tasks: [...d.tasks, { id, title: "New task", goalId: data.goals[0]?.id || 1, assignee: TEAM[0] || "Collin", due: "", priority: "medium", status: "todo", notes: "" }] }));
   };
+
+  const deleteTask = (id) => setData(d => ({ ...d, tasks: d.tasks.filter(t => t.id !== id) }));
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
@@ -741,19 +819,28 @@ function Tasks({ data, updateTask, setData }) {
         {tasks.map(t => {
           const goal = data.goals.find(g => g.id === t.goalId);
           return (
-            <div key={t.id} className="card" style={{ display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 14, alignItems: "center", opacity: t.status === "done" ? 0.4 : 1, padding: "14px 20px" }}>
-              <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} />
-              <div>
-                <input type="text" value={t.title} onChange={e => updateTask(t.id, "title", e.target.value)}
-                  style={{ border: "none", padding: 0, fontSize: 14, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", fontWeight: 600, color: "#1a1a1a", textDecoration: t.status === "done" ? "line-through" : "none" }} />
-                <div style={{ display: "flex", gap: 8, marginTop: 4, alignItems: "center" }}>
-                  {goal && <span className="inter" style={{ fontSize: 11, color: "#222" }}>{goal.title}</span>}
-                  <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text, fontSize: 10 }}>{t.priority}</span>
+            <div key={t.id} className="card" style={{ opacity: t.status === "done" ? 0.4 : 1, padding: "14px 20px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "20px 1fr auto auto", gap: 12, alignItems: "center" }}>
+                <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} />
+                <div>
+                  <input type="text" value={t.title} onChange={e => updateTask(t.id, "title", e.target.value)}
+                    style={{ border: "none", padding: 0, fontSize: 14, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", fontWeight: 600, color: "#1a1a1a", textDecoration: t.status === "done" ? "line-through" : "none" }} />
+                  <div style={{ display: "flex", gap: 8, marginTop: 4, alignItems: "center", flexWrap: "wrap" }}>
+                    <select value={t.goalId} onChange={e => updateTask(t.id, "goalId", Number(e.target.value))} style={{ fontSize: 11, width: "auto", color: "#444", border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
+                      {data.goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
+                    </select>
+                    <select value={t.priority} onChange={e => updateTask(t.id, "priority", e.target.value)} style={{ fontSize: 11, width: "auto" }}>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ width: "auto", fontSize: 12 }}>{TEAM.map(p => <option key={p}>{p}</option>)}</select>
-                <input type="date" value={t.due} onChange={e => updateTask(t.id, "due", e.target.value)} style={{ width: 130, fontSize: 12 }} />
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ width: "auto", fontSize: 12 }}>{TEAM.map(p => <option key={p}>{p}</option>)}</select>
+                  <input type="date" value={t.due} onChange={e => updateTask(t.id, "due", e.target.value)} style={{ width: 130, fontSize: 12 }} />
+                </div>
+                <button onClick={() => deleteTask(t.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16, padding: "0 4px" }}>✕</button>
               </div>
             </div>
           );
