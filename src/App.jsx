@@ -229,13 +229,19 @@ export default function App() {
       </header>
 
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 16px" }}>
-        {nav === "dashboard"  && <Dashboard data={data} setData={setData} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} />}
-        {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} />}
+        {nav === "dashboard"  && <Dashboard data={data} setData={setData} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
+        {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
         {nav === "scoreboard" && <Scoreboard data={data} />}
-        {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} />}
-        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} />}
-        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} />}
-        {nav === "settings"   && <Settings data={data} setData={setData} />}
+        {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} isOwner={data.viewMode === "owner"} />}
+        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
+        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={data.viewMode === "owner"} />}
+        {nav === "settings"   && data.viewMode === "owner" && <Settings data={data} setData={setData} />}
+        {nav === "settings"   && data.viewMode !== "owner" && (
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <div className="lora" style={{ fontSize: 22, color: "#888", fontStyle: "italic" }}>Settings are owner-only.</div>
+            <p className="inter" style={{ fontSize: 14, color: "#aaa", marginTop: 8 }}>Switch to Owner view to manage settings.</p>
+          </div>
+        )}
       </main>
 
       <footer style={{ borderTop: "1px solid #ebebeb", padding: "28px", textAlign: "center", marginTop: 40 }}>
@@ -369,7 +375,7 @@ function Dashboard({ data, setData, wigGoal: autoWig, setNav, updateGoal, TEAM }
   );
 }
 
-function Goals({ data, setData, updateGoal, TEAM }) {
+function Goals({ data, setData, updateGoal, TEAM, isOwner }) {
   const [adding, setAdding] = useState(false);
   const [ng, setNg] = useState({ title: "", category: "Memberships", startDate: "", endDate: "", target: "", current: 0, owner: "Collin", team: [], status: "on-track", why: "", notes: "" });
 
@@ -394,7 +400,7 @@ function Goals({ data, setData, updateGoal, TEAM }) {
           <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>Goals</h1>
           <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 4 }}>What we're working toward and why it matters.</p>
         </div>
-        <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New Goal</button>
+        <button className="btn btn-teal" onClick={() => setAdding(true)} style={{ display: isOwner ? "inline-block" : "none" }}>+ New Goal</button>
       </div>
       {adding && (
         <div className="card-teal" style={{ marginBottom: 20 }}>
@@ -417,14 +423,16 @@ function Goals({ data, setData, updateGoal, TEAM }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {data.goals.map((g, idx) => (
           <div key={g.id} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 14, flexShrink: 0 }}>
-              <button onClick={() => moveGoal(idx, -1)} disabled={idx === 0}
-                style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, width: 28, height: 28, cursor: idx === 0 ? "default" : "pointer", color: idx === 0 ? "#ddd" : "#555", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>↑</button>
-              <button onClick={() => moveGoal(idx, 1)} disabled={idx === data.goals.length - 1}
-                style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, width: 28, height: 28, cursor: idx === data.goals.length - 1 ? "default" : "pointer", color: idx === data.goals.length - 1 ? "#ddd" : "#555", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>↓</button>
-            </div>
+            {isOwner && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingTop: 14, flexShrink: 0 }}>
+                <button onClick={() => moveGoal(idx, -1)} disabled={idx === 0}
+                  style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, width: 28, height: 28, cursor: idx === 0 ? "default" : "pointer", color: idx === 0 ? "#ddd" : "#555", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>↑</button>
+                <button onClick={() => moveGoal(idx, 1)} disabled={idx === data.goals.length - 1}
+                  style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, width: 28, height: 28, cursor: idx === data.goals.length - 1 ? "default" : "pointer", color: idx === data.goals.length - 1 ? "#ddd" : "#555", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>↓</button>
+              </div>
+            )}
             <div style={{ flex: 1 }}>
-              <GoalCard goal={g} updateGoal={updateGoal} TEAM={TEAM} onDelete={id => setData(d => ({ ...d, goals: d.goals.filter(g => g.id !== id) }))} />
+              <GoalCard goal={g} updateGoal={updateGoal} TEAM={TEAM} isOwner={isOwner} onDelete={id => setData(d => ({ ...d, goals: d.goals.filter(g => g.id !== id) }))} />
             </div>
           </div>
         ))}
@@ -433,19 +441,21 @@ function Goals({ data, setData, updateGoal, TEAM }) {
   );
 }
 
-function GoalCard({ goal: g, updateGoal, onDelete, TEAM }) {
+function GoalCard({ goal: g, updateGoal, onDelete, TEAM, isOwner }) {
   const [open, setOpen] = useState(false);
   const p = pct(g.current, g.target);
   const s = sc[g.status];
   return (
-    <div className="card" style={{ cursor: "pointer" }} onClick={() => setOpen(o => !o)}>
+    <div className="card" style={{ cursor: isOwner ? "pointer" : "default" }} onClick={() => isOwner && setOpen(o => !o)}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
         <div style={{ flex: 1, paddingRight: 12 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4, flexWrap: "wrap" }}>
-            <input type="text" value={g.title}
-              onChange={e => updateGoal(g.id, "title", e.target.value)}
-              onClick={e => e.stopPropagation()}
-              style={{ border: "none", padding: 0, fontSize: 14, fontWeight: 600, color: "#1a1a1a", background: "transparent", fontFamily: "Inter, sans-serif", flex: 1, minWidth: 120 }} />
+            {isOwner ? (
+              <input type="text" value={g.title} onChange={e => updateGoal(g.id, "title", e.target.value)} onClick={e => e.stopPropagation()}
+                style={{ border: "none", padding: 0, fontSize: 14, fontWeight: 600, color: "#1a1a1a", background: "transparent", fontFamily: "Inter, sans-serif", flex: 1, minWidth: 120 }} />
+            ) : (
+              <span className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>{g.title}</span>
+            )}
             <span style={{ fontSize: 11, color: "#333", fontFamily: "Inter, sans-serif" }}>{g.category}</span>
           </div>
           <span className="inter" style={{ fontSize: 12, color: "#222" }}>
@@ -458,10 +468,12 @@ function GoalCard({ goal: g, updateGoal, onDelete, TEAM }) {
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
             {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Heads up" : "Off track"}
           </span>
-          <button onClick={e => { e.stopPropagation(); if (window.confirm("Delete this goal?")) onDelete(g.id); }}
-            style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 8px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>
-            Delete
-          </button>
+          {isOwner && (
+            <button onClick={e => { e.stopPropagation(); if (window.confirm("Delete this goal?")) onDelete(g.id); }}
+              style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 8px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>
+              Delete
+            </button>
+          )}
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -470,7 +482,7 @@ function GoalCard({ goal: g, updateGoal, onDelete, TEAM }) {
         </div>
         <span className="inter" style={{ fontSize: 13, color: "#222", fontWeight: 500, minWidth: 90, textAlign: "right" }}>{fmt(g.current)} / {fmt(g.target)}</span>
       </div>
-      {open && (
+      {isOwner && open && (
         <div onClick={e => e.stopPropagation()} style={{ marginTop: 18, paddingTop: 18, borderTop: "1px solid #f0f0f0" }}>
           <div style={{ marginBottom: 10 }}>
             <div className="lbl">Why this goal matters</div>
@@ -595,7 +607,7 @@ function Scoreboard({ data }) {
   );
 }
 
-function LeadMeasures({ data, updateLog, setData }) {
+function LeadMeasures({ data, updateLog, setData, isOwner }) {
   const addMeasure = (goalId) => {
     const id = Math.max(...data.leadMeasures.map(m => m.id), 0) + 1;
     setData(d => ({ ...d, leadMeasures: [...d.leadMeasures, { id, goalId, title: "New measure", type: "number", target: 1, unit: "per week" }] }));
@@ -627,7 +639,7 @@ function LeadMeasures({ data, updateLog, setData }) {
                       <div className="pfill" style={{ width: `${p}%`, background: sc[g.status].bar }} />
                     </div>
                   </div>
-                  <button className="btn btn-teal" onClick={() => addMeasure(g.id)} style={{ padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap" }}>+ Add</button>
+                  {isOwner && <button className="btn btn-teal" onClick={() => addMeasure(g.id)} style={{ padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap" }}>+ Add</button>}
                 </div>
               </div>
               {measures.length === 0 && (
@@ -641,22 +653,28 @@ function LeadMeasures({ data, updateLog, setData }) {
                     <div key={m.id} style={{ background: done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${done ? "#c5e8d8" : "#f0f0f0"}`, padding: "10px 14px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                         <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
+                        {isOwner ? (
                         <input type="text" value={m.title} onChange={e => updateMeasure(m.id, "title", e.target.value)}
                           style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent", fontFamily: "Inter, sans-serif", color: "#333" }} />
-                        <button onClick={() => deleteMeasure(m.id)}
-                          style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", padding: "2px 6px", borderRadius: 4, flexShrink: 0 }}>Remove</button>
+                      ) : (
+                        <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#333" }}>{m.title}</span>
+                      )}
+                      {isOwner && <button onClick={() => deleteMeasure(m.id)}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#C0392B", padding: "2px 6px", borderRadius: 4, flexShrink: 0 }}>Remove</button>}
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <select value={m.type} onChange={e => updateMeasure(m.id, "type", e.target.value)} style={{ width: "auto", fontSize: 12 }}>
-                          <option value="number">Number</option>
-                          <option value="checkbox">Checkbox</option>
-                        </select>
-                        {m.type === "number" && (
-                          <>
-                            <input type="number" value={m.target} onChange={e => updateMeasure(m.id, "target", Number(e.target.value))} style={{ width: 64, fontSize: 12 }} placeholder="Target" />
-                            <input type="text" value={m.unit} onChange={e => updateMeasure(m.id, "unit", e.target.value)} style={{ width: 110, fontSize: 12 }} placeholder="Unit (e.g. visits/week)" />
-                          </>
-                        )}
+                        {isOwner && <>
+                          <select value={m.type} onChange={e => updateMeasure(m.id, "type", e.target.value)} style={{ width: "auto", fontSize: 12 }}>
+                            <option value="number">Number</option>
+                            <option value="checkbox">Checkbox</option>
+                          </select>
+                          {m.type === "number" && (
+                            <>
+                              <input type="number" value={m.target} onChange={e => updateMeasure(m.id, "target", Number(e.target.value))} style={{ width: 64, fontSize: 12 }} placeholder="Target" />
+                              <input type="text" value={m.unit} onChange={e => updateMeasure(m.id, "unit", e.target.value)} style={{ width: 110, fontSize: 12 }} placeholder="Unit (e.g. visits/week)" />
+                            </>
+                          )}
+                        </>}
                         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
                           <span className="inter" style={{ fontSize: 11, color: "#444" }}>This week:</span>
                           {m.type === "checkbox"
@@ -680,7 +698,7 @@ function LeadMeasures({ data, updateLog, setData }) {
   );
 }
 
-function Meetings({ data, updateCommitment, setData, TEAM }) {
+function Meetings({ data, updateCommitment, setData, TEAM, isOwner }) {
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ date: "", wins: "", moved: "", didnt: "", ownerNotes: "", followUp: "", commitments: [{ person: TEAM[0] || "Collin", commitment: "", due: "", done: false }] });
 
@@ -705,7 +723,7 @@ function Meetings({ data, updateCommitment, setData, TEAM }) {
           <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>Weekly Check-ins</h1>
           <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 4 }}>Wins, misses, and what we're committing to this week.</p>
         </div>
-        <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New Check-in</button>
+        {isOwner && <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New Check-in</button>}
       </div>
 
       {adding && (
@@ -741,7 +759,7 @@ function Meetings({ data, updateCommitment, setData, TEAM }) {
               <input type="date" value={m.date} onChange={e => updateMeeting(m.id, "date", e.target.value)}
                 style={{ fontSize: 16, fontFamily: "Lora, Georgia, serif", fontStyle: "italic", border: "none", borderBottom: "1px solid #ddd", borderRadius: 0, padding: "2px 4px", background: "transparent", width: "auto", color: "#1a1a1a" }} />
             </div>
-            <button onClick={() => deleteMeeting(m.id)} style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>Delete</button>
+            {isOwner && <button onClick={() => deleteMeeting(m.id)} style={{ background: "none", border: "1px solid #eee", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#C0392B" }}>Delete</button>}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
@@ -789,7 +807,7 @@ function Meetings({ data, updateCommitment, setData, TEAM }) {
   );
 }
 
-function Tasks({ data, updateTask, setData, TEAM }) {
+function Tasks({ data, updateTask, setData, TEAM, isOwner }) {
   const [filter, setFilter] = useState("all");
   const tasks = filter === "all" ? data.tasks : data.tasks.filter(t => t.assignee === filter);
 
@@ -812,7 +830,7 @@ function Tasks({ data, updateTask, setData, TEAM }) {
             <option value="all">All team</option>
             {TEAM.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
-          <button className="btn btn-teal" onClick={addTask}>+ Task</button>
+          {isOwner && <button className="btn btn-teal" onClick={addTask}>+ Task</button>}
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -840,7 +858,7 @@ function Tasks({ data, updateTask, setData, TEAM }) {
                   <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ width: "auto", fontSize: 12 }}>{TEAM.map(p => <option key={p}>{p}</option>)}</select>
                   <input type="date" value={t.due} onChange={e => updateTask(t.id, "due", e.target.value)} style={{ width: 130, fontSize: 12 }} />
                 </div>
-                <button onClick={() => deleteTask(t.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16, padding: "0 4px" }}>✕</button>
+                {isOwner && <button onClick={() => deleteTask(t.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C0392B", fontSize: 16, padding: "0 4px" }}>✕</button>}
               </div>
             </div>
           );
