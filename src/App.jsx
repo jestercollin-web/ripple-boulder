@@ -337,7 +337,7 @@ export default function App() {
 
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "32px 16px" }}>
         {nav === "dashboard"  && <Dashboard data={data} setData={setData} wigGoal={wigGoal} setNav={setNav} updateGoal={updateGoal} TEAM={TEAM} isOwner={isOwner} />}
-        {nav === "staff_home" && <StaffHome data={data} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} />}
+        {nav === "staff_home" && <StaffHome data={data} updateLog={updateLog} updateTask={updateTask} setData={setData} TEAM={TEAM} />}
         {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "scoreboard" && <Scoreboard data={data} />}
         {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} isOwner={isOwner} />}
@@ -1197,104 +1197,213 @@ function Settings({ data, setData }) {
   );
 }
 
-function StaffHome({ data, updateLog, updateTask, TEAM }) {
-  const myTasks = data.tasks.filter(t => t.status !== "done");
-  const lastMeeting = data.meetings[data.meetings.length - 1];
-  const myCommitments = lastMeeting?.commitments || [];
+function StaffHome({ data, updateLog, updateTask, setData, TEAM }) {
+  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const dateStr = now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
+
   const wigId = data.wigId || data.goals[0]?.id;
   const wigGoal = data.goals.find(g => g.id === wigId) || data.goals[0];
 
+  // Ops tasks — daily only for front desk
+  const dailyOps = (data.opsTasks || []).filter(t => t.freq === "daily");
+  const dailyDone = dailyOps.filter(t => t.completions?.[today]).length;
+  const opsPct = dailyOps.length ? Math.round((dailyDone / dailyOps.length) * 100) : 0;
+
+  const toggleOps = (id) => {
+    setData(d => ({ ...d, opsTasks: d.opsTasks.map(t => t.id === id ? {
+      ...t, completions: { ...t.completions, [today]: t.completions?.[today] ? null : { at: new Date().toISOString(), by: d.currentUser } }
+    } : t) }));
+  };
+
+  // Project tasks
+  const openTasks = data.tasks.filter(t => t.status !== "done");
+
+  // Commitments
+  const lastMeeting = data.meetings[data.meetings.length - 1];
+  const commitments = lastMeeting?.commitments || [];
+
+  // Initials helper
+  const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
+  const avatarColors = ["#005764","#7B4F2E","#2E4F7B","#4F2E7B","#2E7B4F","#7B2E4F"];
+  const avatarColor = (name) => avatarColors[name?.charCodeAt(0) % avatarColors.length] || "#005764";
+
   return (
-    <div>
-      <div style={{ marginBottom: 28 }}>
-        <h1 className="lora" style={{ fontSize: 30, fontWeight: 600, color: "#111" }}>My Week</h1>
-        <p className="inter" style={{ fontSize: 14, color: "#555", marginTop: 4 }}>Here's what needs your attention this week.</p>
+    <div style={{ maxWidth: 680, margin: "0 auto" }}>
+
+      {/* Top greeting */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <h1 className="lora" style={{ fontSize: 26, fontWeight: 600, color: "#111", lineHeight: 1.2 }}>
+              Good {now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"} 👋
+            </h1>
+            <p className="inter" style={{ fontSize: 13, color: "#888", marginTop: 3 }}>{dateStr}</p>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div className="lora" style={{ fontSize: 22, color: "#005764" }}>{timeStr}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#aaa" }}>local time</div>
+          </div>
+        </div>
       </div>
 
-      {/* Score */}
+      {/* Score banner — compact */}
       {wigGoal && (
-        <div style={{ background: "#005764", borderRadius: 14, padding: "20px 24px", marginBottom: 20, color: "#fff" }}>
-          <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 8 }}>The Score Right Now</div>
-          <div className="lora" style={{ fontSize: 18, fontStyle: "italic", marginBottom: 12 }}>{wigGoal.title}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.15)", borderRadius: 99 }}>
-              <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#5DCAA5", borderRadius: 99 }} />
-            </div>
-            <span className="inter" style={{ fontSize: 14, color: "#5DCAA5", fontWeight: 700 }}>
-              {fmt(wigGoal.current)} / {fmt(wigGoal.target)} · {pct(wigGoal.current, wigGoal.target)}%
-            </span>
+        <div style={{ background: "#005764", borderRadius: 12, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 4 }}>The Score</div>
+            <div className="lora" style={{ fontSize: 15, color: "#fff", fontStyle: "italic" }}>{wigGoal.title}</div>
+          </div>
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div className="lora" style={{ fontSize: 22, color: "#5DCAA5" }}>{pct(wigGoal.current, wigGoal.target)}%</div>
+            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
           </div>
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-        {/* Tasks */}
-        <div className="card">
-          <div className="lbl">My Tasks</div>
-          {myTasks.length === 0 ? (
-            <p className="inter" style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>All caught up!</p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {myTasks.map(t => (
-                <div key={t.id} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                  <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} style={{ marginTop: 2 }} />
-                  <div>
-                    <div className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>{t.title}</div>
-                    <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center" }}>
-                      <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text, fontSize: 10 }}>{t.priority}</span>
-                      {t.due && <span className="inter" style={{ fontSize: 11, color: "#888" }}>Due {t.due}</span>}
-                    </div>
-                  </div>
-                </div>
-              ))}
+      {/* ── DAILY OPS TASKS — HERO SECTION ── */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 18 }}>☀️</span>
+            <span className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#111" }}>Today's Ops Tasks</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 80, height: 5, background: "#f0f0f0", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ width: `${opsPct}%`, height: "100%", background: opsPct === 100 ? "#2ECC71" : "#005764", borderRadius: 99, transition: "width 0.4s" }} />
             </div>
-          )}
+            <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: opsPct === 100 ? "#1E7A4A" : "#005764" }}>{dailyDone}/{dailyOps.length}</span>
+          </div>
         </div>
 
-        {/* Commitments */}
-        <div className="card">
-          <div className="lbl">This Week's Commitments</div>
-          {myCommitments.length === 0 ? (
-            <p className="inter" style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>No commitments yet.</p>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {myCommitments.map((c, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 12px", background: c.done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${c.done ? "#c5e8d8" : "#f0f0f0"}` }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.done ? "#2ECC71" : "#ddd", marginTop: 4, flexShrink: 0 }} />
-                  <div>
-                    <span className="inter" style={{ fontSize: 13, color: "#1a1a1a", fontWeight: 500 }}>{c.person}</span>
-                    <p className="inter" style={{ fontSize: 12, color: "#555", marginTop: 2, lineHeight: 1.5 }}>{c.commitment}</p>
-                    {c.due && <p className="inter" style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>Due {c.due}</p>}
-                  </div>
+        {opsPct === 100 && (
+          <div style={{ background: "#eefaf4", border: "1px solid #b8e8cc", borderRadius: 10, padding: "12px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 20 }}>✅</span>
+            <span className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1E7A4A" }}>All done for today — great shift!</span>
+          </div>
+        )}
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {dailyOps.map(t => {
+            const completion = t.completions?.[today];
+            const isDone = !!completion;
+            const assignees = t.assignee ? [t.assignee] : [];
+
+            return (
+              <div key={t.id}
+                style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", background: isDone ? "#eefaf4" : "#fff", border: `1.5px solid ${isDone ? "#b8e8cc" : "#ebebeb"}`, borderRadius: 12, transition: "all 0.2s", cursor: "pointer" }}
+                onClick={() => toggleOps(t.id)}>
+
+                {/* Big tap target circle */}
+                <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${isDone ? "#2ECC71" : "#d0d0d0"}`, background: isDone ? "#2ECC71" : "#fff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                  {isDone && <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5L5.5 9.5L12.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                 </div>
-              ))}
-            </div>
-          )}
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#aaa" : "#1a1a1a", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
+                  {t.desc && !isDone && <div className="inter" style={{ fontSize: 12, color: "#999", marginTop: 2, lineHeight: 1.4 }}>{t.desc}</div>}
+                  {isDone && completion.at && (
+                    <div className="inter" style={{ fontSize: 11, color: "#2ECC71", marginTop: 2 }}>
+                      Done {completion.by ? `by ${completion.by}` : ""} · {new Date(completion.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Assignee initials */}
+                <div style={{ display: "flex", gap: -4, flexShrink: 0 }}>
+                  {assignees.length > 0 ? assignees.map((a, i) => (
+                    <div key={i} title={a} style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(a), display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", marginLeft: i > 0 ? -8 : 0 }}>
+                      <span className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{initials(a)}</span>
+                    </div>
+                  )) : (
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#e0e0e0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span className="inter" style={{ fontSize: 10, color: "#aaa" }}>All</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Lead Measures quick update */}
-      <div className="card">
-        <div className="lbl">This Week's Lead Measures</div>
-        <p className="inter" style={{ fontSize: 12, color: "#888", marginBottom: 14 }}>Update your numbers for the week below.</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {data.leadMeasures.map(m => {
-            const g = data.goals.find(g => g.id === m.goalId);
-            const val = data.weeklyLogs[m.goalId]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
-            const done = m.type === "checkbox" ? val : val >= m.target;
-            return (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: done ? "#eefaf4" : "#fafafa", borderRadius: 8, border: `1px solid ${done ? "#c5e8d8" : "#ebebeb"}` }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
+      {/* ── PROJECT TASKS ── */}
+      {openTasks.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <span style={{ fontSize: 16 }}>📌</span>
+            <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>Open Tasks</span>
+            <span className="inter" style={{ fontSize: 12, color: "#aaa" }}>{openTasks.length}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {openTasks.map(t => (
+              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: "1px solid #ebebeb", borderRadius: 10 }}>
+                <input type="checkbox" checked={false} onChange={e => updateTask(t.id, "status", "done")}
+                  style={{ width: 20, height: 20, flexShrink: 0, accentColor: "#005764", cursor: "pointer" }} />
                 <div style={{ flex: 1 }}>
-                  <div className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#333" }}>{m.title}</div>
-                  {g && <div className="inter" style={{ fontSize: 11, color: "#aaa", marginTop: 1 }}>{g.title}</div>}
+                  <div className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>{t.title}</div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+                    <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text, fontSize: 10 }}>{t.priority}</span>
+                    {t.due && <span className="inter" style={{ fontSize: 11, color: "#aaa" }}>Due {t.due}</span>}
+                  </div>
                 </div>
+                {t.assignee && (
+                  <div title={t.assignee} style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(t.assignee), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{initials(t.assignee)}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── COMMITMENTS ── */}
+      {commitments.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <span style={{ fontSize: 16 }}>🤝</span>
+            <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>This Week's Commitments</span>
+            <span className="inter" style={{ fontSize: 12, color: "#aaa" }}>{commitments.filter(c => c.done).length}/{commitments.length} done</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {commitments.map((c, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: c.done ? "#eefaf4" : "#fff", border: `1px solid ${c.done ? "#c5e8d8" : "#ebebeb"}`, borderRadius: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 500, color: c.done ? "#aaa" : "#1a1a1a", textDecoration: c.done ? "line-through" : "none" }}>{c.commitment}</span>
+                </div>
+                <div title={c.person} style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(c.person), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{initials(c.person)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── LEAD MEASURES ── */}
+      <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 16 }}>📊</span>
+          <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#111" }}>Weekly Lead Measures</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {data.leadMeasures.map(m => {
+            const val = data.weeklyLogs[m.goalId]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
+            const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
+            return (
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: done ? "#eefaf4" : "#fff", border: `1px solid ${done ? "#c5e8d8" : "#ebebeb"}`, borderRadius: 10 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: done ? "#2ECC71" : "#ddd", flexShrink: 0 }} />
+                <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#333" }}>{m.title}</span>
                 {m.type === "checkbox" ? (
-                  <input type="checkbox" checked={!!val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} />
+                  <input type="checkbox" checked={!!val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} style={{ width: 20, height: 20, accentColor: "#005764", cursor: "pointer" }} />
                 ) : (
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <input type="number" value={val} min={0} style={{ width: 64, fontSize: 13 }} onChange={e => updateLog(m.goalId, m.id, Number(e.target.value))} />
-                    <span className="inter" style={{ fontSize: 11, color: "#888" }}>/ {m.target}</span>
+                    <input type="number" value={val} min={0} onChange={e => updateLog(m.goalId, m.id, Number(e.target.value))}
+                      style={{ width: 60, fontSize: 15, fontWeight: 700, textAlign: "center", border: "1px solid #e0e0e0", borderRadius: 8, padding: "4px 6px" }} />
+                    <span className="inter" style={{ fontSize: 12, color: "#aaa" }}>/ {m.target}</span>
                   </div>
                 )}
               </div>
