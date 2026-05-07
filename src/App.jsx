@@ -237,20 +237,15 @@ export default function App() {
     { key: "goals", label: "Goals" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "leads", label: "Lead Measures" },
-    { key: "meetings", label: "Check-ins" },
-    { key: "tasks", label: "Tasks" },
-    { key: "ops", label: "Ops" },
-    { key: "checklist", label: "Checklist" },
+    { key: "work", label: "Work" },
     { key: "settings", label: "Settings" },
   ];
 
   const staffNavItems = [
     { key: "staff_home", label: "My Week" },
-    { key: "ops", label: "Ops" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "leads", label: "Lead Measures" },
-    { key: "tasks", label: "Tasks" },
-    { key: "meetings", label: "Check-ins" },
+    { key: "work", label: "Work" },
   ];
 
   const navItems = isOwner ? ownerNavItems : staffNavItems;
@@ -346,10 +341,8 @@ export default function App() {
         {nav === "goals"      && <Goals data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "scoreboard" && <Scoreboard data={data} />}
         {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} isOwner={isOwner} />}
-        {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
-        {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
-        {nav === "checklist"  && <Checklist data={data} setData={setData} />}
-        {nav === "ops"        && <OpsTasksPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "work"       && <WorkPage data={data} setData={setData} updateTask={updateTask} updateCommitment={updateCommitment} TEAM={TEAM} isOwner={isOwner} />}
+        {nav === "settings"   && isOwner && <Settings data={data} setData={setData} />}
         {nav === "settings"   && !isOwner && (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div className="lora" style={{ fontSize: 22, color: "#888", fontStyle: "italic" }}>Settings are owner-only.</div>
@@ -1086,6 +1079,64 @@ function Tasks({ data, updateTask, setData, TEAM, isOwner }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>{done.map(t => <TaskRow key={t.id} t={t} />)}</div>
         </details>
       )}
+    </div>
+  );
+}
+
+function WorkPage({ data, setData, updateTask, updateCommitment, TEAM, isOwner }) {
+  const [tab, setTab] = useState("tasks");
+
+  const tabs = [
+    { key: "tasks",    label: "Tasks",      emoji: "✅" },
+    { key: "checkins", label: "Check-ins",  emoji: "💬" },
+    { key: "ops",      label: "Ops Tasks",  emoji: "🔁" },
+    { key: "checklist",label: "Checklist",  emoji: "📋" },
+  ];
+
+  // Quick stats for each tab
+  const today = new Date().toISOString().split("T")[0];
+  const openTasks = data.tasks.filter(t => t.status !== "done").length;
+  const lastMeeting = data.meetings[data.meetings.length - 1];
+  const commitsDone = (lastMeeting?.commitments || []).filter(c => c.done).length;
+  const commitsTotal = (lastMeeting?.commitments || []).length;
+  const weekKey = (() => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(d.setDate(diff)).toISOString().split("T")[0]; })();
+  const dailyOps = (data.opsTasks || []).filter(t => t.freq === "daily");
+  const dailyDone = dailyOps.filter(t => t.completions?.[today]).length;
+  const prePct = data.checklists?.preopen ? Math.round((data.checklists.preopen.filter(i => i.done).length / data.checklists.preopen.length) * 100) : 0;
+
+  const stats = {
+    tasks:     { label: `${openTasks} open`, color: openTasks > 0 ? "#F5A623" : "#2ECC71" },
+    checkins:  { label: commitsTotal ? `${commitsDone}/${commitsTotal} done` : "No check-in yet", color: "#005764" },
+    ops:       { label: `${dailyDone}/${dailyOps.length} today`, color: dailyDone === dailyOps.length ? "#2ECC71" : "#F5A623" },
+    checklist: { label: `${prePct}% complete`, color: prePct === 100 ? "#2ECC71" : "#005764" },
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 className="lora" style={{ fontSize: 28, fontWeight: 600, color: "#111" }}>Work</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#666", marginTop: 3 }}>Tasks, check-ins, ops, and opening checklist — all in one place.</p>
+      </div>
+
+      {/* Tab bar */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 28, overflowX: "auto", paddingBottom: 2 }}>
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, padding: "12px 18px", borderRadius: 12, border: `1.5px solid ${tab === t.key ? "#005764" : "#ebebeb"}`, background: tab === t.key ? "#005764" : "#fff", cursor: "pointer", flexShrink: 0, minWidth: 120, transition: "all 0.15s" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 16 }}>{t.emoji}</span>
+              <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: tab === t.key ? "#fff" : "#333" }}>{t.label}</span>
+            </div>
+            <span className="inter" style={{ fontSize: 11, color: tab === t.key ? "rgba(255,255,255,0.7)" : stats[t.key].color, fontWeight: 500 }}>{stats[t.key].label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      {tab === "tasks"     && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
+      {tab === "checkins"  && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
+      {tab === "ops"       && <OpsTasksPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+      {tab === "checklist" && <Checklist data={data} setData={setData} />}
     </div>
   );
 }
