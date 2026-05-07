@@ -177,6 +177,8 @@ const INITIAL_DATA = {
     { id: "oc45", category: "Safety & Readiness", item: "Insurance & liability verified", done: false, owner: "Collin", notes: "" },
     { id: "oc46", category: "Safety & Readiness", item: "Mock operating day completed", done: false, owner: "Collin", notes: "" },
   ],
+
+  contributions: {},
 };
 
 const sc = {
@@ -241,18 +243,20 @@ export default function App() {
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
 
   const ownerNav = [
-    { key: "home", label: "Home" },
-    { key: "ops", label: "Ops" },
-    { key: "goals", label: "Goals" },
-    { key: "work", label: "Work" },
-    { key: "opening", label: "Opening" },
-    { key: "settings", label: "Settings" },
+    { key: "home",       label: "Home" },
+    { key: "ops",        label: "Ops" },
+    { key: "scoreboard", label: "Scoreboard" },
+    { key: "goals",      label: "Goals" },
+    { key: "work",       label: "Work" },
+    { key: "opening",    label: "Opening" },
+    { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
-    { key: "ops",  label: "My Shift" },
-    { key: "home", label: "Home" },
-    { key: "goals", label: "Goals" },
-    { key: "work", label: "Work" },
+    { key: "ops",        label: "My Shift" },
+    { key: "scoreboard", label: "Scoreboard" },
+    { key: "home",       label: "Home" },
+    { key: "goals",      label: "Goals" },
+    { key: "work",       label: "Work" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
 
@@ -348,8 +352,9 @@ export default function App() {
         {nav === "ops"      && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"    && <GoalsPage data={data} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "work"     && <WorkPage data={data} setData={setData} updateTask={updateTask} isOwner={isOwner} TEAM={TEAM} />}
-        {nav === "opening"  && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
-        {nav === "settings" && isOwner && <SettingsPage data={data} setData={setData} />}
+        {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "scoreboard" && <ScoreboardPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
       <footer style={{ borderTop: "1px solid #EDE9E0", padding: "24px 20px", textAlign: "center", marginTop: 40 }}>
@@ -1398,6 +1403,289 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
 }
 
 // ── Settings Page ─────────────────────────────────────────────────────────────
+function ScoreboardPage({ data, setData, isOwner, TEAM }) {
+  const wk = weekKey();
+  const today = todayKey();
+  const wigGoal = data.goals.find(g => g.id === data.wigId) || data.goals[0];
+  const contributions = data.contributions || {};
+  const weekContribs = contributions[wk] || {};
+
+  const addAction = (person, text) => {
+    if (!text.trim()) return;
+    setData(d => {
+      const wkData = d.contributions?.[wk] || {};
+      const personData = wkData[person] || { actions: [], note: "" };
+      return {
+        ...d,
+        contributions: {
+          ...d.contributions,
+          [wk]: {
+            ...wkData,
+            [person]: {
+              ...personData,
+              actions: [...personData.actions, { text: text.trim(), timestamp: new Date().toISOString() }],
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const removeAction = (person, idx) => {
+    setData(d => {
+      const wkData = d.contributions?.[wk] || {};
+      const personData = wkData[person] || { actions: [], note: "" };
+      return {
+        ...d,
+        contributions: {
+          ...d.contributions,
+          [wk]: {
+            ...wkData,
+            [person]: {
+              ...personData,
+              actions: personData.actions.filter((_, i) => i !== idx),
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const updateNote = (person, note) => {
+    setData(d => {
+      const wkData = d.contributions?.[wk] || {};
+      const personData = wkData[person] || { actions: [], note: "" };
+      return {
+        ...d,
+        contributions: {
+          ...d.contributions,
+          [wk]: { ...wkData, [person]: { ...personData, note } }
+        }
+      };
+    });
+  };
+
+  // Count lead measures done by goal this week
+  const wigMeasures = data.leadMeasures.filter(m => m.goalId === wigGoal?.id);
+  const wigMeasuresDone = wigMeasures.filter(m => {
+    const val = data.weeklyLogs[m.goalId]?.[m.id];
+    return m.type === "checkbox" ? !!val : Number(val) >= m.target;
+  }).length;
+
+  // Ops completions this week per person
+  const opsCompletionsByPerson = {};
+  TEAM.forEach(p => { opsCompletionsByPerson[p] = 0; });
+  (data.opsTasks || []).forEach(t => {
+    const completion = t.completions?.[today];
+    if (completion?.by && opsCompletionsByPerson[completion.by] !== undefined) {
+      opsCompletionsByPerson[completion.by]++;
+    }
+  });
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#1C1C1A" }}>Scoreboard</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#9C9888", marginTop: 2 }}>Are we winning? Here's the honest picture — together.</p>
+      </div>
+
+      {/* WIG big score */}
+      {wigGoal && (
+        <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 16, padding: "28px 32px", marginBottom: 24, color: "#fff" }}>
+          <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", marginBottom: 8 }}>Wildly Important Goal</div>
+          <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#fff", marginBottom: 6 }}>{wigGoal.title}</div>
+          <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 20, lineHeight: 1.5 }}>{wigGoal.why}</div>
+
+          {/* Big number */}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 20, marginBottom: 16 }}>
+            <div>
+              <div className="lora" style={{ fontSize: 52, color: "#7DD3B8", lineHeight: 1 }}>{fmt(wigGoal.current)}</div>
+              <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>of {fmt(wigGoal.target)} goal</div>
+            </div>
+            <div style={{ flex: 1, paddingBottom: 12 }}>
+              <div style={{ height: 8, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden", marginBottom: 6 }}>
+                <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#7DD3B8", borderRadius: 99, transition: "width 0.6s" }} />
+              </div>
+              <div className="inter" style={{ fontSize: 13, color: "#7DD3B8", fontWeight: 700 }}>{pct(wigGoal.current, wigGoal.target)}% there</div>
+            </div>
+          </div>
+
+          {/* Weekly lead measures */}
+          {wigMeasures.length > 0 && (
+            <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 16px" }}>
+              <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>This week's key actions</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {wigMeasures.map(m => {
+                  const val = data.weeklyLogs[m.goalId]?.[m.id] ?? 0;
+                  const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
+                  return (
+                    <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 6, background: done ? "rgba(125,211,184,0.2)" : "rgba(255,255,255,0.08)", padding: "5px 12px", borderRadius: 99, border: `1px solid ${done ? "rgba(125,211,184,0.4)" : "rgba(255,255,255,0.1)"}` }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: done ? "#7DD3B8" : "rgba(255,255,255,0.3)", flexShrink: 0 }} />
+                      <span className="inter" style={{ fontSize: 12, color: done ? "#7DD3B8" : "rgba(255,255,255,0.6)" }}>
+                        {m.title} {m.type === "number" ? `· ${val}/${m.target}` : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* All goals summary */}
+      <div className="card" style={{ marginBottom: 24 }}>
+        <div className="sec-label">All Goals This Week</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {data.goals.map(g => {
+            const p = pct(g.current, g.target);
+            const s = sc[g.status];
+            return (
+              <div key={g.id}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#1C1C1A" }}>{g.title}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: s.text }}>{p}%</span>
+                    <span className="badge" style={{ background: s.bg, color: s.text }}>
+                      <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
+                      {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Watch" : "Off track"}
+                    </span>
+                  </div>
+                </div>
+                <div className="pbar">
+                  <div className="pfill" style={{ width: `${p}%`, background: s.bar }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Per-person scorecards */}
+      <div className="sec-label">Team This Week</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 24 }}>
+        {TEAM.map(person => {
+          const personData = weekContribs[person] || { actions: [], note: "" };
+          const opsCount = opsCompletionsByPerson[person] || 0;
+          const totalOps = (data.opsTasks || []).filter(t => ["opening","midday","closing"].includes(t.freq)).length;
+          const [input, setInput] = useState("");
+          const [showInput, setShowInput] = useState(false);
+
+          return (
+            <div key={person} style={{ background: "#fff", border: "1px solid #E8E6E0", borderRadius: 16, overflow: "hidden" }}>
+              {/* Person header */}
+              <div style={{ background: avatarColor(person), padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.4)", flexShrink: 0 }}>
+                  <span className="inter" style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>{initials(person)}</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="lora" style={{ fontSize: 18, color: "#fff", fontStyle: "italic" }}>{person}</div>
+                  <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>
+                    {personData.actions.length} contribution{personData.actions.length !== 1 ? "s" : ""} this week
+                    {opsCount > 0 ? ` · ${opsCount}/${totalOps} ops done today` : ""}
+                  </div>
+                </div>
+                {/* Ops mini score */}
+                <div style={{ textAlign: "right" }}>
+                  <div className="lora" style={{ fontSize: 22, color: "#fff", lineHeight: 1 }}>{opsCount}</div>
+                  <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.55)" }}>ops today</div>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div style={{ padding: "16px 20px" }}>
+                {/* Contributions list */}
+                {personData.actions.length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+                    {personData.actions.map((a, idx) => (
+                      <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 12px", background: "#F4F8F4", borderRadius: 8, border: "1px solid #DCF0DC" }}>
+                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#4CAF50", marginTop: 5, flexShrink: 0 }} />
+                        <span className="inter" style={{ flex: 1, fontSize: 13, color: "#1C1C1A", lineHeight: 1.5 }}>{a.text}</span>
+                        <span className="inter" style={{ fontSize: 10, color: "#B0C8B0", whiteSpace: "nowrap", marginTop: 2 }}>
+                          {new Date(a.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}
+                        </span>
+                        {isOwner && (
+                          <button onClick={() => removeAction(person, idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D4D0C8", fontSize: 14, padding: "0 2px", lineHeight: 1 }}>✕</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="inter" style={{ fontSize: 13, color: "#C4C0B4", fontStyle: "italic", marginBottom: 12 }}>
+                    Nothing logged yet this week — add something that moved the goal!
+                  </p>
+                )}
+
+                {/* Note from person */}
+                {(personData.note || isOwner) && (
+                  <div style={{ background: "#FDF9F4", border: "1px solid #E8E2D8", borderRadius: 8, padding: "10px 14px", marginBottom: 12 }}>
+                    <div className="sec-label" style={{ color: avatarColor(person), marginBottom: 4 }}>Note</div>
+                    <textarea
+                      value={personData.note || ""}
+                      onChange={e => updateNote(person, e.target.value)}
+                      readOnly={!isOwner}
+                      placeholder={isOwner ? `Add a note for ${person}...` : ""}
+                      rows={2}
+                      style={{ width: "100%", background: "transparent", border: "none", fontSize: 13, fontStyle: "italic", color: personData.note ? "#555" : "#C4C0B4", fontFamily: "Lora, serif", resize: "none", outline: "none", lineHeight: 1.6 }}
+                    />
+                  </div>
+                )}
+
+                {/* Add contribution */}
+                {showInput ? (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      autoFocus
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter" && input.trim()) { addAction(person, input); setInput(""); setShowInput(false); } if (e.key === "Escape") setShowInput(false); }}
+                      placeholder="What did you do to move the goal? (Enter to save)"
+                      style={{ flex: 1, fontSize: 13 }}
+                    />
+                    <button onClick={() => { if (input.trim()) { addAction(person, input); setInput(""); } setShowInput(false); }}
+                      className="btn btn-teal" style={{ padding: "7px 14px", flexShrink: 0 }}>Add</button>
+                    <button onClick={() => { setShowInput(false); setInput(""); }} className="btn" style={{ padding: "7px 10px", flexShrink: 0 }}>✕</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setShowInput(true)}
+                    style={{ background: "none", border: `1.5px dashed ${avatarColor(person)}40`, borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, color: avatarColor(person), fontFamily: "Inter, sans-serif", fontWeight: 500, width: "100%", textAlign: "center" }}>
+                    + Log a contribution for {person}
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Team ops summary today */}
+      <div className="card">
+        <div className="sec-label">Today's Ops — Team Summary</div>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          {TEAM.map(person => {
+            const count = opsCompletionsByPerson[person] || 0;
+            const totalOps = (data.opsTasks || []).filter(t => ["opening","midday","closing"].includes(t.freq)).length;
+            const p = totalOps ? Math.round((count / totalOps) * 100) : 0;
+            return (
+              <div key={person} style={{ flex: 1, minWidth: 140, background: "#FAFAF8", border: "1px solid #E8E6E0", borderRadius: 12, padding: "14px 16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <Avatar name={person} size={28} />
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1C1C1A" }}>{person}</span>
+                </div>
+                <div className="pbar" style={{ marginBottom: 5 }}>
+                  <div className="pfill" style={{ width: `${p}%`, background: p === 100 ? "#4CAF50" : avatarColor(person) }} />
+                </div>
+                <div className="inter" style={{ fontSize: 12, color: "#9C9888" }}>{count} / {totalOps} tasks</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SettingsPage({ data, setData }) {
   const team = data.team || TEAM;
   const updateName = (idx, val) => { const next = [...team]; next[idx] = val; setData(d => ({ ...d, team: next })); };
