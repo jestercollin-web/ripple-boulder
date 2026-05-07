@@ -1694,28 +1694,59 @@ function SettingsPage({ data, setData }) {
   const addPerson = () => setData(d => ({ ...d, team: [...(d.team||TEAM), "New person"] }));
   const removePerson = (idx) => setData(d => ({ ...d, team: (d.team||TEAM).filter((_, i) => i !== idx) }));
 
+  const inputStyle = {
+    flex: 1,
+    fontWeight: 500,
+    fontSize: 14,
+    color: "#1C1C1A",
+    background: "#F8F7F4",
+    border: "1px solid #E0DDD6",
+    borderRadius: 9,
+    padding: "10px 14px",
+    fontFamily: "Inter, sans-serif",
+    outline: "none",
+    WebkitTextFillColor: "#1C1C1A",
+    WebkitBoxShadow: "0 0 0px 1000px #F8F7F4 inset",
+    transition: "border-color 0.12s",
+  };
+
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#1C1C1A" }}>Settings</h1>
         <p className="inter" style={{ fontSize: 13, color: "#9C9888", marginTop: 2 }}>Manage your team and preferences.</p>
       </div>
+
       <div className="card" style={{ maxWidth: 480, marginBottom: 16 }}>
         <div className="sec-label">Your name</div>
-        <input value={data.currentUser} onChange={e => setData(d => ({ ...d, currentUser: e.target.value }))} style={{ marginBottom: 4 }} />
-        <p className="inter" style={{ fontSize: 11, color: "#9C9888", marginTop: 4 }}>Shown in greetings and the staff view.</p>
+        <input
+          value={data.currentUser}
+          onChange={e => setData(d => ({ ...d, currentUser: e.target.value }))}
+          autoComplete="off"
+          style={{ ...inputStyle, marginBottom: 4 }}
+        />
+        <p className="inter" style={{ fontSize: 11, color: "#9C9888", marginTop: 6 }}>Shown in greetings and the staff view.</p>
       </div>
+
       <div className="card" style={{ maxWidth: 480 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div className="sec-label" style={{ marginBottom: 0 }}>Team members</div>
           <button className="btn btn-teal" onClick={addPerson} style={{ padding: "6px 14px", fontSize: 12 }}>+ Add</button>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {team.map((name, idx) => (
             <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <Avatar name={name} size={32} />
-              <input value={name} onChange={e => updateName(idx, e.target.value)} style={{ flex: 1, fontWeight: 500 }} />
-              <button onClick={() => removePerson(idx)} style={{ background: "none", border: "1px solid #EDE9E0", borderRadius: 7, padding: "5px 10px", cursor: "pointer", fontSize: 12, color: "#C62828", fontFamily: "Inter, sans-serif" }}>Remove</button>
+              <Avatar name={name} size={36} />
+              <input
+                value={name}
+                onChange={e => updateName(idx, e.target.value)}
+                autoComplete="off"
+                style={inputStyle}
+              />
+              <button onClick={() => removePerson(idx)}
+                style={{ background: "#FFF0F0", border: "1px solid #FFCDD2", borderRadius: 8, padding: "8px 13px", cursor: "pointer", fontSize: 13, color: "#C62828", fontFamily: "Inter, sans-serif", fontWeight: 500, flexShrink: 0 }}>
+                Remove
+              </button>
             </div>
           ))}
         </div>
