@@ -277,8 +277,9 @@ export default function App() {
         .pbar { height: 5px; border-radius: 99px; background: #EDE9E0; overflow: hidden; }
         .pfill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 0.01em; }
-        input[type=text], input[type=number], input[type=date], select, textarea { border: 1px solid #D8D4CC; border-radius: 9px; padding: 8px 11px; font-family: 'Inter', sans-serif; font-size: 13px; background: #fff; color: #1C1C1A; outline: none; width: 100%; }
+        input[type=text], input[type=number], input[type=date], select, textarea { border: 1px solid #D8D4CC; border-radius: 9px; padding: 8px 11px; font-family: 'Inter', sans-serif; font-size: 13px; background: #fff; color: #1C1C1A; outline: none; width: 100%; -webkit-text-fill-color: #1C1C1A; }
         input:focus, select:focus, textarea:focus { border-color: #1A5F6A; box-shadow: 0 0 0 3px rgba(26,95,106,0.1); }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0px 1000px #fff inset !important; -webkit-text-fill-color: #1C1C1A !important; border-color: #D8D4CC; }
         input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; accent-color: #1A5F6A; flex-shrink: 0; }
         .sec-label { font-size: 10px; font-family: 'Inter', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9C9888; margin-bottom: 10px; }
         hr.divider { border: none; border-top: 1px solid #EDE9E0; margin: 16px 0; }
