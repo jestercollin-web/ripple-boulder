@@ -1206,14 +1206,23 @@ function StaffHome({ data, updateLog, updateTask, setData, TEAM }) {
   const wigId = data.wigId || data.goals[0]?.id;
   const wigGoal = data.goals.find(g => g.id === wigId) || data.goals[0];
 
+  const [picker, setPicker] = useState(null); // task id showing picker
+
   // Ops tasks — daily only for front desk
   const dailyOps = (data.opsTasks || []).filter(t => t.freq === "daily");
   const dailyDone = dailyOps.filter(t => t.completions?.[today]).length;
   const opsPct = dailyOps.length ? Math.round((dailyDone / dailyOps.length) * 100) : 0;
 
-  const toggleOps = (id) => {
+  const completeOps = (id, person) => {
     setData(d => ({ ...d, opsTasks: d.opsTasks.map(t => t.id === id ? {
-      ...t, completions: { ...t.completions, [today]: t.completions?.[today] ? null : { at: new Date().toISOString(), by: d.currentUser } }
+      ...t, completions: { ...t.completions, [today]: { at: new Date().toISOString(), by: person } }
+    } : t) }));
+    setPicker(null);
+  };
+
+  const uncompleteOps = (id) => {
+    setData(d => ({ ...d, opsTasks: d.opsTasks.map(t => t.id === id ? {
+      ...t, completions: { ...t.completions, [today]: null }
     } : t) }));
   };
 
@@ -1288,40 +1297,74 @@ function StaffHome({ data, updateLog, updateTask, setData, TEAM }) {
           {dailyOps.map(t => {
             const completion = t.completions?.[today];
             const isDone = !!completion;
+            const isPickerOpen = picker === t.id;
             const assignees = t.assignee ? [t.assignee] : [];
 
             return (
-              <div key={t.id}
-                style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", background: isDone ? "#eefaf4" : "#fff", border: `1.5px solid ${isDone ? "#b8e8cc" : "#ebebeb"}`, borderRadius: 12, transition: "all 0.2s", cursor: "pointer" }}
-                onClick={() => toggleOps(t.id)}>
+              <div key={t.id} style={{ background: isDone ? "#eefaf4" : "#fff", border: `1.5px solid ${isPickerOpen ? "#005764" : isDone ? "#b8e8cc" : "#ebebeb"}`, borderRadius: 12, overflow: "hidden", transition: "all 0.2s" }}>
+                {/* Main row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
+                  {/* Checkbox — tap to open picker if not done, tap to undo if done */}
+                  <button
+                    onClick={() => isDone ? uncompleteOps(t.id) : setPicker(isPickerOpen ? null : t.id)}
+                    style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${isDone ? "#2ECC71" : isPickerOpen ? "#005764" : "#d0d0d0"}`, background: isDone ? "#2ECC71" : isPickerOpen ? "#e6f4f5" : "#fff", flexShrink: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                    {isDone
+                      ? <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5L5.5 9.5L12.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      : <div style={{ width: 8, height: 8, borderRadius: "50%", background: isPickerOpen ? "#005764" : "#e0e0e0" }} />
+                    }
+                  </button>
 
-                {/* Big tap target circle */}
-                <div style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${isDone ? "#2ECC71" : "#d0d0d0"}`, background: isDone ? "#2ECC71" : "#fff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
-                  {isDone && <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M1.5 5.5L5.5 9.5L12.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#aaa" : "#1a1a1a", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
+                    {t.desc && !isDone && !isPickerOpen && <div className="inter" style={{ fontSize: 12, color: "#999", marginTop: 2, lineHeight: 1.4 }}>{t.desc}</div>}
+                    {isDone && completion?.at && (
+                      <div className="inter" style={{ fontSize: 11, color: "#2ECC71", marginTop: 2 }}>
+                        ✓ {completion.by || "Done"} · {new Date(completion.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    )}
+                    {isPickerOpen && <div className="inter" style={{ fontSize: 12, color: "#005764", marginTop: 2, fontWeight: 600 }}>Who completed this?</div>}
+                  </div>
+
+                  {/* Assignee initials or completion avatar */}
+                  {isDone && completion?.by ? (
+                    <div title={completion.by} style={{ width: 32, height: 32, borderRadius: "50%", background: avatarColor(completion.by), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "2px solid #fff", boxShadow: "0 0 0 2px #2ECC71" }}>
+                      <span className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{initials(completion.by)}</span>
+                    </div>
+                  ) : !isPickerOpen && assignees.length > 0 ? (
+                    <div style={{ display: "flex" }}>
+                      {assignees.map((a, i) => (
+                        <div key={i} title={a} style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(a), display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", marginLeft: i > 0 ? -8 : 0 }}>
+                          <span className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{initials(a)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : !isPickerOpen ? (
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 14 }}>👤</span>
+                    </div>
+                  ) : null}
                 </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#aaa" : "#1a1a1a", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
-                  {t.desc && !isDone && <div className="inter" style={{ fontSize: 12, color: "#999", marginTop: 2, lineHeight: 1.4 }}>{t.desc}</div>}
-                  {isDone && completion.at && (
-                    <div className="inter" style={{ fontSize: 11, color: "#2ECC71", marginTop: 2 }}>
-                      Done {completion.by ? `by ${completion.by}` : ""} · {new Date(completion.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Assignee initials */}
-                <div style={{ display: "flex", gap: -4, flexShrink: 0 }}>
-                  {assignees.length > 0 ? assignees.map((a, i) => (
-                    <div key={i} title={a} style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(a), display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", marginLeft: i > 0 ? -8 : 0 }}>
-                      <span className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{initials(a)}</span>
-                    </div>
-                  )) : (
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#e0e0e0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span className="inter" style={{ fontSize: 10, color: "#aaa" }}>All</span>
-                    </div>
-                  )}
-                </div>
+                {/* Initials picker — slides open */}
+                {isPickerOpen && (
+                  <div style={{ padding: "0 16px 14px", display: "flex", gap: 8, flexWrap: "wrap", borderTop: "1px solid #e6f4f5", paddingTop: 12 }}>
+                    {TEAM.map(person => (
+                      <button key={person} onClick={() => completeOps(t.id, person)}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 99, border: "1.5px solid #005764", background: "#fff", cursor: "pointer", transition: "all 0.1s" }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "#005764"; e.currentTarget.querySelectorAll("*").forEach(el => el.style.color = "#fff"); }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.querySelector(".name").style.color = "#005764"; e.currentTarget.querySelector(".av").style.color = "#fff"; }}>
+                        <div className="av" style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(person), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <span className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{initials(person)}</span>
+                        </div>
+                        <span className="inter name" style={{ fontSize: 13, fontWeight: 600, color: "#005764" }}>{person}</span>
+                      </button>
+                    ))}
+                    <button onClick={() => setPicker(null)}
+                      style={{ padding: "8px 14px", borderRadius: 99, border: "1.5px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#aaa", fontFamily: "Inter, sans-serif" }}>
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
