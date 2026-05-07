@@ -1634,22 +1634,23 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
 
                 {/* Add contribution */}
                 {showInput ? (
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <input
                       autoFocus
                       value={input}
                       onChange={e => setInput(e.target.value)}
                       onKeyDown={e => { if (e.key === "Enter" && input.trim()) { addAction(person, input); setInput(""); setShowInput(false); } if (e.key === "Escape") setShowInput(false); }}
-                      placeholder="What did you do to move the goal? (Enter to save)"
-                      style={{ flex: 1, fontSize: 13 }}
+                      placeholder="What did you do to move the goal?"
+                      style={{ flex: 1, fontSize: 14, color: "#1C1C1A", background: "#fff", border: "2px solid " + avatarColor(person), borderRadius: 9, padding: "10px 13px", fontFamily: "Inter, sans-serif", outline: "none", fontWeight: 500 }}
                     />
                     <button onClick={() => { if (input.trim()) { addAction(person, input); setInput(""); } setShowInput(false); }}
-                      className="btn btn-teal" style={{ padding: "7px 14px", flexShrink: 0 }}>Add</button>
-                    <button onClick={() => { setShowInput(false); setInput(""); }} className="btn" style={{ padding: "7px 10px", flexShrink: 0 }}>✕</button>
+                      style={{ background: avatarColor(person), color: "#fff", border: "none", borderRadius: 9, padding: "10px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, flexShrink: 0 }}>Save</button>
+                    <button onClick={() => { setShowInput(false); setInput(""); }}
+                      style={{ background: "none", border: "1px solid #E8E6E0", borderRadius: 9, padding: "10px 12px", cursor: "pointer", fontSize: 14, color: "#9C9888", flexShrink: 0 }}>✕</button>
                   </div>
                 ) : (
                   <button onClick={() => setShowInput(true)}
-                    style={{ background: "none", border: `1.5px dashed ${avatarColor(person)}40`, borderRadius: 8, padding: "8px 16px", cursor: "pointer", fontSize: 13, color: avatarColor(person), fontFamily: "Inter, sans-serif", fontWeight: 500, width: "100%", textAlign: "center" }}>
+                    style={{ background: "#FAFAF8", border: `1.5px dashed ${avatarColor(person)}60`, borderRadius: 9, padding: "10px 16px", cursor: "pointer", fontSize: 13, color: avatarColor(person), fontFamily: "Inter, sans-serif", fontWeight: 600, width: "100%", textAlign: "center" }}>
                     + Log a contribution for {person}
                   </button>
                 )}
