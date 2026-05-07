@@ -176,6 +176,13 @@ export default function App() {
   const saveTimer = useRef(null);
 
   useEffect(() => {
+    // Set default nav based on view mode after load
+    if (!loading) {
+      setNav(data.viewMode === "staff" ? "ops" : "home");
+    }
+  }, [loading]);
+
+  useEffect(() => {
     async function load() {
       try {
         const { data: rows } = await supabase.from("app_data").select("*").eq("id", 1).single();
@@ -219,8 +226,8 @@ export default function App() {
     { key: "settings", label: "Settings" },
   ];
   const staffNav = [
-    { key: "home", label: "My Shift" },
-    { key: "ops", label: "Ops" },
+    { key: "ops",  label: "My Shift" },
+    { key: "home", label: "Home" },
     { key: "goals", label: "Goals" },
     { key: "work", label: "Work" },
   ];
@@ -280,7 +287,7 @@ export default function App() {
               </button>
             ))}
             <div style={{ width: 1, height: 16, background: "#E8E6E0", margin: "0 8px" }} />
-            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav("home"); }}
+            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(isOwner ? "ops" : "home"); }}
               style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#9C9888", fontFamily: "Inter, sans-serif", fontWeight: 500 }}>
               Switch view
             </button>
@@ -304,7 +311,7 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav("home"); setMenuOpen(false); }}
+            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(isOwner ? "ops" : "home"); setMenuOpen(false); }}
               style={{ display: "block", width: "100%", textAlign: "left", padding: "13px 20px", background: "none", border: "none", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: "#1A5F6A", fontWeight: 500 }}>
               Switch to {isOwner ? "Staff" : "Owner"} view
             </button>
@@ -314,7 +321,7 @@ export default function App() {
 
       {/* Main */}
       <main style={{ maxWidth: 1040, margin: "0 auto", padding: "32px 20px" }}>
-        {nav === "home"     && (isOwner ? <OwnerHome data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} />)}
+        {nav === "home"     && (isOwner ? <OwnerHome data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"      && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"    && <GoalsPage data={data} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "work"     && <WorkPage data={data} setData={setData} updateTask={updateTask} isOwner={isOwner} TEAM={TEAM} />}
@@ -648,7 +655,12 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
     { key: "weekly",  label: "Weekly",  emoji: "📅" },
     { key: "monthly", label: "Monthly", emoji: "🗓️" },
   ];
-  const [activeFreq, setActiveFreq] = useState("opening");
+
+  const now = new Date();
+  const hour = now.getHours();
+  const defaultFreq = hour < 11 ? "opening" : hour < 16 ? "midday" : "closing";
+
+  const [activeFreq, setActiveFreq] = useState(defaultFreq);
   const [editing, setEditing] = useState(null);
   const [picker, setPicker] = useState(null);
 
@@ -662,6 +674,8 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
   const doneCount = tasks.filter(t => t.completions?.[key]).length;
   const pctDone = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
 
+  const wigGoal = data.goals.find(g => g.id === data.wigId) || data.goals[0];
+
   const complete = (id, person) => {
     setData(d => ({ ...d, opsTasks: d.opsTasks.map(t => t.id === id ? { ...t, completions: { ...t.completions, [key]: { at: new Date().toISOString(), by: person } } } : t) }));
     setPicker(null);
@@ -673,15 +687,30 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+      {/* WIG — always visible for staff */}
+      {wigGoal && (
+        <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <div className="inter" style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", marginBottom: 4 }}>The Score · {wigGoal.category}</div>
+            <div className="lora" style={{ fontSize: 15, color: "#fff", fontStyle: "italic", lineHeight: 1.3 }}>{wigGoal.title}</div>
+            <div style={{ marginTop: 8, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#7DD3B8", borderRadius: 99, transition: "width 0.5s" }} />
+            </div>
+          </div>
+          <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div className="lora" style={{ fontSize: 26, color: "#7DD3B8", lineHeight: 1 }}>{pct(wigGoal.current, wigGoal.target)}%</div>
+            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
         <div>
-          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#1C1C1A" }}>Ops Tasks</h1>
+          <h1 className="lora" style={{ fontSize: 24, fontStyle: "italic", color: "#1C1C1A" }}>Ops Tasks</h1>
           <p className="inter" style={{ fontSize: 13, color: "#9C9888", marginTop: 2 }}>Keep the space excellent. Every shift.</p>
         </div>
         {isOwner && <button className="btn btn-teal" onClick={addOps}>+ Add task</button>}
       </div>
-
-      {/* Freq tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 2 }}>
         {freqs.map(f => {
           const fTasks = (data.opsTasks||[]).filter(t => t.freq === f.key);
