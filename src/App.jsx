@@ -50,6 +50,78 @@ const INITIAL_DATA = {
   currentUser: "Pineapple guy",
   viewMode: "owner",
   team: ["Collin","Jordan","Mia","Sam"],
+  openingDate: "2025-09-01",
+  checklists: {
+    preopen: [
+      { id: "p1", category: "Legal & Business", item: "LLC or business entity filed", done: false, owner: "Collin", notes: "" },
+      { id: "p2", category: "Legal & Business", item: "EIN obtained from IRS", done: false, owner: "Collin", notes: "" },
+      { id: "p3", category: "Legal & Business", item: "Business bank account opened", done: false, owner: "Collin", notes: "" },
+      { id: "p4", category: "Legal & Business", item: "General liability insurance in place", done: false, owner: "Collin", notes: "" },
+      { id: "p5", category: "Legal & Business", item: "Waiver/liability forms created and reviewed by attorney", done: false, owner: "Collin", notes: "" },
+      { id: "p6", category: "Legal & Business", item: "Business license obtained", done: false, owner: "Collin", notes: "" },
+      { id: "p7", category: "Legal & Business", item: "Certificate of occupancy secured", done: false, owner: "Collin", notes: "" },
+      { id: "p8", category: "Space & Build-Out", item: "Lease signed", done: false, owner: "Collin", notes: "" },
+      { id: "p9", category: "Space & Build-Out", item: "Contractor hired and timeline confirmed", done: false, owner: "Collin", notes: "" },
+      { id: "p10", category: "Space & Build-Out", item: "Wall setting complete", done: false, owner: "Collin", notes: "" },
+      { id: "p11", category: "Space & Build-Out", item: "Flooring installed (mats, turf, etc.)", done: false, owner: "Collin", notes: "" },
+      { id: "p12", category: "Space & Build-Out", item: "Bathrooms and changing areas finished", done: false, owner: "Collin", notes: "" },
+      { id: "p13", category: "Space & Build-Out", item: "Signage installed (exterior + interior)", done: false, owner: "Collin", notes: "" },
+      { id: "p14", category: "Space & Build-Out", item: "Retail display area set up", done: false, owner: "Collin", notes: "" },
+      { id: "p15", category: "Space & Build-Out", item: "Lighting and ambiance dialed in", done: false, owner: "Collin", notes: "" },
+      { id: "p16", category: "Technology & Systems", item: "Beta software account created and configured", done: false, owner: "Collin", notes: "" },
+      { id: "p17", category: "Technology & Systems", item: "Online membership sign-up flow live and tested", done: false, owner: "Collin", notes: "" },
+      { id: "p18", category: "Technology & Systems", item: "Turnstile or door access system installed", done: false, owner: "Collin", notes: "" },
+      { id: "p19", category: "Technology & Systems", item: "POS system set up and tested", done: false, owner: "Collin", notes: "" },
+      { id: "p20", category: "Technology & Systems", item: "Waiver system integrated with Beta", done: false, owner: "Collin", notes: "" },
+      { id: "p21", category: "Technology & Systems", item: "Website live with pricing, hours, and sign-up", done: false, owner: "Jordan", notes: "" },
+      { id: "p22", category: "Technology & Systems", item: "Google Business profile created and verified", done: false, owner: "Jordan", notes: "" },
+      { id: "p23", category: "Technology & Systems", item: "Instagram and social accounts active", done: false, owner: "Jordan", notes: "" },
+      { id: "p24", category: "Staffing", item: "Staff hired and onboarded", done: false, owner: "Collin", notes: "" },
+      { id: "p25", category: "Staffing", item: "Staff trained on Beta software", done: false, owner: "Collin", notes: "" },
+      { id: "p26", category: "Staffing", item: "Opening week schedule built", done: false, owner: "Collin", notes: "" },
+      { id: "p27", category: "Staffing", item: "Staff trained on waiver and check-in flow", done: false, owner: "Collin", notes: "" },
+      { id: "p28", category: "Staffing", item: "Emergency procedures and first aid reviewed", done: false, owner: "Collin", notes: "" },
+      { id: "p29", category: "Memberships & Presales", item: "Founding membership pricing and perks finalized", done: false, owner: "Collin", notes: "" },
+      { id: "p30", category: "Memberships & Presales", item: "Founding member sales target hit (75)", done: false, owner: "Collin", notes: "" },
+      { id: "p31", category: "Memberships & Presales", item: "Email list built (500+ leads)", done: false, owner: "Jordan", notes: "" },
+      { id: "p32", category: "Memberships & Presales", item: "Opening week promo and offer confirmed", done: false, owner: "Collin", notes: "" },
+      { id: "p33", category: "Community & Marketing", item: "4 preview events hosted", done: false, owner: "Mia", notes: "" },
+      { id: "p34", category: "Community & Marketing", item: "20 local business partnerships confirmed", done: false, owner: "Collin", notes: "" },
+      { id: "p35", category: "Community & Marketing", item: "Press outreach done (local papers, bloggers)", done: false, owner: "Jordan", notes: "" },
+      { id: "p36", category: "Community & Marketing", item: "Opening day event planned", done: false, owner: "Mia", notes: "" },
+      { id: "p37", category: "Community & Marketing", item: "Email announcement campaign ready to send", done: false, owner: "Jordan", notes: "" },
+      { id: "p38", category: "Retail & Inventory", item: "Opening retail inventory ordered and received", done: false, owner: "Sam", notes: "" },
+      { id: "p39", category: "Retail & Inventory", item: "Products priced and tagged", done: false, owner: "Sam", notes: "" },
+      { id: "p40", category: "Retail & Inventory", item: "Retail display fully stocked and photographed", done: false, owner: "Sam", notes: "" },
+    ],
+    opening: [
+      { id: "o1", category: "Day Before", item: "Final walkthrough of entire facility", done: false, owner: "Collin", notes: "" },
+      { id: "o2", category: "Day Before", item: "All staff confirmed for opening shift", done: false, owner: "Collin", notes: "" },
+      { id: "o3", category: "Day Before", item: "Retail fully stocked and displays ready", done: false, owner: "Sam", notes: "" },
+      { id: "o4", category: "Day Before", item: "Beta system tested end-to-end (checkin, payment, waiver)", done: false, owner: "Collin", notes: "" },
+      { id: "o5", category: "Day Before", item: "Opening email sent to full list", done: false, owner: "Jordan", notes: "" },
+      { id: "o6", category: "Day Before", item: "Social posts scheduled for opening day", done: false, owner: "Jordan", notes: "" },
+      { id: "o7", category: "Day Before", item: "Cleaning and final setup complete", done: false, owner: "Mia", notes: "" },
+      { id: "o8", category: "Day Before", item: "Snacks, drinks, or welcome gifts ready for opening day guests", done: false, owner: "Mia", notes: "" },
+      { id: "o9", category: "Opening Morning", item: "Doors unlocked and gym fully ready by 30 min before open", done: false, owner: "Collin", notes: "" },
+      { id: "o10", category: "Opening Morning", item: "Music playing, lighting set, energy good", done: false, owner: "Mia", notes: "" },
+      { id: "o11", category: "Opening Morning", item: "All staff at their stations", done: false, owner: "Collin", notes: "" },
+      { id: "o12", category: "Opening Morning", item: "Waiver tablets or devices charged and ready", done: false, owner: "Collin", notes: "" },
+      { id: "o13", category: "Opening Morning", item: "Founding member packets or welcome gifts ready", done: false, owner: "Mia", notes: "" },
+      { id: "o14", category: "Opening Morning", item: "Photo and video coverage arranged", done: false, owner: "Jordan", notes: "" },
+      { id: "o15", category: "Opening Day Operations", item: "Every guest signed in through Beta", done: false, owner: "Collin", notes: "" },
+      { id: "o16", category: "Opening Day Operations", item: "Every guest offered a tour", done: false, owner: "Mia", notes: "" },
+      { id: "o17", category: "Opening Day Operations", item: "Every guest asked about membership", done: false, owner: "Collin", notes: "" },
+      { id: "o18", category: "Opening Day Operations", item: "Retail sales tracked in POS", done: false, owner: "Sam", notes: "" },
+      { id: "o19", category: "Opening Day Operations", item: "Staff collecting emails from non-members", done: false, owner: "Jordan", notes: "" },
+      { id: "o20", category: "Opening Day Operations", item: "Referral asks made to every new member", done: false, owner: "Collin", notes: "" },
+      { id: "o21", category: "End of Day", item: "Member count and day pass count recorded", done: false, owner: "Collin", notes: "" },
+      { id: "o22", category: "End of Day", item: "Revenue totaled and logged", done: false, owner: "Collin", notes: "" },
+      { id: "o23", category: "End of Day", item: "Social post recapping opening day published", done: false, owner: "Jordan", notes: "" },
+      { id: "o24", category: "End of Day", item: "Team debrief done — wins, issues, tomorrow's focus", done: false, owner: "Collin", notes: "" },
+      { id: "o25", category: "End of Day", item: "Thank you message sent to opening day members", done: false, owner: "Mia", notes: "" },
+    ]
+  },
 };
 
 const CATEGORIES = ["Memberships","Marketing","Community","Events","Retail","Operations","Staff","Retention","Partnerships"];
@@ -141,6 +213,7 @@ export default function App() {
     { key: "leads", label: "Lead Measures" },
     { key: "meetings", label: "Check-ins" },
     { key: "tasks", label: "Tasks" },
+    { key: "checklist", label: "Checklist" },
     { key: "settings", label: "Settings" },
   ];
 
@@ -247,7 +320,7 @@ export default function App() {
         {nav === "leads"      && <LeadMeasures data={data} updateLog={updateLog} setData={setData} isOwner={isOwner} />}
         {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
-        {nav === "settings"   && isOwner && <Settings data={data} setData={setData} />}
+        {nav === "checklist"  && <Checklist data={data} setData={setData} />}
         {nav === "settings"   && !isOwner && (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div className="lora" style={{ fontSize: 22, color: "#888", fontStyle: "italic" }}>Settings are owner-only.</div>
@@ -1148,6 +1221,142 @@ function StaffHome({ data, updateLog, updateTask, TEAM }) {
             );
           })}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function Checklist({ data, setData }) {
+  const [tab, setTab] = useState("preopen");
+  const [filter, setFilter] = useState("all");
+  const TEAM = data.team || ["Collin","Jordan","Mia","Sam"];
+
+  const checklists = data.checklists || { preopen: [], opening: [] };
+  const items = checklists[tab] || [];
+
+  const toggle = (id) => setData(d => ({
+    ...d, checklists: { ...d.checklists, [tab]: d.checklists[tab].map(i => i.id === id ? { ...i, done: !i.done } : i) }
+  }));
+  const updateItem = (id, field, value) => setData(d => ({
+    ...d, checklists: { ...d.checklists, [tab]: d.checklists[tab].map(i => i.id === id ? { ...i, [field]: value } : i) }
+  }));
+  const addItem = (category) => {
+    const id = `${tab[0]}${Date.now()}`;
+    setData(d => ({ ...d, checklists: { ...d.checklists, [tab]: [...d.checklists[tab], { id, category, item: "New item", done: false, owner: TEAM[0], notes: "" }] } }));
+  };
+  const deleteItem = (id) => setData(d => ({ ...d, checklists: { ...d.checklists, [tab]: d.checklists[tab].filter(i => i.id !== id) } }));
+
+  const filtered = filter === "all" ? items : items.filter(i => i.owner === filter);
+  const categories = [...new Set(items.map(i => i.category))];
+  const doneCount = items.filter(i => i.done).length;
+  const pctDone = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+
+  // Countdown to opening
+  const openDate = data.openingDate ? new Date(data.openingDate) : null;
+  const daysLeft = openDate ? Math.ceil((openDate - new Date()) / 86400000) : null;
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <h1 className="lora" style={{ fontSize: 28, fontWeight: 600, color: "#111" }}>Opening Checklists</h1>
+            <p className="inter" style={{ fontSize: 13, color: "#666", marginTop: 3 }}>Everything that needs to happen before and on opening day.</p>
+          </div>
+          {daysLeft !== null && (
+            <div style={{ textAlign: "right", background: daysLeft <= 14 ? "#fff0f0" : "#f0fafa", border: `1px solid ${daysLeft <= 14 ? "#fdd" : "#c8e8e8"}`, borderRadius: 10, padding: "10px 18px" }}>
+              <div className="lora" style={{ fontSize: 28, color: daysLeft <= 14 ? "#C0392B" : "#005764", lineHeight: 1 }}>{daysLeft > 0 ? daysLeft : "🎉"}</div>
+              <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 2 }}>{daysLeft > 0 ? "days to open" : "You're open!"}</div>
+              <input type="date" value={data.openingDate || ""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
+                style={{ fontSize: 10, border: "none", background: "transparent", color: "#aaa", marginTop: 4, textAlign: "right", cursor: "pointer" }} />
+            </div>
+          )}
+          {daysLeft === null && (
+            <div style={{ textAlign: "right" }}>
+              <div className="inter" style={{ fontSize: 11, color: "#aaa", marginBottom: 4 }}>Set opening date</div>
+              <input type="date" value={data.openingDate || ""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
+                style={{ fontSize: 13, border: "1px solid #e0e0e0", borderRadius: 8, padding: "6px 10px" }} />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Tab switcher */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        {[
+          { key: "preopen", label: "Pre-Opening", emoji: "🏗️" },
+          { key: "opening", label: "Opening Day", emoji: "🎉" },
+        ].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            style={{ padding: "10px 20px", borderRadius: 10, border: `1px solid ${tab === t.key ? "#005764" : "#e0e0e0"}`, background: tab === t.key ? "#005764" : "#fff", color: tab === t.key ? "#fff" : "#444", fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+            {t.emoji} {t.label}
+          </button>
+        ))}
+        <select value={filter} onChange={e => setFilter(e.target.value)} style={{ marginLeft: "auto", width: "auto", fontSize: 13 }}>
+          <option value="all">All owners</option>
+          {TEAM.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ marginBottom: 24, background: "#f9f9f9", borderRadius: 12, padding: "16px 20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{doneCount} of {items.length} complete</span>
+          <span className="lora" style={{ fontSize: 20, color: pctDone === 100 ? "#1E7A4A" : "#005764" }}>{pctDone}%</span>
+        </div>
+        <div style={{ height: 8, background: "#e0e0e0", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#2ECC71" : "#005764", borderRadius: 99, transition: "width 0.5s ease" }} />
+        </div>
+        {pctDone === 100 && <div className="inter" style={{ fontSize: 13, color: "#1E7A4A", marginTop: 8, fontWeight: 600 }}>✓ All done — you're ready!</div>}
+      </div>
+
+      {/* Categories */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {categories.map(cat => {
+          const catItems = filtered.filter(i => i.category === cat);
+          if (!catItems.length) return null;
+          const catDone = catItems.filter(i => i.done).length;
+          const catPct = Math.round((catDone / catItems.length) * 100);
+          const barColor = catPct === 100 ? "#2ECC71" : catPct >= 50 ? "#005764" : "#F5A623";
+
+          return (
+            <div key={cat}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#333" }}>{cat}</span>
+                  <span className="inter" style={{ fontSize: 11, color: "#aaa" }}>{catDone}/{catItems.length}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 60, height: 4, background: "#f0f0f0", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${catPct}%`, height: "100%", background: barColor, borderRadius: 99 }} />
+                  </div>
+                  <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #e0e0e0", borderRadius: 6, padding: "2px 10px", cursor: "pointer", fontSize: 12, color: "#666", fontFamily: "Inter, sans-serif" }}>+ Add</button>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {catItems.map(item => (
+                  <div key={item.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 16px", background: item.done ? "#eefaf4" : "#fff", border: `1px solid ${item.done ? "#c5e8d8" : "#ebebeb"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
+                    <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, marginTop: 2, flexShrink: 0, accentColor: "#005764" }} />
+                    <div style={{ flex: 1 }}>
+                      <input type="text" value={item.item} onChange={e => updateItem(item.id, "item", e.target.value)}
+                        style={{ border: "none", padding: 0, fontSize: 14, fontWeight: item.done ? 400 : 500, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", color: item.done ? "#aaa" : "#1a1a1a", textDecoration: item.done ? "line-through" : "none" }} />
+                      <input type="text" value={item.notes} onChange={e => updateItem(item.id, "notes", e.target.value)} placeholder="Add a note..."
+                        style={{ border: "none", padding: "2px 0 0", fontSize: 12, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", color: "#888", marginTop: 2 }} />
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                      <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", color: "#555", border: "1px solid #e0e0e0", borderRadius: 6 }}>
+                        {TEAM.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                      <button onClick={() => deleteItem(item.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#e0e0e0", fontSize: 16, padding: "0 2px", lineHeight: 1 }}>✕</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
