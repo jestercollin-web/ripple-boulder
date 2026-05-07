@@ -51,6 +51,32 @@ const INITIAL_DATA = {
   viewMode: "owner",
   team: ["Collin","Jordan","Mia","Sam"],
   openingDate: "2025-09-01",
+  opsTasks: [
+    { id: "d1", freq: "daily", title: "Opening walkthrough", desc: "Check all walls, mats, holds, and flooring for hazards", assignee: "", completions: {}, notes: "" },
+    { id: "d2", freq: "daily", title: "Clean bathrooms", desc: "Wipe surfaces, restock supplies, mop floors", assignee: "", completions: {}, notes: "" },
+    { id: "d3", freq: "daily", title: "Wipe down front desk", desc: "Clean desk, sanitize iPad/tablet, tidy retail display", assignee: "", completions: {}, notes: "" },
+    { id: "d4", freq: "daily", title: "Check crash pads & mats", desc: "Ensure all pads are properly positioned and undamaged", assignee: "", completions: {}, notes: "" },
+    { id: "d5", freq: "daily", title: "Restock chalk buckets", desc: "Refill any empty chalk buckets on the floor", assignee: "", completions: {}, notes: "" },
+    { id: "d6", freq: "daily", title: "Empty trash bins", desc: "All bins throughout gym and bathrooms", assignee: "", completions: {}, notes: "" },
+    { id: "d7", freq: "daily", title: "Closing walkthrough", desc: "Check all lights off, doors locked, equipment secure", assignee: "", completions: {}, notes: "" },
+    { id: "d8", freq: "daily", title: "End of day member count", desc: "Log total visitors, members, and day passes in the app", assignee: "", completions: {}, notes: "" },
+    { id: "w1", freq: "weekly", title: "Deep clean bathrooms", desc: "Full scrub including grout, fixtures, and baseboards", assignee: "", completions: {}, notes: "" },
+    { id: "w2", freq: "weekly", title: "Clean climbing walls", desc: "Wipe down wall panels, check for loose holds", assignee: "", completions: {}, notes: "" },
+    { id: "w3", freq: "weekly", title: "Retail inventory check", desc: "Count current stock, note what needs reordering", assignee: "", completions: {}, notes: "" },
+    { id: "w4", freq: "weekly", title: "Staff follow-up review", desc: "Review any member follow-ups or leads needing contact", assignee: "", completions: {}, notes: "" },
+    { id: "w5", freq: "weekly", title: "Check first aid kit", desc: "Restock any used items, check expiry dates", assignee: "", completions: {}, notes: "" },
+    { id: "w6", freq: "weekly", title: "Social media post", desc: "Post at least 2 Instagram reels or feed posts this week", assignee: "", completions: {}, notes: "" },
+    { id: "w7", freq: "weekly", title: "Mop gym floor", desc: "Full mop of all non-mat flooring areas", assignee: "", completions: {}, notes: "" },
+    { id: "w8", freq: "weekly", title: "Check hold tightness", desc: "Spin test all holds on featured routes", assignee: "", completions: {}, notes: "" },
+    { id: "m1", freq: "monthly", title: "Equipment inspection", desc: "Full check of all holds, mats, chalk brushes, and gear", assignee: "", completions: {}, notes: "" },
+    { id: "m2", freq: "monthly", title: "Deep clean gym floor", desc: "Steam clean or scrub all mat and flooring surfaces", assignee: "", completions: {}, notes: "" },
+    { id: "m3", freq: "monthly", title: "Review membership analytics", desc: "Check retention, cancellations, and conversion rates in Beta", assignee: "", completions: {}, notes: "" },
+    { id: "m4", freq: "monthly", title: "Community outreach", desc: "Visit or connect with at least 3 local business partners", assignee: "", completions: {}, notes: "" },
+    { id: "m5", freq: "monthly", title: "Staff 1-on-1s", desc: "Brief check-in with each team member on performance and wellbeing", assignee: "", completions: {}, notes: "" },
+    { id: "m6", freq: "monthly", title: "Retail reorder", desc: "Place orders for any inventory running low", assignee: "", completions: {}, notes: "" },
+    { id: "m7", freq: "monthly", title: "Route setting review", desc: "Assess current problem difficulty spread and plan resets", assignee: "", completions: {}, notes: "" },
+    { id: "m8", freq: "monthly", title: "Review financial snapshot", desc: "Check revenue, expenses, and goal progress for the month", assignee: "", completions: {}, notes: "" },
+  ],
   checklists: {
     preopen: [
       { id: "p1", category: "Legal & Business", item: "LLC or business entity filed", done: false, owner: "Collin", notes: "" },
@@ -213,12 +239,14 @@ export default function App() {
     { key: "leads", label: "Lead Measures" },
     { key: "meetings", label: "Check-ins" },
     { key: "tasks", label: "Tasks" },
+    { key: "ops", label: "Ops" },
     { key: "checklist", label: "Checklist" },
     { key: "settings", label: "Settings" },
   ];
 
   const staffNavItems = [
     { key: "staff_home", label: "My Week" },
+    { key: "ops", label: "Ops" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "leads", label: "Lead Measures" },
     { key: "tasks", label: "Tasks" },
@@ -321,6 +349,7 @@ export default function App() {
         {nav === "meetings"   && <Meetings data={data} updateCommitment={updateCommitment} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "tasks"      && <Tasks data={data} updateTask={updateTask} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "checklist"  && <Checklist data={data} setData={setData} />}
+        {nav === "ops"        && <OpsTasksPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "settings"   && !isOwner && (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <div className="lora" style={{ fontSize: 22, color: "#888", fontStyle: "italic" }}>Settings are owner-only.</div>
@@ -1358,6 +1387,172 @@ function Checklist({ data, setData }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function OpsTasksPage({ data, setData, isOwner, TEAM }) {
+  const [activeFreq, setActiveFreq] = useState("daily");
+  const [editing, setEditing] = useState(null);
+
+  const today = new Date().toISOString().split("T")[0];
+  const weekKey = (() => {
+    const d = new Date(); const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff)).toISOString().split("T")[0];
+  })();
+  const monthKey = new Date().toISOString().slice(0, 7);
+
+  const getKey = (freq) => freq === "daily" ? today : freq === "weekly" ? weekKey : monthKey;
+
+  const tasks = (data.opsTasks || []).filter(t => t.freq === activeFreq);
+  const allForFreq = (data.opsTasks || []).filter(t => t.freq === activeFreq);
+  const key = getKey(activeFreq);
+  const doneCount = allForFreq.filter(t => t.completions?.[key]).length;
+  const pctDone = allForFreq.length ? Math.round((doneCount / allForFreq.length) * 100) : 0;
+
+  const toggle = (id) => {
+    setData(d => ({ ...d, opsTasks: d.opsTasks.map(t => t.id === id ? {
+      ...t, completions: { ...t.completions, [key]: t.completions?.[key] ? null : { at: new Date().toISOString(), by: d.currentUser } }
+    } : t) }));
+  };
+
+  const updateTask = (id, field, value) => setData(d => ({ ...d, opsTasks: d.opsTasks.map(t => t.id === id ? { ...t, [field]: value } : t) }));
+
+  const addTask = () => {
+    const id = `${activeFreq[0]}${Date.now()}`;
+    setData(d => ({ ...d, opsTasks: [...(d.opsTasks || []), { id, freq: activeFreq, title: "New task", desc: "", assignee: "", completions: {}, notes: "" }] }));
+  };
+
+  const deleteTask = (id) => setData(d => ({ ...d, opsTasks: d.opsTasks.filter(t => t.id !== id) }));
+
+  const freqConfig = {
+    daily:   { label: "Daily",   emoji: "☀️", color: "#005764", light: "#f0fafa", border: "#c8e8e8", reset: "Resets midnight" },
+    weekly:  { label: "Weekly",  emoji: "📅", color: "#7B4F2E", light: "#fff8f2", border: "#e8d4c0", reset: "Resets Monday" },
+    monthly: { label: "Monthly", emoji: "🗓️", color: "#2E4F7B", light: "#f2f5ff", border: "#c0cce8", reset: "Resets 1st of month" },
+  };
+
+  const cfg = freqConfig[activeFreq];
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="lora" style={{ fontSize: 28, fontWeight: 600, color: "#111" }}>Ops Tasks</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#666", marginTop: 3 }}>Recurring tasks that keep Ripple running smoothly.</p>
+      </div>
+
+      {/* Frequency tabs */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+        {Object.entries(freqConfig).map(([freq, c]) => {
+          const count = (data.opsTasks || []).filter(t => t.freq === freq);
+          const done = count.filter(t => t.completions?.[getKey(freq)]).length;
+          const p = count.length ? Math.round((done / count.length) * 100) : 0;
+          return (
+            <button key={freq} onClick={() => setActiveFreq(freq)}
+              style={{ flex: 1, padding: "14px 16px", borderRadius: 12, border: `2px solid ${activeFreq === freq ? c.color : "#ebebeb"}`, background: activeFreq === freq ? c.color : "#fff", cursor: "pointer", textAlign: "left", transition: "all 0.15s" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <span style={{ fontSize: 18 }}>{c.emoji}</span>
+                <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: activeFreq === freq ? "rgba(255,255,255,0.7)" : "#aaa" }}>{done}/{count.length}</span>
+              </div>
+              <div className="inter" style={{ fontSize: 14, fontWeight: 700, color: activeFreq === freq ? "#fff" : "#333", marginBottom: 2 }}>{c.label}</div>
+              <div style={{ height: 3, background: activeFreq === freq ? "rgba(255,255,255,0.2)" : "#f0f0f0", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: `${p}%`, height: "100%", background: activeFreq === freq ? "#fff" : c.color, borderRadius: 99 }} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Progress summary */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", background: cfg.light, border: `1px solid ${cfg.border}`, borderRadius: 10, marginBottom: 20 }}>
+        <div>
+          <div className="inter" style={{ fontSize: 13, fontWeight: 600, color: cfg.color }}>{doneCount} of {allForFreq.length} {cfg.label.toLowerCase()} tasks done</div>
+          <div className="inter" style={{ fontSize: 11, color: "#aaa", marginTop: 2 }}>{cfg.reset} · {today}</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="lora" style={{ fontSize: 24, color: pctDone === 100 ? "#1E7A4A" : cfg.color }}>{pctDone}%</div>
+          {isOwner && <button onClick={addTask} style={{ background: cfg.color, color: "#fff", border: "none", borderRadius: 8, padding: "7px 14px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add task</button>}
+        </div>
+      </div>
+
+      {/* Task list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {tasks.map(t => {
+          const completion = t.completions?.[key];
+          const isDone = !!completion;
+          return (
+            <div key={t.id}
+              style={{ background: isDone ? "#eefaf4" : "#fff", border: `1px solid ${isDone ? "#b8e8cc" : "#ebebeb"}`, borderRadius: 12, padding: "16px 18px", transition: "all 0.2s" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                {/* Big checkbox */}
+                <button onClick={() => toggle(t.id)}
+                  style={{ width: 26, height: 26, borderRadius: "50%", border: `2px solid ${isDone ? "#2ECC71" : "#d0d0d0"}`, background: isDone ? "#2ECC71" : "#fff", flexShrink: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginTop: 1, transition: "all 0.15s" }}>
+                  {isDone && <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5L4.5 8.5L11 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </button>
+
+                <div style={{ flex: 1 }}>
+                  {editing === t.id && isOwner ? (
+                    <input type="text" value={t.title} onChange={e => updateTask(t.id, "title", e.target.value)}
+                      style={{ fontSize: 15, fontWeight: 600, padding: "0", border: "none", background: "transparent", fontFamily: "Inter, sans-serif", color: "#1a1a1a", width: "100%" }} autoFocus />
+                  ) : (
+                    <div className="inter" style={{ fontSize: 15, fontWeight: 600, color: isDone ? "#aaa" : "#1a1a1a", textDecoration: isDone ? "line-through" : "none" }}
+                      onClick={() => isOwner && setEditing(t.id)}>{t.title}</div>
+                  )}
+                  {t.desc && <div className="inter" style={{ fontSize: 12, color: "#888", marginTop: 3, lineHeight: 1.5 }}>{t.desc}</div>}
+                  {isDone && completion.at && (
+                    <div className="inter" style={{ fontSize: 11, color: "#2ECC71", marginTop: 4 }}>
+                      ✓ Done {completion.by ? `by ${completion.by}` : ""} · {new Date(completion.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                  {t.assignee && (
+                    <span className="inter" style={{ fontSize: 12, color: "#888", background: "#f5f5f5", padding: "3px 10px", borderRadius: 99 }}>{t.assignee}</span>
+                  )}
+                  {isOwner && (
+                    <button onClick={() => setEditing(editing === t.id ? null : t.id)}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 16, padding: "0 2px" }}>✎</button>
+                  )}
+                </div>
+              </div>
+
+              {/* Edit panel */}
+              {editing === t.id && isOwner && (
+                <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #f0f0f0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div>
+                    <div className="lbl">Description</div>
+                    <input type="text" value={t.desc} onChange={e => updateTask(t.id, "desc", e.target.value)} placeholder="Task details..." />
+                  </div>
+                  <div>
+                    <div className="lbl">Assigned to</div>
+                    <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ width: "auto" }}>
+                      <option value="">Anyone</option>
+                      {TEAM.map(p => <option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <div className="lbl">Notes</div>
+                    <input type="text" value={t.notes} onChange={e => updateTask(t.id, "notes", e.target.value)} placeholder="Any additional notes..." />
+                  </div>
+                  <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "space-between" }}>
+                    <button onClick={() => setEditing(null)} style={{ background: cfg.color, color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif" }}>Done</button>
+                    <button onClick={() => { deleteTask(t.id); setEditing(null); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "#C0392B", fontFamily: "Inter, sans-serif" }}>Delete task</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {tasks.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div className="lora" style={{ fontSize: 18, color: "#bbb", fontStyle: "italic" }}>No {activeFreq} tasks yet.</div>
+          {isOwner && <button onClick={addTask} className="btn btn-teal" style={{ marginTop: 14 }}>+ Add your first task</button>}
+        </div>
+      )}
     </div>
   );
 }
