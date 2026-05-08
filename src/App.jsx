@@ -1,8 +1,49 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const pct = (c, t) => Math.min(100, Math.round((c / t) * 100));
+
+// ── Smooth input hooks ────────────────────────────────────────────────────────
+// Use local state while typing, sync to parent only on blur or Enter
+function useField(externalValue, onCommit) {
+  const [local, setLocal] = useState(String(externalValue ?? ""));
+  const dirty = useRef(false);
+  useEffect(() => {
+    if (!dirty.current) setLocal(String(externalValue ?? ""));
+  }, [externalValue]);
+  return {
+    value: local,
+    onChange: e => { dirty.current = true; setLocal(e.target.value); },
+    onBlur: () => { dirty.current = false; onCommit(local); },
+    onKeyDown: e => { if (e.key === "Enter") { dirty.current = false; onCommit(local); e.target.blur(); } },
+  };
+}
+
+function useNumberField(externalValue, onCommit) {
+  const [local, setLocal] = useState(String(externalValue ?? ""));
+  const dirty = useRef(false);
+  useEffect(() => {
+    if (!dirty.current) setLocal(String(externalValue ?? ""));
+  }, [externalValue]);
+  return {
+    value: local,
+    onChange: e => { dirty.current = true; setLocal(e.target.value); },
+    onBlur: () => {
+      dirty.current = false;
+      const num = parseFloat(local);
+      onCommit(isNaN(num) ? 0 : num);
+    },
+    onKeyDown: e => {
+      if (e.key === "Enter") {
+        dirty.current = false;
+        const num = parseFloat(local);
+        onCommit(isNaN(num) ? 0 : num);
+        e.target.blur();
+      }
+    },
+  };
+}
 const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "K" : String(n);
 const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
 const AVATAR_PALETTE = ["#1A5F6A","#6B3A2A","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
@@ -11,7 +52,81 @@ const todayKey = () => new Date().toISOString().split("T")[0];
 const weekKey = () => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(new Date().setDate(diff)).toISOString().split("T")[0]; };
 const monthKey = () => new Date().toISOString().slice(0, 7);
 
-// ── Initial Data ──────────────────────────────────────────────────────────────
+// ── Reusable smooth input components ─────────────────────────────────────────
+function SmoothInput({ value, onCommit, placeholder, style, autoFocus, autoComplete = "off", multiline, rows = 2 }) {
+  const props = useField(value, onCommit);
+  const baseStyle = {
+    fontFamily: "Inter, system-ui, sans-serif",
+    fontSize: 13,
+    color: "#1C1C1A",
+    background: "#fff",
+    border: "1px solid #D8D4CC",
+    borderRadius: 9,
+    padding: "8px 11px",
+    outline: "none",
+    width: "100%",
+    WebkitTextFillColor: "#1C1C1A",
+    WebkitBoxShadow: "0 0 0px 1000px #fff inset",
+    ...style,
+  };
+  if (multiline) return <textarea rows={rows} placeholder={placeholder} autoFocus={autoFocus} autoComplete={autoComplete} {...props} style={{ ...baseStyle, resize: "none", lineHeight: 1.55 }} />;
+  return <input type="text" placeholder={placeholder} autoFocus={autoFocus} autoComplete={autoComplete} {...props} style={baseStyle} />;
+}
+
+function SmoothNumber({ value, onCommit, min = 0, style }) {
+  const props = useNumberField(value, onCommit);
+  return (
+    <input
+      type="number"
+      min={min}
+      inputMode="numeric"
+      pattern="[0-9]*"
+      autoComplete="off"
+      {...props}
+      style={{
+        fontFamily: "Inter, system-ui, sans-serif",
+        fontSize: 15,
+        fontWeight: 700,
+        color: "#1C1C1A",
+        background: "#fff",
+        border: "1px solid #D8D4CC",
+        borderRadius: 9,
+        padding: "6px 8px",
+        outline: "none",
+        textAlign: "center",
+        WebkitTextFillColor: "#1C1C1A",
+        WebkitBoxShadow: "0 0 0px 1000px #fff inset",
+        ...style,
+      }}
+    />
+  );
+}
+
+function SmoothTextarea({ value, onCommit, placeholder, rows = 2, style, readOnly }) {
+  const props = useField(value, onCommit);
+  return (
+    <textarea
+      rows={rows}
+      placeholder={placeholder}
+      readOnly={readOnly}
+      autoComplete="off"
+      {...(readOnly ? { value: value || "" } : props)}
+      style={{
+        fontFamily: "Inter, system-ui, sans-serif",
+        fontSize: 13,
+        color: "#1C1C1A",
+        background: "transparent",
+        border: "none",
+        outline: "none",
+        width: "100%",
+        resize: "none",
+        lineHeight: 1.6,
+        WebkitTextFillColor: "#1C1C1A",
+        ...style,
+      }}
+    />
+  );
+}
 const TEAM = ["Caleb", "Madeline", "Collin"];
 
 const INITIAL_DATA = {
@@ -661,8 +776,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
                 {m.type === "checkbox"
                   ? <input type="checkbox" checked={!!val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} style={{ width: 20, height: 20 }} />
                   : <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <input type="number" value={val} min={0} onChange={e => updateLog(m.goalId, m.id, Number(e.target.value))}
-                        style={{ width: 58, fontSize: 15, fontWeight: 700, textAlign: "center", padding: "4px 6px" }} />
+                      <SmoothNumber value={val} onCommit={v => updateLog(m.goalId, m.id, v)} style={{ width: 58 }} />
                       <span className="inter" style={{ fontSize: 12, color: "#9C9888" }}>/ {m.target}</span>
                     </div>
                 }
@@ -793,7 +907,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {isEditing
-                    ? <input value={t.title} onChange={e => updateOps(t.id, "title", e.target.value)} style={{ fontSize: 14, fontWeight: 600, border: "none", padding: 0, background: "transparent" }} autoFocus />
+                    ? <SmoothInput value={t.title} onCommit={v => updateOps(t.id, "title", v)} autoFocus style={{ fontSize: 14, fontWeight: 600, border: "none", padding: 0, background: "transparent" }} />
                     : <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#9C9888" : "#1C1C1A", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
                   }
                   {t.desc && !isDone && !isEditing && <div className="inter" style={{ fontSize: 12, color: "#B0AAA0", marginTop: 2 }}>{t.desc}</div>}
@@ -838,7 +952,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
                     <div>
                       <div className="sec-label">Description</div>
-                      <input value={t.desc} onChange={e => updateOps(t.id, "desc", e.target.value)} placeholder="Details..." />
+                      <SmoothInput value={t.desc} onCommit={v => updateOps(t.id, "desc", v)} placeholder="Details..." />
                     </div>
                     <div>
                       <div className="sec-label">Assigned to</div>
@@ -937,8 +1051,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div style={{ flex: 1, paddingRight: 12 }}>
                   {isOwner
-                    ? <input value={g.title} onChange={e => updateGoal(g.id, "title", e.target.value)}
-                        style={{ border: "none", padding: 0, fontSize: 16, fontWeight: 600, fontFamily: "Lora, serif", fontStyle: "italic", background: "transparent", color: "#1C1C1A", width: "100%" }} />
+                    ? <SmoothInput value={g.title} onCommit={v => updateGoal(g.id, "title", v)} style={{ border: "none", padding: 0, fontSize: 16, fontWeight: 600, fontFamily: "Lora, serif", fontStyle: "italic", background: "transparent", color: "#1C1C1A" }} />
                     : <div className="lora" style={{ fontSize: 16, fontStyle: "italic", fontWeight: 600, color: "#1C1C1A" }}>{g.title}</div>
                   }
                   {g.why && <p className="inter" style={{ fontSize: 12, color: "#9C9888", marginTop: 3, lineHeight: 1.5 }}>{g.why}</p>}
@@ -962,8 +1075,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                 </div>
                 {isOwner
                   ? <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <input type="number" value={g.current} onChange={e => updateGoal(g.id, "current", Number(e.target.value))}
-                        style={{ width: 64, fontSize: 14, fontWeight: 700, textAlign: "center", padding: "4px 6px" }} />
+                      <SmoothNumber value={g.current} onCommit={v => updateGoal(g.id, "current", v)} style={{ width: 72 }} />
                       <span className="inter" style={{ fontSize: 13, color: "#9C9888" }}>/ {fmt(g.target)}</span>
                     </div>
                   : <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1C1C1A", whiteSpace: "nowrap" }}>{fmt(g.current)} / {fmt(g.target)}</span>
@@ -996,15 +1108,14 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                   <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 13px", background: m.done ? "#F0FBF0" : "#FAFAF8", borderRadius: 8, border: `1px solid ${m.done ? "#C8E6C9" : "#EDE9E0"}` }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: m.done ? "#4CAF50" : "#D4D0C8", flexShrink: 0 }} />
                     {isOwner
-                      ? <input value={m.title} onChange={e => updateMeasure(m.id, "title", e.target.value)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent", fontFamily: "Inter, sans-serif" }} />
+                      ? <SmoothInput value={m.title} onCommit={v => updateMeasure(m.id, "title", v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent" }} />
                       : <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{m.title}</span>
                     }
                     {isOwner && <span className="inter" style={{ fontSize: 11, color: "#9C9888" }}>{m.unit}</span>}
                     {m.type === "checkbox"
                       ? <input type="checkbox" checked={!!m.val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} />
                       : <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <input type="number" value={m.val} min={0} onChange={e => updateLog(m.goalId, m.id, Number(e.target.value))}
-                            style={{ width: 54, fontSize: 14, fontWeight: 700, textAlign: "center", padding: "3px 5px" }} />
+                          <SmoothNumber value={m.val} onCommit={v => updateLog(m.goalId, m.id, v)} style={{ width: 54 }} />
                           <span className="inter" style={{ fontSize: 11, color: "#9C9888" }}>/ {m.target}</span>
                         </div>
                     }
@@ -1087,8 +1198,7 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
         <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} style={{ width: 18, height: 18 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           {isOwner
-            ? <input value={t.title} onChange={e => updateTask(t.id, "title", e.target.value)}
-                style={{ border: "none", padding: 0, fontSize: 14, fontWeight: 600, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", color: "#1C1C1A", textDecoration: t.status === "done" ? "line-through" : "none" }} />
+            ? <SmoothInput value={t.title} onCommit={v => updateTask(t.id, "title", v)} style={{ border: "none", padding: 0, fontSize: 14, fontWeight: 600, background: "transparent", textDecoration: t.status === "done" ? "line-through" : "none" }} />
             : <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1C1C1A", textDecoration: t.status === "done" ? "line-through" : "none" }}>{t.title}</div>
           }
           <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center" }}>
@@ -1193,7 +1303,7 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
           {steps[step].field !== "commitments" ? (
             <textarea rows={3} value={form[steps[step].field]} placeholder={steps[step].placeholder}
               onChange={e => setForm(f => ({ ...f, [steps[step].field]: e.target.value }))}
-              style={{ width: "100%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "12px 14px", fontSize: 14, color: "#fff", fontFamily: "Inter, sans-serif", resize: "none", outline: "none" }} />
+              style={{ width: "100%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "12px 14px", fontSize: 14, color: "#fff", fontFamily: "Inter, sans-serif", resize: "none", outline: "none", WebkitTextFillColor: "#fff" }} />
           ) : (
             <div>
               {form.commitments.map((c, i) => (
@@ -1203,7 +1313,7 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
                     {TEAM.map(t => <option key={t} style={{ background: "#0F3D45" }}>{t}</option>)}
                   </select>
                   <input value={c.commitment} onChange={e => setForm(f => ({ ...f, commitments: f.commitments.map((x, j) => j === i ? { ...x, commitment: e.target.value } : x) }))}
-                    placeholder="I'll..." style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "8px 10px", color: "#fff", fontFamily: "Inter, sans-serif", fontSize: 13 }} />
+                    placeholder="I'll..." style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "8px 10px", color: "#fff", fontFamily: "Inter, sans-serif", fontSize: 13, WebkitTextFillColor: "#fff" }} />
                   <button onClick={() => setForm(f => ({ ...f, commitments: f.commitments.filter((_, j) => j !== i) }))} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer" }}>✕</button>
                 </div>
               ))}
@@ -1252,8 +1362,7 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
                   <div key={col.field} style={{ background: col.bg, border: `1px solid ${col.border}`, borderRadius: 8, padding: "10px 12px" }}>
                     <div className="sec-label" style={{ color: col.text, marginBottom: 5 }}>{col.label}</div>
                     {isOwner
-                      ? <textarea rows={2} value={m[col.field]||""} onChange={e => updateMeeting(m.id, col.field, e.target.value)} placeholder="Add notes..."
-                          style={{ width: "100%", background: "transparent", border: "none", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif", resize: "none", outline: "none", lineHeight: 1.5 }} />
+                      ? <SmoothTextarea value={m[col.field]||""} onCommit={v => updateMeeting(m.id, col.field, v)} placeholder="Add notes..." rows={2} style={{ fontSize: 12, lineHeight: 1.5 }} />
                       : <p className="inter" style={{ fontSize: 12, color: "#444", lineHeight: 1.55, margin: 0 }}>{m[col.field] || "—"}</p>
                     }
                   </div>
@@ -1272,8 +1381,8 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
                     {isOwner
                       ? <>
                           <select value={c.person} onChange={e => updateCF(m.id, i, "person", e.target.value)} style={{ width: "auto", fontSize: 12, fontWeight: 600, border: "none", background: "transparent", cursor: "pointer" }}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
-                          <input value={c.commitment} onChange={e => updateCF(m.id, i, "commitment", e.target.value)}
-                            style={{ flex: 1, border: "none", padding: 0, fontSize: 13, background: "transparent", textDecoration: c.done ? "line-through" : "none", color: c.done ? "#9C9888" : "#1C1C1A", fontFamily: "Inter, sans-serif" }} />
+                          <SmoothInput value={c.commitment} onCommit={v => updateCF(m.id, i, "commitment", v)}
+                            style={{ flex: 1, border: "none", padding: 0, fontSize: 13, background: "transparent", textDecoration: c.done ? "line-through" : "none", color: c.done ? "#9C9888" : "#1C1C1A" }} />
                           <button onClick={() => removeC(m.id, i)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D4D0C8", fontSize: 14 }}>✕</button>
                         </>
                       : <>
@@ -1286,9 +1395,9 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
               </div>
               <div style={{ marginTop: 12, borderTop: "1px solid #EDE9E0", paddingTop: 12 }}>
                 <div className="sec-label" style={{ color: "#1A5F6A", marginBottom: 5 }}>Owner Note</div>
-                <textarea value={m.ownerNotes||""} onChange={e => updateMeeting(m.id, "ownerNotes", e.target.value)} readOnly={!isOwner}
+                <SmoothTextarea value={m.ownerNotes||""} onCommit={v => updateMeeting(m.id, "ownerNotes", v)} readOnly={!isOwner}
                   placeholder="A note for the team..." rows={isOwner ? 2 : 1}
-                  style={{ width: "100%", background: "transparent", border: "none", fontSize: 13, fontStyle: "italic", color: m.ownerNotes ? "#444" : "#C4C0B4", fontFamily: "Lora, serif", resize: "none", outline: "none", lineHeight: 1.6 }} />
+                  style={{ fontSize: 13, fontStyle: "italic", color: m.ownerNotes ? "#444" : "#C4C0B4", fontFamily: "Lora, serif", lineHeight: 1.6 }} />
               </div>
             </div>
           );
@@ -1375,8 +1484,8 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                     <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
                     <div style={{ flex: 1 }}>
                       {isOwner
-                        ? <input value={item.item} onChange={e => updateItem(item.id, "item", e.target.value)}
-                            style={{ border: "none", padding: 0, fontSize: 13, fontWeight: item.done ? 400 : 500, background: "transparent", width: "100%", fontFamily: "Inter, sans-serif", color: item.done ? "#9C9888" : "#1C1C1A", textDecoration: item.done ? "line-through" : "none" }} />
+                        ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)}
+                            style={{ border: "none", padding: 0, fontSize: 13, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#9C9888" : "#1C1C1A", textDecoration: item.done ? "line-through" : "none" }} />
                         : <div className="inter" style={{ fontSize: 13, fontWeight: item.done ? 400 : 500, color: item.done ? "#9C9888" : "#1C1C1A", textDecoration: item.done ? "line-through" : "none" }}>{item.item}</div>
                       }
                       {item.notes && <div className="inter" style={{ fontSize: 11, color: "#9C9888", marginTop: 2 }}>{item.notes}</div>}
@@ -1622,13 +1731,13 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                 {(personData.note || isOwner) && (
                   <div style={{ background: "#FDF9F4", border: "1px solid #E8E2D8", borderRadius: 8, padding: "10px 14px", marginBottom: 12 }}>
                     <div className="sec-label" style={{ color: avatarColor(person), marginBottom: 4 }}>Note</div>
-                    <textarea
+                    <SmoothTextarea
                       value={personData.note || ""}
-                      onChange={e => updateNote(person, e.target.value)}
+                      onCommit={v => updateNote(person, v)}
                       readOnly={!isOwner}
                       placeholder={isOwner ? `Add a note for ${person}...` : ""}
                       rows={2}
-                      style={{ width: "100%", background: "transparent", border: "none", fontSize: 13, fontStyle: "italic", color: personData.note ? "#555" : "#C4C0B4", fontFamily: "Lora, serif", resize: "none", outline: "none", lineHeight: 1.6 }}
+                      style={{ fontSize: 13, fontStyle: "italic", color: personData.note ? "#555" : "#C4C0B4", fontFamily: "Lora, serif" }}
                     />
                   </div>
                 )}
@@ -1719,9 +1828,9 @@ function SettingsPage({ data, setData }) {
 
       <div className="card" style={{ maxWidth: 480, marginBottom: 16 }}>
         <div className="sec-label">Your name</div>
-        <input
+        <SmoothInput
           value={data.currentUser}
-          onChange={e => setData(d => ({ ...d, currentUser: e.target.value }))}
+          onCommit={v => setData(d => ({ ...d, currentUser: v }))}
           autoComplete="off"
           style={{ ...inputStyle, marginBottom: 4 }}
         />
@@ -1737,9 +1846,9 @@ function SettingsPage({ data, setData }) {
           {team.map((name, idx) => (
             <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <Avatar name={name} size={36} />
-              <input
+              <SmoothInput
                 value={name}
-                onChange={e => updateName(idx, e.target.value)}
+                onCommit={v => updateName(idx, v)}
                 autoComplete="off"
                 style={inputStyle}
               />
