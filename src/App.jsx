@@ -46,7 +46,7 @@ function useNumberField(externalValue, onCommit) {
 }
 const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "K" : String(n);
 const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
-const AVATAR_PALETTE = ["#1A5F6A","#6B3A2A","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
+const AVATAR_PALETTE = ["#1A5F6A","#7B5EA7","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
 const avatarColor = (name) => AVATAR_PALETTE[(name?.charCodeAt(0) || 0) % AVATAR_PALETTE.length];
 const todayKey = () => new Date().toISOString().split("T")[0];
 const weekKey = () => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(new Date().setDate(diff)).toISOString().split("T")[0]; };
@@ -60,7 +60,7 @@ function SmoothInput({ value, onCommit, placeholder, style, autoFocus, autoCompl
     fontSize: 13,
     color: "#1C1C1A",
     background: "#fff",
-    border: "1px solid #D8D4CC",
+    border: "1px solid #D0DCE4",
     borderRadius: 9,
     padding: "8px 11px",
     outline: "none",
@@ -89,7 +89,7 @@ function SmoothNumber({ value, onCommit, min = 0, style }) {
         fontWeight: 700,
         color: "#1C1C1A",
         background: "#fff",
-        border: "1px solid #D8D4CC",
+        border: "1px solid #D0DCE4",
         borderRadius: 9,
         padding: "6px 8px",
         outline: "none",
@@ -398,35 +398,35 @@ export default function App() {
   const navItems = isOwner ? ownerNav : staffNav;
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#FAFAF8", minHeight: "100vh", color: "#1C1C1A" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F6F9FB", minHeight: "100vh", color: "#1C1C1A" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #FAFAF8; }
+        body { background: #F6F9FB; }
         .lora { font-family: 'Lora', Georgia, serif; }
         .inter { font-family: 'Inter', system-ui, sans-serif; }
-        .card { background: #fff; border: 1px solid #E8E6E0; border-radius: 14px; padding: 20px 22px; }
-        .card-warm { background: #FDF9F4; border: 1px solid #E8E2D8; border-radius: 14px; padding: 20px 22px; }
-        .btn { border: 1px solid #D8D4CC; background: #fff; border-radius: 9px; padding: 9px 18px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; color: #2C2C28; transition: all 0.12s; }
-        .btn:hover { background: #F4F2EC; }
+        .card { background: #fff; border: 1px solid #DDE8EE; border-radius: 14px; padding: 20px 22px; }
+        .card-warm { background: #F4F8FB; border: 1px solid #D8E8F0; border-radius: 14px; padding: 20px 22px; }
+        .btn { border: 1px solid #D0DCE4; background: #fff; border-radius: 9px; padding: 9px 18px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; color: #2C2C28; transition: all 0.12s; }
+        .btn:hover { background: #EEF4F7; }
         .btn-teal { background: #1A5F6A; color: #fff; border-color: #1A5F6A; }
         .btn-teal:hover { background: #164F58; }
-        .pbar { height: 5px; border-radius: 99px; background: #EDE9E0; overflow: hidden; }
+        .pbar { height: 5px; border-radius: 99px; background: #E4EEF4; overflow: hidden; }
         .pfill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 0.01em; }
-        input[type=text], input[type=number], input[type=date], select, textarea { border: 1px solid #D8D4CC; border-radius: 9px; padding: 8px 11px; font-family: 'Inter', sans-serif; font-size: 13px; background: #fff; color: #1C1C1A; outline: none; width: 100%; -webkit-text-fill-color: #1C1C1A; }
+        input[type=text], input[type=number], input[type=date], select, textarea { border: 1px solid #D0DCE4; border-radius: 9px; padding: 8px 11px; font-family: 'Inter', sans-serif; font-size: 13px; background: #fff; color: #1C1C1A; outline: none; width: 100%; -webkit-text-fill-color: #1C1C1A; }
         input:focus, select:focus, textarea:focus { border-color: #1A5F6A; box-shadow: 0 0 0 3px rgba(26,95,106,0.1); }
-        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0px 1000px #fff inset !important; -webkit-text-fill-color: #1C1C1A !important; border-color: #D8D4CC; }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0px 1000px #fff inset !important; -webkit-text-fill-color: #1C1C1A !important; border-color: #D0DCE4; }
         input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; accent-color: #1A5F6A; flex-shrink: 0; }
-        .sec-label { font-size: 10px; font-family: 'Inter', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9C9888; margin-bottom: 10px; }
-        hr.divider { border: none; border-top: 1px solid #EDE9E0; margin: 16px 0; }
+        .sec-label { font-size: 10px; font-family: 'Inter', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #8A9AAA; margin-bottom: 10px; }
+        hr.divider { border: none; border-top: 1px solid #E4EEF4; margin: 16px 0; }
         .avatar { display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-family: 'Inter', sans-serif; font-weight: 700; color: #fff; }
         @media(max-width:680px) { .g2{grid-template-columns:1fr!important} .g3{grid-template-columns:1fr 1fr!important} .hide-sm{display:none!important} }
       `}</style>
 
       {/* Loading */}
       {loading && (
-        <div style={{ position: "fixed", inset: 0, background: "#FAFAF8", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
+        <div style={{ position: "fixed", inset: 0, background: "#F6F9FB", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
           <div style={{ textAlign: "center" }}>
             <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, marginBottom: 16, opacity: 0.8 }} />
             <div className="inter" style={{ fontSize: 13, color: "#9C9888" }}>Getting things ready…</div>
@@ -435,7 +435,7 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header style={{ background: "#fff", borderBottom: "1px solid #EDE9E0", position: "sticky", top: 0, zIndex: 100 }}>
+      <header style={{ background: "#fff", borderBottom: "1px solid #E4EEF4", position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 58, padding: "0 20px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 36, width: "auto" }} />
@@ -451,7 +451,7 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <div style={{ width: 1, height: 16, background: "#E8E6E0", margin: "0 8px" }} />
+            <div style={{ width: 1, height: 16, background: "#DDE8EE", margin: "0 8px" }} />
             <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(isOwner ? "ops" : "home"); }}
               style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#9C9888", fontFamily: "Inter, sans-serif", fontWeight: 500 }}>
               Switch view
@@ -459,20 +459,20 @@ export default function App() {
           </nav>
           {/* Mobile */}
           <button onClick={() => setMenuOpen(o => !o)}
-            style={{ display: "none", background: "none", border: "1px solid #E8E6E0", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 20, color: "#555", lineHeight: 1 }}
+            style={{ display: "none", background: "none", border: "1px solid #DDE8EE", borderRadius: 8, padding: "6px 12px", cursor: "pointer", fontSize: 20, color: "#555", lineHeight: 1 }}
             className="hide-sm" id="mobile-toggle">
             {menuOpen ? "✕" : "☰"}
           </button>
           <button onClick={() => setMenuOpen(o => !o)}
-            style={{ background: "none", border: "1px solid #E8E6E0", borderRadius: 8, padding: "5px 11px", cursor: "pointer", fontSize: 18, color: "#555", lineHeight: 1 }}>
+            style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 8, padding: "5px 11px", cursor: "pointer", fontSize: 18, color: "#555", lineHeight: 1 }}>
             {menuOpen ? "✕" : "☰"}
           </button>
         </div>
         {menuOpen && (
-          <div style={{ borderTop: "1px solid #EDE9E0", background: "#fff" }}>
+          <div style={{ borderTop: "1px solid #E4EEF4", background: "#fff" }}>
             {navItems.map(item => (
               <button key={item.key} onClick={() => { setNav(item.key); setMenuOpen(false); }}
-                style={{ display: "block", width: "100%", textAlign: "left", padding: "13px 20px", background: nav === item.key ? "#F0F8F9" : "none", border: "none", borderBottom: "1px solid #F4F2EC", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: nav === item.key ? "#1A5F6A" : "#1C1C1A", fontWeight: nav === item.key ? 600 : 400 }}>
+                style={{ display: "block", width: "100%", textAlign: "left", padding: "13px 20px", background: nav === item.key ? "#F0F8F9" : "none", border: "none", borderBottom: "1px solid #EEF4F7", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: nav === item.key ? "#1A5F6A" : "#1C1C1A", fontWeight: nav === item.key ? 600 : 400 }}>
                 {item.label}
               </button>
             ))}
@@ -494,8 +494,8 @@ export default function App() {
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
-      <footer style={{ borderTop: "1px solid #EDE9E0", padding: "24px 20px", textAlign: "center", marginTop: 40 }}>
-        <p className="inter" style={{ fontSize: 12, color: "#C4C0B4" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
+      <footer style={{ borderTop: "1px solid #E4EEF4", padding: "24px 20px", textAlign: "center", marginTop: 40 }}>
+        <p className="inter" style={{ fontSize: 12, color: "#A8B8C4" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
       </footer>
     </div>
   );
@@ -559,7 +559,7 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
               <div className="inter" style={{ fontSize: 12, color: "#9C9888", marginTop: 3 }}>{wigGoal.why}</div>
             </div>
             <select value={data.wigId} onChange={e => setData(d => ({ ...d, wigId: Number(e.target.value) }))}
-              style={{ width: "auto", fontSize: 12, border: "1px solid #E8E6E0", borderRadius: 8, padding: "4px 8px", background: "#fff", cursor: "pointer", marginLeft: 12, flexShrink: 0 }}>
+              style={{ width: "auto", fontSize: 12, border: "1px solid #DDE8EE", borderRadius: 8, padding: "4px 8px", background: "#fff", cursor: "pointer", marginLeft: 12, flexShrink: 0 }}>
               {data.goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
             </select>
           </div>
@@ -581,7 +581,7 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
           { label: "Open tasks", value: openTasks, color: openTasks > 5 ? "#F57F17" : "#1A5F6A" },
           { label: "Ops done today", value: `${dailyDone}/${dailyOps.length}`, color: dailyDone === dailyOps.length ? "#2E7D32" : "#F57F17" },
         ].map(s => (
-          <div key={s.label} style={{ background: "#fff", border: "1px solid #E8E6E0", borderRadius: 12, padding: "16px 18px" }}>
+          <div key={s.label} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "16px 18px" }}>
             <div className="sec-label">{s.label}</div>
             <div className="lora" style={{ fontSize: 26, color: s.color, marginTop: 2 }}>{s.value}</div>
           </div>
@@ -635,7 +635,7 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Avatar name={c.person} size={24} />
                 <span className="inter" style={{ fontSize: 13, color: c.done ? "#9C9888" : "#1C1C1A", textDecoration: c.done ? "line-through" : "none", flex: 1 }}>{c.commitment}</span>
-                <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.done ? "#4CAF50" : "#EDE9E0" }} />
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: c.done ? "#4CAF50" : "#E4EEF4" }} />
               </div>
             ))}
           </div>
@@ -696,7 +696,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#1C1C1A" }}>{shiftLabel}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 72, height: 4, background: "#EDE9E0", borderRadius: 99, overflow: "hidden" }}>
+            <div style={{ width: 72, height: 4, background: "#E4EEF4", borderRadius: 99, overflow: "hidden" }}>
               <div style={{ width: `${shiftOps.length ? Math.round((shiftDone/shiftOps.length)*100) : 0}%`, height: "100%", background: shiftDone === shiftOps.length ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
             </div>
             <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: shiftDone === shiftOps.length ? "#2E7D32" : "#1A5F6A" }}>{shiftDone}/{shiftOps.length}</span>
@@ -716,7 +716,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
             const isDone = !!completion;
             const isOpen = picker === t.id;
             return (
-              <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#E8E6E0"}`, borderRadius: 12, overflow: "hidden", transition: "all 0.15s" }}>
+              <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 12, overflow: "hidden", transition: "all 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
                   <button onClick={() => isDone ? uncompleteOps(t.id) : setPicker(isOpen ? null : t.id)}
                     style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${isDone ? "#4CAF50" : isOpen ? "#1A5F6A" : "#D4D0C8"}`, background: isDone ? "#4CAF50" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
@@ -750,7 +750,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
                       </button>
                     ))}
                     <button onClick={() => setPicker(null)}
-                      style={{ padding: "8px 14px", borderRadius: 99, border: "1.5px solid #E8E6E0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#9C9888", fontFamily: "Inter, sans-serif" }}>
+                      style={{ padding: "8px 14px", borderRadius: 99, border: "1.5px solid #DDE8EE", background: "#fff", cursor: "pointer", fontSize: 13, color: "#9C9888", fontFamily: "Inter, sans-serif" }}>
                       Cancel
                     </button>
                   </div>
@@ -767,7 +767,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
           <div className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#1C1C1A", marginBottom: 12 }}>📌 Your Tasks</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {openTasks.map(t => (
-              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: "1px solid #E8E6E0", borderRadius: 10 }}>
+              <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: "1px solid #DDE8EE", borderRadius: 10 }}>
                 <input type="checkbox" checked={false} onChange={() => updateTask(t.id, "status", "done")} style={{ width: 20, height: 20 }} />
                 <div style={{ flex: 1 }}>
                   <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1C1C1A" }}>{t.title}</div>
@@ -791,7 +791,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
             const val = data.weeklyLogs[m.goalId]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
             const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
             return (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: done ? "#F0FBF0" : "#fff", border: `1px solid ${done ? "#C8E6C9" : "#E8E6E0"}`, borderRadius: 10 }}>
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: done ? "#F0FBF0" : "#fff", border: `1px solid ${done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10 }}>
                 <div style={{ width: 7, height: 7, borderRadius: "50%", background: done ? "#4CAF50" : "#D4D0C8", flexShrink: 0 }} />
                 <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{m.title}</span>
                 {m.type === "checkbox"
@@ -882,13 +882,13 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
           const fp = fTasks.length ? Math.round((fDone/fTasks.length)*100) : 0;
           return (
             <button key={f.key} onClick={() => setActiveFreq(f.key)}
-              style={{ padding: "10px 16px", borderRadius: 10, border: `1.5px solid ${activeFreq === f.key ? "#1A5F6A" : "#E8E6E0"}`, background: activeFreq === f.key ? "#1A5F6A" : "#fff", cursor: "pointer", flexShrink: 0, textAlign: "left", transition: "all 0.12s" }}>
+              style={{ padding: "10px 16px", borderRadius: 10, border: `1.5px solid ${activeFreq === f.key ? "#1A5F6A" : "#DDE8EE"}`, background: activeFreq === f.key ? "#1A5F6A" : "#fff", cursor: "pointer", flexShrink: 0, textAlign: "left", transition: "all 0.12s" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                 <span style={{ fontSize: 14 }}>{f.emoji}</span>
                 <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: activeFreq === f.key ? "#fff" : "#2C2C28" }}>{f.label}</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 36, height: 3, background: activeFreq === f.key ? "rgba(255,255,255,0.25)" : "#EDE9E0", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: 36, height: 3, background: activeFreq === f.key ? "rgba(255,255,255,0.25)" : "#E4EEF4", borderRadius: 99, overflow: "hidden" }}>
                   <div style={{ width: `${fp}%`, height: "100%", background: activeFreq === f.key ? "#7DD3B8" : "#1A5F6A", borderRadius: 99 }} />
                 </div>
                 <span className="inter" style={{ fontSize: 10, color: activeFreq === f.key ? "rgba(255,255,255,0.7)" : "#9C9888" }}>{fDone}/{fTasks.length}</span>
@@ -899,7 +899,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
       </div>
 
       {/* Progress */}
-      <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: "#F4F2EC", borderRadius: 10, marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", background: "#EEF4F7", borderRadius: 10, marginBottom: 20 }}>
         <div style={{ flex: 1, height: 5, background: "#E0DDD6", borderRadius: 99, overflow: "hidden" }}>
           <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.4s" }} />
         </div>
@@ -916,7 +916,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
           const isEditing = editing === t.id && isOwner;
 
           return (
-            <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#E8E6E0"}`, borderRadius: 12, overflow: "hidden" }}>
+            <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 12, overflow: "hidden" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 13, padding: "13px 16px" }}>
                 <button onClick={() => isDone ? uncomplete(t.id) : setPicker(isOpen ? null : t.id)}
                   style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${isDone ? "#4CAF50" : isOpen ? "#1A5F6A" : "#D4D0C8"}`, background: isDone ? "#4CAF50" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
@@ -948,7 +948,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                   }
                   {isOwner && (
                     <button onClick={() => setEditing(editing === t.id ? null : t.id)}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#C4C0B4", fontSize: 14, padding: "0 2px" }}>✎</button>
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#A8B8C4", fontSize: 14, padding: "0 2px" }}>✎</button>
                   )}
                 </div>
               </div>
@@ -963,13 +963,13 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                       <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1A5F6A" }}>{person}</span>
                     </button>
                   ))}
-                  <button onClick={() => setPicker(null)} style={{ padding: "7px 13px", borderRadius: 99, border: "1.5px solid #E8E6E0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#9C9888", fontFamily: "Inter, sans-serif" }}>Cancel</button>
+                  <button onClick={() => setPicker(null)} style={{ padding: "7px 13px", borderRadius: 99, border: "1.5px solid #DDE8EE", background: "#fff", cursor: "pointer", fontSize: 13, color: "#9C9888", fontFamily: "Inter, sans-serif" }}>Cancel</button>
                 </div>
               )}
 
               {/* Edit panel */}
               {isEditing && (
-                <div style={{ padding: "0 16px 14px", borderTop: "1px solid #EDE9E0", paddingTop: 12 }}>
+                <div style={{ padding: "0 16px 14px", borderTop: "1px solid #E4EEF4", paddingTop: 12 }}>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
                     <div>
                       <div className="sec-label">Description</div>
@@ -996,7 +996,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
       {tasks.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div className="lora" style={{ fontSize: 18, color: "#C4C0B4", fontStyle: "italic" }}>No {activeFreq} tasks yet.</div>
+          <div className="lora" style={{ fontSize: 18, color: "#A8B8C4", fontStyle: "italic" }}>No {activeFreq} tasks yet.</div>
           {isOwner && <button className="btn btn-teal" onClick={addOps} style={{ marginTop: 14 }}>+ Add one</button>}
         </div>
       )}
@@ -1127,7 +1127,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {measures.map(m => (
-                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 13px", background: m.done ? "#F0FBF0" : "#FAFAF8", borderRadius: 8, border: `1px solid ${m.done ? "#C8E6C9" : "#EDE9E0"}` }}>
+                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 13px", background: m.done ? "#F0FBF0" : "#F6F9FB", borderRadius: 8, border: `1px solid ${m.done ? "#C8E6C9" : "#E4EEF4"}` }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: m.done ? "#4CAF50" : "#D4D0C8", flexShrink: 0 }} />
                     {isOwner
                       ? <SmoothInput value={m.title} onCommit={v => updateMeasure(m.id, "title", v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent" }} />
@@ -1145,7 +1145,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                   </div>
                 ))}
                 {measures.length === 0 && isOwner && (
-                  <p className="inter" style={{ fontSize: 13, color: "#C4C0B4", fontStyle: "italic" }}>No weekly actions yet — add one above.</p>
+                  <p className="inter" style={{ fontSize: 13, color: "#A8B8C4", fontStyle: "italic" }}>No weekly actions yet — add one above.</p>
                 )}
               </div>
             </div>
@@ -1188,7 +1188,7 @@ function WorkPage({ data, setData, updateTask, isOwner, TEAM }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "12px 18px", borderRadius: 12, border: `1.5px solid ${tab === t.key ? "#1A5F6A" : "#E8E6E0"}`, background: tab === t.key ? "#1A5F6A" : "#fff", cursor: "pointer", flexShrink: 0, minWidth: 130, transition: "all 0.12s" }}>
+            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "12px 18px", borderRadius: 12, border: `1.5px solid ${tab === t.key ? "#1A5F6A" : "#DDE8EE"}`, background: tab === t.key ? "#1A5F6A" : "#fff", cursor: "pointer", flexShrink: 0, minWidth: 130, transition: "all 0.12s" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
               <span style={{ fontSize: 15 }}>{t.emoji}</span>
               <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: tab === t.key ? "#fff" : "#2C2C28" }}>{t.label}</span>
@@ -1216,7 +1216,7 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
   const TaskRow = ({ t }) => {
     const isOverdue = t.due && t.due < today;
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: `1px solid ${isOverdue ? "#FFCDD2" : "#E8E6E0"}`, borderRadius: 10, opacity: t.status === "done" ? 0.45 : 1 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: `1px solid ${isOverdue ? "#FFCDD2" : "#DDE8EE"}`, borderRadius: 10, opacity: t.status === "done" ? 0.45 : 1 }}>
         <input type="checkbox" checked={t.status === "done"} onChange={e => updateTask(t.id, "status", e.target.checked ? "done" : "todo")} style={{ width: 18, height: 18 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           {isOwner
@@ -1248,7 +1248,7 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <div style={{ width: 7, height: 7, borderRadius: "50%", background: accent }} />
         <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#666", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
-        <span className="inter" style={{ fontSize: 12, color: "#C4C0B4" }}>{tasks.length}</span>
+        <span className="inter" style={{ fontSize: 12, color: "#A8B8C4" }}>{tasks.length}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{tasks.map(t => <TaskRow key={t.id} t={t} />)}</div>
     </div>
@@ -1267,13 +1267,13 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
         </select>
         {isOwner && <button className="btn btn-teal" onClick={addTask}>+ Task</button>}
       </div>
-      {filteredOpen.length === 0 && <div style={{ textAlign: "center", padding: "32px 0" }}><div className="lora" style={{ fontSize: 18, color: "#C4C0B4", fontStyle: "italic" }}>All clear! 🌊</div></div>}
+      {filteredOpen.length === 0 && <div style={{ textAlign: "center", padding: "32px 0" }}><div className="lora" style={{ fontSize: 18, color: "#A8B8C4", fontStyle: "italic" }}>All clear! 🌊</div></div>}
       <Section label="Overdue / Today" tasks={filteredOverdue} accent="#EF5350" />
       <Section label="This Week" tasks={filteredThisWeek} accent="#FFC107" />
       <Section label="Later" tasks={filteredLater} accent="#B0B0A8" />
       {done.length > 0 && (
         <details style={{ marginTop: 8 }}>
-          <summary className="inter" style={{ fontSize: 12, color: "#C4C0B4", cursor: "pointer", padding: "8px 0" }}>Show {done.length} completed</summary>
+          <summary className="inter" style={{ fontSize: 12, color: "#A8B8C4", cursor: "pointer", padding: "8px 0" }}>Show {done.length} completed</summary>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>{done.map(t => <TaskRow key={t.id} t={t} />)}</div>
         </details>
       )}
@@ -1398,7 +1398,7 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {(m.commitments||[]).map((c, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: c.done ? "#F0FBF0" : "#FAFAF8", borderRadius: 8, border: `1px solid ${c.done ? "#C8E6C9" : "#EDE9E0"}` }}>
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", background: c.done ? "#F0FBF0" : "#F6F9FB", borderRadius: 8, border: `1px solid ${c.done ? "#C8E6C9" : "#E4EEF4"}` }}>
                     <input type="checkbox" checked={c.done} onChange={e => updateCF(m.id, i, "done", e.target.checked)} />
                     {isOwner
                       ? <>
@@ -1415,11 +1415,11 @@ function CheckinsTab({ data, setData, isOwner, TEAM }) {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 12, borderTop: "1px solid #EDE9E0", paddingTop: 12 }}>
+              <div style={{ marginTop: 12, borderTop: "1px solid #E4EEF4", paddingTop: 12 }}>
                 <div className="sec-label" style={{ color: "#1A5F6A", marginBottom: 5 }}>Owner Note</div>
                 <SmoothTextarea value={m.ownerNotes||""} onCommit={v => updateMeeting(m.id, "ownerNotes", v)} readOnly={!isOwner}
                   placeholder="A note for the team..." rows={isOwner ? 2 : 1}
-                  style={{ fontSize: 13, fontStyle: "italic", color: m.ownerNotes ? "#444" : "#C4C0B4", fontFamily: "Lora, serif", lineHeight: 1.6 }} />
+                  style={{ fontSize: 13, fontStyle: "italic", color: m.ownerNotes ? "#444" : "#A8B8C4", fontFamily: "Lora, serif", lineHeight: 1.6 }} />
               </div>
             </div>
           );
@@ -1462,12 +1462,12 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
       </div>
 
       {/* Progress */}
-      <div style={{ background: "#fff", border: "1px solid #E8E6E0", borderRadius: 12, padding: "16px 20px", marginBottom: 24 }}>
+      <div style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "16px 20px", marginBottom: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
           <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>Overall readiness — {doneCount} of {items.length} complete</span>
           <span className="lora" style={{ fontSize: 22, color: pctDone === 100 ? "#2E7D32" : "#1A5F6A" }}>{pctDone}%</span>
         </div>
-        <div style={{ height: 8, background: "#EDE9E0", borderRadius: 99, overflow: "hidden" }}>
+        <div style={{ height: 8, background: "#E4EEF4", borderRadius: 99, overflow: "hidden" }}>
           <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
         </div>
         {pctDone === 100 && <p className="inter" style={{ fontSize: 13, color: "#2E7D32", marginTop: 8, fontWeight: 600 }}>🎉 Ready to open — let's go!</p>}
@@ -1494,15 +1494,15 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1C1C1A" }}>{cat}</span>
                   <span className="inter" style={{ fontSize: 11, color: "#9C9888" }}>{catDone}/{catItems.length}</span>
-                  <div style={{ width: 48, height: 3, background: "#EDE9E0", borderRadius: 99, overflow: "hidden" }}>
+                  <div style={{ width: 48, height: 3, background: "#E4EEF4", borderRadius: 99, overflow: "hidden" }}>
                     <div style={{ width: `${cp}%`, height: "100%", background: cp === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
                   </div>
                 </div>
-                {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #E8E6E0", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#666", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
+                {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#666", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {catItems.map(item => (
-                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#E8E6E0"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
+                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
                     <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
                     <div style={{ flex: 1 }}>
                       {isOwner
@@ -1515,7 +1515,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                       {isOwner
                         ? <>
-                            <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", border: "1px solid #E8E6E0", borderRadius: 6 }}>
+                            <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", border: "1px solid #DDE8EE", borderRadius: 6 }}>
                               {TEAM.map(t => <option key={t}>{t}</option>)}
                             </select>
                             <button onClick={() => setData(d => ({ ...d, openingChecklist: d.openingChecklist.filter(x => x.id !== item.id) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#D4D0C8", fontSize: 14 }}>✕</button>
@@ -1621,7 +1621,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                 <span className="lora" style={{ fontSize: 22, color: s.bar, fontWeight: 600 }}>{fmt(g.current)}</span>
                 <span className="inter" style={{ fontSize: 13, color: "#9C9888" }}>/ {fmt(g.target)}</span>
               </div>
-              <div style={{ height: 6, background: "#EDE9E0", borderRadius: 99, overflow: "hidden", marginBottom: 6 }}>
+              <div style={{ height: 6, background: "#E4EEF4", borderRadius: 99, overflow: "hidden", marginBottom: 6 }}>
                 <div style={{ width: `${p}%`, height: "100%", background: s.bar, borderRadius: 99, transition: "width 0.5s" }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1651,7 +1651,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
               { label: "Referrals",      field: "referrals",    emoji: "🤝" },
               { label: "Day Passes",     field: "dayPasses",    emoji: "🎟️" },
             ].map(m => (
-              <div key={m.field} style={{ background: "#FAFAF8", borderRadius: 10, padding: "12px 14px" }}>
+              <div key={m.field} style={{ background: "#F6F9FB", borderRadius: 10, padding: "12px 14px" }}>
                 <div className="inter" style={{ fontSize: 11, color: "#9C9888", marginBottom: 4 }}>{m.emoji} {m.label}</div>
                 {isOwner
                   ? <SmoothNumber value={latestMetric[m.field]} onCommit={v => updateMetric(latestMetric.id, m.field, v)} style={{ width: "100%", fontSize: 20, textAlign: "left", border: "none", background: "transparent", padding: "0", fontWeight: 700 }} />
@@ -1663,7 +1663,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
           {isOwner && (
             <div style={{ marginTop: 12 }}>
               <SmoothTextarea value={latestMetric.notes||""} onCommit={v => updateMetric(latestMetric.id, "notes", v)} placeholder="Notes about this month..." rows={2}
-                style={{ fontSize: 12, color: "#555", fontStyle: "italic", background: "#FAFAF8", border: "1px solid #EDE9E0", borderRadius: 8, padding: "8px 12px", width: "100%" }} />
+                style={{ fontSize: 12, color: "#555", fontStyle: "italic", background: "#F6F9FB", border: "1px solid #DDE8EE", borderRadius: 8, padding: "8px 12px", width: "100%" }} />
             </div>
           )}
           {!isOwner && latestMetric.notes && (
@@ -1679,11 +1679,11 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             <div className="sec-label">This Week at Ripple</div>
             <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#1C1C1A" }}>Ways to help this week 🌱</div>
           </div>
-          {isOwner && <button onClick={addSuggestion} style={{ background: "none", border: "1px solid #E8E2D8", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 12, color: "#6B3A2A", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add</button>}
+          {isOwner && <button onClick={addSuggestion} style={{ background: "none", border: "1px solid #D8E8F0", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 12, color: "#7B5EA7", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add</button>}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {suggestions.filter(s => s.active || isOwner).map(s => (
-            <div key={s.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: s.active ? "#fff" : "#F4F2EC", borderRadius: 10, border: `1px solid ${s.active ? "#E8E2D8" : "#EDE9E0"}`, opacity: s.active ? 1 : 0.55 }}>
+            <div key={s.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: s.active ? "#fff" : "#EEF4F7", borderRadius: 10, border: `1px solid ${s.active ? "#D8E8F0" : "#E4EEF4"}`, opacity: s.active ? 1 : 0.55 }}>
               <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>{s.active ? "💚" : "○"}</span>
               {isOwner
                 ? <SmoothInput value={s.text} onCommit={v => updateSuggestion(s.id, v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, background: "transparent", lineHeight: 1.5 }} />
@@ -1711,7 +1711,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             const [showInput, setShowInput] = useState(false);
 
             return (
-              <div key={person} style={{ background: "#fff", border: "1px solid #E8E6E0", borderRadius: 16, overflow: "hidden" }}>
+              <div key={person} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 16, overflow: "hidden" }}>
                 <div style={{ background: avatarColor(person), padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.35)", flexShrink: 0 }}>
                     <span className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{initials(person)}</span>
@@ -1740,7 +1740,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                       ))}
                     </div>
                   ) : (
-                    <p className="inter" style={{ fontSize: 13, color: "#C4C0B4", fontStyle: "italic", marginBottom: 10 }}>Nothing logged yet — add something that moved the goal forward!</p>
+                    <p className="inter" style={{ fontSize: 13, color: "#A8B8C4", fontStyle: "italic", marginBottom: 10 }}>Nothing logged yet — add something that moved the goal forward!</p>
                   )}
                   {showInput ? (
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1751,11 +1751,11 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                       <button onClick={() => { if (input.trim()) { addAction(person, input); setInput(""); } setShowInput(false); }}
                         style={{ background: avatarColor(person), color: "#fff", border: "none", borderRadius: 9, padding: "9px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, flexShrink: 0 }}>Save</button>
                       <button onClick={() => { setShowInput(false); setInput(""); }}
-                        style={{ background: "none", border: "1px solid #E8E6E0", borderRadius: 9, padding: "9px 11px", cursor: "pointer", fontSize: 14, color: "#9C9888", flexShrink: 0 }}>✕</button>
+                        style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 9, padding: "9px 11px", cursor: "pointer", fontSize: 14, color: "#9C9888", flexShrink: 0 }}>✕</button>
                     </div>
                   ) : (
                     <button onClick={() => setShowInput(true)}
-                      style={{ background: "#FAFAF8", border: `1.5px dashed ${avatarColor(person)}50`, borderRadius: 9, padding: "9px 16px", cursor: "pointer", fontSize: 13, color: avatarColor(person), fontFamily: "Inter, sans-serif", fontWeight: 600, width: "100%", textAlign: "center" }}>
+                      style={{ background: "#F6F9FB", border: `1.5px dashed ${avatarColor(person)}50`, borderRadius: 9, padding: "9px 16px", cursor: "pointer", fontSize: 13, color: avatarColor(person), fontFamily: "Inter, sans-serif", fontWeight: 600, width: "100%", textAlign: "center" }}>
                       + Log what {person} did this week
                     </button>
                   )}
