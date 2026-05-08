@@ -137,7 +137,7 @@ const INITIAL_DATA = {
   wigId: 1,
 
   goals: [
-    { id: 1, title: "Sell 75 Founding Memberships", category: "Memberships", target: 75, current: 31, owner: "Collin", status: "on-track", why: "Founding members build our community before we open. They're our believers.", notes: "" },
+    { id: 1, title: "Reach 200 Founding Members (People)", category: "Memberships", target: 200, current: 31, owner: "Collin", status: "on-track", why: "Founding members build our community before we open. They're our believers.", notes: "" },
     { id: 2, title: "Collect 500 Email Leads", category: "Marketing", target: 500, current: 187, owner: "Collin", status: "needs-attention", why: "Email is our best tool to reach Broad Ripple before opening.", notes: "" },
     { id: 3, title: "20 Local Business Partnerships", category: "Partnerships", target: 20, current: 6, owner: "Collin", status: "off-track", why: "Local businesses amplify our reach and bring in their communities.", notes: "" },
     { id: 4, title: "Host 4 Preview Events", category: "Events", target: 4, current: 1, owner: "Madeline", status: "on-track", why: "Let people fall in love with the space before we open.", notes: "" },
@@ -490,8 +490,8 @@ export default function App() {
   const updateLog = (gid, mid, v) => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [gid]: { ...d.weeklyLogs[gid], [mid]: v } } }));
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
 
-  // Auto-sync founding member count from real Beta data
-  const realFoundingCount = (data.foundingMembers || []).length;
+  // Auto-sync founding member count from real Beta data — counts people, not memberships
+  const realFoundingCount = (data.foundingMembers || []).reduce((s, m) => s + (m.people || 1), 0);
   const goalsWithRealCount = data.goals.map(g =>
     g.title.toLowerCase().includes("founding") ? { ...g, current: realFoundingCount } : g
   );
