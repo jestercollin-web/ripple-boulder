@@ -1148,6 +1148,8 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
           {isOwner && <button className="btn btn-teal" onClick={addOps} style={{ marginTop: 14 }}>+ Add one</button>}
         </div>
       )}
+
+      {!isOwner && <ValuesCard />}
     </div>
   );
 }
