@@ -1076,7 +1076,8 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                 {isOwner
                   ? <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <SmoothNumber value={g.current} onCommit={v => updateGoal(g.id, "current", v)} style={{ width: 72 }} />
-                      <span className="inter" style={{ fontSize: 13, color: "#9C9888" }}>/ {fmt(g.target)}</span>
+                      <span className="inter" style={{ fontSize: 13, color: "#9C9888" }}>/</span>
+                      <SmoothNumber value={g.target} onCommit={v => updateGoal(g.id, "target", v)} style={{ width: 72, color: "#9C9888", fontWeight: 600 }} />
                     </div>
                   : <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1C1C1A", whiteSpace: "nowrap" }}>{fmt(g.current)} / {fmt(g.target)}</span>
                 }
