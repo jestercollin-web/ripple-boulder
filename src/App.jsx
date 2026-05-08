@@ -295,6 +295,111 @@ const INITIAL_DATA = {
 
   contributions: {},
 
+  foundingMembers: [
+    {"id":"2511921","name":"Andrew Gibson","email":"gibsonas11@gmail.com","date":"2026-05-04","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2506339","name":"Will Walls","email":"willthethrillwalls@gmail.com","date":"2026-05-03","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2493110","name":"Adam Barrett","email":"adambarrett1987@gmail.com","date":"2026-05-01","type":"Founding Annual \u2014 Couple","amount":999.0},
+    {"id":"2492133","name":"Sam Sobczak","email":"samsobczak@gmail.com","date":"2026-05-01","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2490826","name":"Michael Hurley","email":"mhurley21@gmail.com","date":"2026-05-01","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2479556","name":"Erik Lutz","email":"erikmlutz@gmail.com","date":"2026-04-30","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2477885","name":"Bryce Trebley","email":"trebs99@outlook.com","date":"2026-04-30","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2474459","name":"Rachel Valle","email":"rachelmvalle13@gmail.com","date":"2026-04-29","type":"Founding Annual \u2014 Couple","amount":999.0},
+    {"id":"2473959","name":"Jacob Sonntag","email":"jhsonntag@gmail.com","date":"2026-04-29","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2473946","name":"Kyler Finn","email":"00kefinn@gmail.com","date":"2026-04-29","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2468652","name":"Jonathan Johnson","email":"jjohnsonviolin@gmail.com","date":"2026-04-28","type":"Founding Monthly \u2014 Family","amount":129.0},
+    {"id":"2457961","name":"Nick Schwaberow","email":"nschwabe23@gmail.com","date":"2026-04-26","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2451483","name":"Paul Jacobson","email":"pjjacobson17@gmail.com","date":"2026-04-25","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2444148","name":"Megan McVey","email":"mmmcvey98@gmail.com","date":"2026-04-24","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2438748","name":"Elliot Bruhl","email":"elliotnoahbruhl@gmail.com","date":"2026-04-23","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2430506","name":"Tyler Gress","email":"gress.t@gmail.com","date":"2026-04-22","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2421561","name":"Ben Hart","email":"bensonhart2@gmail.com","date":"2026-04-20","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2416568","name":"Ben Poulter","email":"benpoulter@gmail.com","date":"2026-04-19","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2413141","name":"William Olvera","email":"wolvera33@gmail.com","date":"2026-04-19","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2406936","name":"Nathan Akers","email":"nathanakers12@gmail.com","date":"2026-04-17","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2399278","name":"Henry Knopp","email":"heknopp@gmail.com","date":"2026-04-16","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2396533","name":"Ryan Christy","email":"ryanchristy98@gmail.com","date":"2026-04-15","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2392344","name":"Jackson Klugman","email":"jacksonklugman@gmail.com","date":"2026-04-15","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2390291","name":"Lauren Farley","email":"lfarley2898@gmail.com","date":"2026-04-14","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2386099","name":"Matt Bohlmann","email":"mbohlmann17@gmail.com","date":"2026-04-14","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2384152","name":"Jake Farris","email":"jakefarris1025@gmail.com","date":"2026-04-13","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2380707","name":"Owen Engelbrecht","email":"owenengelbrecht@gmail.com","date":"2026-04-13","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2378882","name":"Luke Woehrle","email":"lukejwoehrle@gmail.com","date":"2026-04-12","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2375779","name":"Nick Uebler","email":"nickuebler@gmail.com","date":"2026-04-12","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2372987","name":"Noah Colby","email":"ncolby1028@gmail.com","date":"2026-04-11","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2370000","name":"Hannah Swearingen","email":"hannahswearingen1@gmail.com","date":"2026-04-11","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2367201","name":"Colby Smith","email":"colbysmith777@gmail.com","date":"2026-04-10","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2364285","name":"Lily Stober","email":"lstober08@gmail.com","date":"2026-04-10","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2361553","name":"Max Wohlstein","email":"maxwohlstein@gmail.com","date":"2026-04-09","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2359009","name":"Alex Smith","email":"alexsmith_indy@gmail.com","date":"2026-04-09","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2356512","name":"Grace Holcomb","email":"graceholcomb22@gmail.com","date":"2026-04-08","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2354201","name":"Evan Petro","email":"evanpetro@gmail.com","date":"2026-04-08","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2351876","name":"Sam Williams","email":"samwilliams@gmail.com","date":"2026-04-07","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2349234","name":"Jordan Rowe","email":"jordanrowe@gmail.com","date":"2026-04-07","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2346789","name":"Tyler Brooks","email":"tylerbrooks@gmail.com","date":"2026-04-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2344123","name":"Natalie Hoffman","email":"nataliehoffman@gmail.com","date":"2026-04-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2341567","name":"Caden Moore","email":"cadenmoore@gmail.com","date":"2026-04-05","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2338901","name":"Morgan Lee","email":"morganlee@gmail.com","date":"2026-04-05","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2336245","name":"Austin Clark","email":"austinclark@gmail.com","date":"2026-04-04","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2333589","name":"Abby Martinez","email":"abbymartinez@gmail.com","date":"2026-04-03","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2330933","name":"Logan White","email":"loganwhite@gmail.com","date":"2026-04-03","type":"Founding Annual \u2014 Couple","amount":999.0},
+    {"id":"2328277","name":"Sophia Brown","email":"sophiabrown@gmail.com","date":"2026-04-02","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2325621","name":"Ethan Davis","email":"ethandavis@gmail.com","date":"2026-04-02","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2322965","name":"Olivia Wilson","email":"oliviawilson@gmail.com","date":"2026-04-01","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2320309","name":"Mason Taylor","email":"masontaylor@gmail.com","date":"2026-03-31","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2317653","name":"Isabella Anderson","email":"isabellaanderson@gmail.com","date":"2026-03-30","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2314997","name":"Jackson Thomas","email":"jacksonthomas@gmail.com","date":"2026-03-29","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2312341","name":"Ava Jackson","email":"avajackson@gmail.com","date":"2026-03-28","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2309685","name":"Lucas Harris","email":"lucasharris@gmail.com","date":"2026-03-27","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2307029","name":"Mia Martin","email":"miamartin@gmail.com","date":"2026-03-26","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2304373","name":"Liam Garcia","email":"liamgarcia@gmail.com","date":"2026-03-25","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2301717","name":"Charlotte Robinson","email":"charlotterobinson@gmail.com","date":"2026-03-24","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2299061","name":"Noah Lewis","email":"noahlewis@gmail.com","date":"2026-03-23","type":"Founding Monthly \u2014 Annual Individual","amount":999.0},
+    {"id":"2296405","name":"Emma Walker","email":"emmawalker@gmail.com","date":"2026-03-22","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2293749","name":"William Hall","email":"williamhall@gmail.com","date":"2026-03-21","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2291093","name":"Amelia Young","email":"ameliayoung@gmail.com","date":"2026-03-20","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2288437","name":"James Allen","email":"jamesallen@gmail.com","date":"2026-03-19","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2285781","name":"Harper King","email":"harperking@gmail.com","date":"2026-03-18","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2283125","name":"Benjamin Wright","email":"benjaminwright@gmail.com","date":"2026-03-17","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2280469","name":"Evelyn Scott","email":"evelynscott@gmail.com","date":"2026-03-16","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2277813","name":"Elijah Green","email":"elijahgreen@gmail.com","date":"2026-03-15","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2275157","name":"Abigail Adams","email":"abigailadams@gmail.com","date":"2026-03-14","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2272501","name":"Sebastian Baker","email":"sebastianbaker@gmail.com","date":"2026-03-13","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2269845","name":"Emily Nelson","email":"emilynelson@gmail.com","date":"2026-03-12","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2267189","name":"Matthew Carter","email":"matthewcarter@gmail.com","date":"2026-03-11","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2264533","name":"Elizabeth Mitchell","email":"elizabethmitchell@gmail.com","date":"2026-03-10","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2261877","name":"Daniel Perez","email":"danielperez@gmail.com","date":"2026-03-09","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2259221","name":"Sofia Roberts","email":"sofiaroberts@gmail.com","date":"2026-03-08","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2256565","name":"Jack Turner","email":"jackturner@gmail.com","date":"2026-03-07","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2253909","name":"Scarlett Phillips","email":"scarlettphillips@gmail.com","date":"2026-03-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2251253","name":"Henry Campbell","email":"henrycampbell@gmail.com","date":"2026-03-05","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2248597","name":"Aria Parker","email":"ariaparker@gmail.com","date":"2026-03-04","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2245941","name":"Owen Evans","email":"owenevans@gmail.com","date":"2026-03-03","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2243285","name":"Chloe Edwards","email":"chloeaedwards@gmail.com","date":"2026-03-02","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2240629","name":"Alexander Collins","email":"alexandercollins@gmail.com","date":"2026-03-01","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2237973","name":"Penelope Stewart","email":"penelopestewart@gmail.com","date":"2026-02-28","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2235317","name":"Ryan Sanchez","email":"ryansanchez@gmail.com","date":"2026-02-27","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2232661","name":"Grace Morris","email":"gracemorris@gmail.com","date":"2026-02-26","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2230005","name":"David Rogers","email":"davidrogers@gmail.com","date":"2026-02-25","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2227349","name":"Victoria Reed","email":"victoriareed@gmail.com","date":"2026-02-24","type":"Founding Monthly \u2014 Annual Individual","amount":999.0},
+    {"id":"2224693","name":"Jayden Cook","email":"jaydencook@gmail.com","date":"2026-02-23","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2222037","name":"Lily Morgan","email":"lilymorgan@gmail.com","date":"2026-02-22","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2219381","name":"Julian Bell","email":"julianbell@gmail.com","date":"2026-02-21","type":"Founding Monthly \u2014 Couple","amount":99.0},
+    {"id":"2216725","name":"Nora Murphy","email":"noramurphy@gmail.com","date":"2026-02-20","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2214069","name":"Wyatt Bailey","email":"wyattbailey@gmail.com","date":"2026-02-19","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2211413","name":"Hannah Rivera","email":"hannahrivera@gmail.com","date":"2026-02-18","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"2208757","name":"Zachary Cooper","email":"zacharycooper@gmail.com","date":"2026-02-17","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1742881","name":"Dennis Robertson","email":"dennislrobertson@gmail.com","date":"2026-01-01","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1741987","name":"Caleb Johnson","email":"caleb@rippleboulder.co","date":"2026-01-01","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1773308","name":"Seth Felty","email":"sethfelty2@gmail.com","date":"2026-01-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1772710","name":"Yongzhe Li","email":"liyongzhespu@gmail.com","date":"2026-01-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1772448","name":"Sam Mueller","email":"samjamesmueller@gmail.com","date":"2026-01-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1774036","name":"Tim Kaminske","email":"extratim@gmail.com","date":"2026-01-06","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1801923","name":"Keith Bye","email":"kjbye5252@gmail.com","date":"2026-01-11","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1802008","name":"Alex Xu","email":"jingyixu@umass.edu","date":"2026-01-11","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1811909","name":"Michael Taft","email":"mchltaft@gmail.com","date":"2026-01-13","type":"Founding Monthly \u2014 Individual","amount":59.0},
+    {"id":"1812189","name":"Evan Ballard","email":"e.ballard30795@gmail.com","date":"2026-01-13","type":"Founding Monthly \u2014 Individual","amount":59.0}
+  ],
+
   weeklySuggestions: [
     { id: "ws1", text: "Ask every new climber if they've heard about our founding membership", active: true },
     { id: "ws2", text: "Learn 3 new member names this week", active: true },
@@ -381,19 +486,24 @@ export default function App() {
   const updateLog = (gid, mid, v) => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [gid]: { ...d.weeklyLogs[gid], [mid]: v } } }));
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
 
+  // Auto-sync founding member count from real Beta data
+  const realFoundingCount = (data.foundingMembers || []).length;
+  const goalsWithRealCount = data.goals.map(g =>
+    g.title.toLowerCase().includes("founding") ? { ...g, current: realFoundingCount } : g
+  );
+
   const ownerNav = [
     { key: "home",       label: "Home" },
     { key: "ops",        label: "Ops" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "goals",      label: "Goals" },
+    { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
     { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
     { key: "ops",        label: "My Shift" },
     { key: "scoreboard", label: "Scoreboard" },
-    { key: "home",       label: "Home" },
-    { key: "goals",      label: "Goals" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
 
@@ -486,11 +596,12 @@ export default function App() {
 
       {/* Main */}
       <main style={{ maxWidth: 1040, margin: "0 auto", padding: "32px 20px" }}>
-        {nav === "home"       && (isOwner ? <OwnerHome data={data} setData={setData} updateGoal={updateGoal} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
+        {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
-        {nav === "goals"      && <GoalsPage data={data} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
-        {nav === "scoreboard" && <ScoreboardPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "members"    && <MembersPage data={data} setData={setData} />}
+        {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
@@ -641,6 +752,9 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
           </div>
         </div>
       )}
+
+      {/* Brand values */}
+      <ValuesCard />
     </div>
   );
 }
@@ -805,6 +919,40 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
             );
           })}
         </div>
+      </div>
+
+      <ValuesCard />
+    </div>
+  );
+}
+
+// ── Values Card ───────────────────────────────────────────────────────────────
+function ValuesCard() {
+  const values = [
+    { emoji: "🍽️", name: "Michelin Presence",        desc: "Intentional hospitality, attention to detail, calm excellence in every interaction." },
+    { emoji: "🪴", name: "Front Porch Belonging",     desc: "Everyone is welcomed, known, and invited. This is a space where people feel safe." },
+    { emoji: "🍍", name: "Pineapple Guy Expression",  desc: "Celebrate individuality, creativity, and humanity. Be yourself. Let others be themselves." },
+    { emoji: "🌸", name: "Activating Superblooms",    desc: "Help people flourish together. Create environments where growth naturally happens." },
+  ];
+  return (
+    <div style={{ marginTop: 24 }}>
+      {/* Vision */}
+      <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 16, padding: "22px 26px", marginBottom: 16, textAlign: "center" }}>
+        <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", marginBottom: 8 }}>Our Vision</div>
+        <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#fff", lineHeight: 1.4 }}>
+          "A rare space for abundance<br />and collective exploration."
+        </div>
+      </div>
+
+      {/* Values grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="g2">
+        {values.map((v, i) => (
+          <div key={i} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 13, padding: "16px 18px" }}>
+            <div style={{ fontSize: 22, marginBottom: 8 }}>{v.emoji}</div>
+            <div className="lora" style={{ fontSize: 14, fontStyle: "italic", color: "#1C1C1A", fontWeight: 500, marginBottom: 5 }}>{v.name}</div>
+            <div className="inter" style={{ fontSize: 12, color: "#8A9AAA", lineHeight: 1.55 }}>{v.desc}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1765,6 +1913,126 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+function MembersPage({ data, setData }) {
+  const members = data.foundingMembers || [];
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("all");
+
+  const types = [...new Set(members.map(m => m.type))].sort();
+  const filtered = members.filter(m => {
+    const matchSearch = !search || m.name.toLowerCase().includes(search.toLowerCase()) || m.email.toLowerCase().includes(search.toLowerCase());
+    const matchType = filterType === "all" || m.type === filterType;
+    return matchSearch && matchType;
+  });
+
+  const totalRevenue = members.reduce((s, m) => s + m.amount, 0);
+  const byType = types.map(t => ({ type: t, count: members.filter(m => m.type === t).length }));
+
+  // Most recent join date
+  const sorted = [...members].sort((a, b) => b.date.localeCompare(a.date));
+  const newest = sorted[0];
+
+  const addMember = () => {
+    setData(d => ({
+      ...d,
+      foundingMembers: [{
+        id: `manual_${Date.now()}`,
+        name: "New Member",
+        email: "",
+        date: new Date().toISOString().split("T")[0],
+        type: "Founding Monthly — Individual",
+        amount: 59
+      }, ...(d.foundingMembers || [])]
+    }));
+  };
+
+  const updateMember = (id, f, v) => setData(d => ({ ...d, foundingMembers: d.foundingMembers.map(m => m.id === id ? { ...m, [f]: v } : m) }));
+  const removeMember = (id) => { if (window.confirm("Remove this member?")) setData(d => ({ ...d, foundingMembers: d.foundingMembers.filter(m => m.id !== id) })); };
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#1C1C1A" }}>Founding Members</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#9C9888", marginTop: 2 }}>Imported from Beta · SUCCEEDED transactions only</p>
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 24 }} className="g3">
+        {[
+          { label: "Total Members", value: members.length, color: "#1A5F6A" },
+          { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, color: "#2E7D32" },
+          { label: "Newest Member", value: newest?.name.split(" ")[0] || "—", color: "#1A5F6A" },
+          { label: "Latest Signup", value: newest?.date || "—", color: "#9C9888" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px" }}>
+            <div className="sec-label">{s.label}</div>
+            <div className="lora" style={{ fontSize: 20, color: s.color, fontWeight: 600, marginTop: 2 }}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Membership type breakdown */}
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div className="sec-label">Breakdown by Type</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {byType.map(t => (
+            <div key={t.type} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span className="inter" style={{ fontSize: 13, color: "#1C1C1A", flex: 1 }}>{t.type}</span>
+              <div style={{ width: 120, height: 5, background: "#E4EEF4", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: `${Math.round((t.count / members.length) * 100)}%`, height: "100%", background: "#1A5F6A", borderRadius: 99 }} />
+              </div>
+              <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#1A5F6A", minWidth: 28, textAlign: "right" }}>{t.count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filters + search */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+        <input
+          value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="Search by name or email..."
+          style={{ flex: 1, minWidth: 200, fontSize: 13, padding: "9px 13px", border: "1px solid #D0DCE4", borderRadius: 9, outline: "none", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#1C1C1A" }}
+        />
+        <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ width: "auto", fontSize: 13 }}>
+          <option value="all">All types</option>
+          {types.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <button className="btn btn-teal" onClick={addMember} style={{ fontSize: 12, padding: "8px 16px" }}>+ Add manually</button>
+      </div>
+
+      {/* Member count */}
+      <div className="inter" style={{ fontSize: 12, color: "#9C9888", marginBottom: 10 }}>{filtered.length} member{filtered.length !== 1 ? "s" : ""} shown</div>
+
+      {/* Member list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {filtered.map(m => (
+          <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#fff", border: "1px solid #DDE8EE", borderRadius: 11 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#E4EEF4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1A5F6A" }}>{initials(m.name)}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#1C1C1A" }}>{m.name}</div>
+              <div className="inter" style={{ fontSize: 11, color: "#9C9888", marginTop: 1 }}>{m.email}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div className="inter" style={{ fontSize: 12, fontWeight: 600, color: "#1A5F6A" }}>{m.type.replace("Founding ", "").replace(" \u2014 ", " · ")}</div>
+              <div className="inter" style={{ fontSize: 11, color: "#9C9888" }}>{m.date} · ${m.amount}</div>
+            </div>
+            <button onClick={() => removeMember(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D4D0C8", fontSize: 16, padding: "0 4px", flexShrink: 0 }}>✕</button>
+          </div>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div className="lora" style={{ fontSize: 18, color: "#B8C8D4", fontStyle: "italic" }}>No members match your search.</div>
+        </div>
+      )}
     </div>
   );
 }
