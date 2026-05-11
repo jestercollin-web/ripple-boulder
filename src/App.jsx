@@ -617,7 +617,7 @@ export default function App() {
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.14em;
-          color: rgba(0,0,0,0.35);
+          color: #2A3A4A;
           margin-bottom: 10px;
         }
 
@@ -666,7 +666,7 @@ export default function App() {
           font-family: 'Inter', sans-serif;
           font-size: 13px;
           font-weight: 600;
-          color: #4A5568;
+          color: #1A2530;
           transition: all 0.15s;
           white-space: nowrap;
           -webkit-tap-highlight-color: transparent;
@@ -762,7 +762,7 @@ export default function App() {
         <div style={{ position: "fixed", inset: 0, background: "#F2F4F7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
           <div style={{ textAlign: "center" }}>
             <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, marginBottom: 16, opacity: 0.7 }} />
-            <div className="inter" style={{ fontSize: 13, color: "#666" }}>Getting things ready…</div>
+            <div className="inter" style={{ fontSize: 13, color: "#333" }}>Getting things ready…</div>
           </div>
         </div>
       )}
@@ -783,15 +783,15 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <div style={{ width: 1, height: 16, background: "#6B7A8D", margin: "0 8px" }} />
+            <div style={{ width: 1, height: 16, background: "#2D4050", margin: "0 8px" }} />
             <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(isOwner ? "ops" : "home"); }}
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#666", fontFamily: "Inter, sans-serif", fontWeight: 600, padding: "6px 8px" }}>
+              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif", fontWeight: 600, padding: "6px 8px" }}>
               Switch
             </button>
           </nav>
           {/* Mobile menu button */}
           <button onClick={() => setMenuOpen(o => !o)}
-            style={{ background: menuOpen ? "rgba(26,95,106,0.08)" : "#DDE4EC", border: `1px solid ${menuOpen ? "rgba(26,95,106,0.2)" : "#C5D0DA"}`, borderRadius: 10, padding: "7px 13px", cursor: "pointer", fontSize: 17, color: menuOpen ? "#1A5F6A" : "#555", lineHeight: 1, transition: "all 0.15s", touchAction: "manipulation" }}>
+            style={{ background: menuOpen ? "rgba(26,95,106,0.08)" : "#DDE4EC", border: `1px solid ${menuOpen ? "rgba(26,95,106,0.2)" : "#C5D0DA"}`, borderRadius: 10, padding: "7px 13px", cursor: "pointer", fontSize: 17, color: menuOpen ? "#1A5F6A" : "#222", lineHeight: 1, transition: "all 0.15s", touchAction: "manipulation" }}>
             {menuOpen ? "✕" : "☰"}
           </button>
         </div>
@@ -825,7 +825,7 @@ export default function App() {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "20px 16px", textAlign: "center" }}>
-        <p className="inter" style={{ fontSize: 11, color: "#888" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
+        <p className="inter" style={{ fontSize: 11, color: "#555" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
       </footer>
     </div>
   );
@@ -859,21 +859,21 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
         <h1 className="lora" style={{ fontSize: 28, fontStyle: "italic", color: "#0D1117", marginBottom: 4 }}>
           Good {now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"}, Collin.
         </h1>
-        <p className="inter" style={{ fontSize: 14, color: "#555" }}>Here's where Ripple Boulder stands today.</p>
+        <p className="inter" style={{ fontSize: 14, color: "#222" }}>Here's where Ripple Boulder stands today.</p>
       </div>
 
       {/* Opening countdown */}
       {openingDays !== null && openingDays > 0 && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 16, padding: "24px 28px", marginBottom: 24, color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "#555", textTransform: "uppercase", marginBottom: 6 }}>Until Opening Day</div>
+            <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "#222", textTransform: "uppercase", marginBottom: 6 }}>Until Opening Day</div>
             <div className="lora" style={{ fontSize: 36, fontWeight: 600, color: "#fff", lineHeight: 1 }}>{openingDays}</div>
-            <div className="inter" style={{ fontSize: 13, color: "#444", marginTop: 4 }}>days to go · {data.openingDate}</div>
+            <div className="inter" style={{ fontSize: 13, color: "#1a1a1a", marginTop: 4 }}>days to go · {data.openingDate}</div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div className="inter" style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>Launch readiness</div>
+            <div className="inter" style={{ fontSize: 11, color: "#222", marginBottom: 6 }}>Launch readiness</div>
             <div className="lora" style={{ fontSize: 28, color: "#1A5F6A" }}>{Math.round((doneChecklist / totalChecklist) * 100)}%</div>
-            <div className="inter" style={{ fontSize: 11, color: "#555" }}>{doneChecklist}/{totalChecklist} items</div>
+            <div className="inter" style={{ fontSize: 11, color: "#222" }}>{doneChecklist}/{totalChecklist} items</div>
           </div>
         </div>
       )}
@@ -885,7 +885,7 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
             <div>
               <div className="lora" style={{ fontSize: 18, color: "#0D1117", fontStyle: "italic" }}>{wigGoal.title}</div>
-              <div className="inter" style={{ fontSize: 12, color: "#555", marginTop: 3 }}>{wigGoal.why}</div>
+              <div className="inter" style={{ fontSize: 12, color: "#222", marginTop: 3 }}>{wigGoal.why}</div>
             </div>
             <select value={data.wigId} onChange={e => setData(d => ({ ...d, wigId: Number(e.target.value) }))}
               style={{ width: "auto", fontSize: 12, border: "1px solid #DDE8EE", borderRadius: 8, padding: "4px 8px", background: "#E5EBF1", cursor: "pointer", marginLeft: 12, flexShrink: 0 }}>
@@ -929,7 +929,7 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
                   <span className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#0D1117" }}>{g.title}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span className="inter" style={{ fontSize: 11, color: "#555" }}>{p}%</span>
+                    <span className="inter" style={{ fontSize: 11, color: "#222" }}>{p}%</span>
                     <span className="badge" style={{ background: s.bg, color: s.text }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
                       {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Watch" : "Off track"}
@@ -982,7 +982,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
           <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>
             {shiftEmoji} {hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"}
           </h1>
-          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 3 }}>
+          <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 3 }}>
             {now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}
           </p>
         </div>
@@ -990,7 +990,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
           <div style={{ textAlign: "right", background: "rgba(26,95,106,0.2)", borderRadius: 10, padding: "8px 14px" }}>
             <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>The Score</div>
             <div className="lora" style={{ fontSize: 20, color: "#1A5F6A" }}>{pct(wigGoal.current, wigGoal.target)}%</div>
-            <div className="inter" style={{ fontSize: 11, color: "#555" }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#222" }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
           </div>
         )}
       </div>
@@ -1023,15 +1023,15 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
               <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#CCD5DE"}`, borderRadius: 12, overflow: "hidden", transition: "all 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
                   <button onClick={() => isDone ? uncompleteOps(t.id) : setPicker(isOpen ? null : t.id)}
-                    style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${isDone ? "#5CC87A" : isOpen ? "#1A5F6A" : "#888"}`, background: isDone ? "#5CC87A" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                    style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${isDone ? "#5CC87A" : isOpen ? "#1A5F6A" : "#555"}`, background: isDone ? "#5CC87A" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
                     {isDone
                       ? <svg width="14" height="11" fill="none" viewBox="0 0 14 11"><path d="M1.5 5.5L5.5 9.5L12.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      : <div style={{ width: 7, height: 7, borderRadius: "50%", background: isOpen ? "#1A5F6A" : "#888" }} />
+                      : <div style={{ width: 7, height: 7, borderRadius: "50%", background: isOpen ? "#1A5F6A" : "#555" }} />
                     }
                   </button>
                   <div style={{ flex: 1 }}>
-                    <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#555" : "#0D1117", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
-                    {t.desc && !isDone && <div className="inter" style={{ fontSize: 12, color: "#777", marginTop: 2 }}>{t.desc}</div>}
+                    <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#222" : "#0D1117", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
+                    {t.desc && !isDone && <div className="inter" style={{ fontSize: 12, color: "#444", marginTop: 2 }}>{t.desc}</div>}
                     {isDone && completion?.at && (
                       <div className="inter" style={{ fontSize: 11, color: "#5CC87A", marginTop: 2 }}>
                         ✓ {completion.by} · {new Date(completion.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -1054,7 +1054,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
                       </button>
                     ))}
                     <button onClick={() => setPicker(null)}
-                      style={{ padding: "8px 14px", borderRadius: 99, border: "1.5px solid #DDE8EE", background: "#E5EBF1", cursor: "pointer", fontSize: 13, color: "#555", fontFamily: "Inter, sans-serif" }}>
+                      style={{ padding: "8px 14px", borderRadius: 99, border: "1.5px solid #DDE8EE", background: "#E5EBF1", cursor: "pointer", fontSize: 13, color: "#222", fontFamily: "Inter, sans-serif" }}>
                       Cancel
                     </button>
                   </div>
@@ -1077,7 +1077,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
                   <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#0D1117" }}>{t.title}</div>
                   <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
                     <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text }}>{t.priority}</span>
-                    {t.due && <span className="inter" style={{ fontSize: 11, color: "#555" }}>Due {t.due}</span>}
+                    {t.due && <span className="inter" style={{ fontSize: 11, color: "#222" }}>Due {t.due}</span>}
                   </div>
                 </div>
                 {t.assignee && <Avatar name={t.assignee} size={28} />}
@@ -1096,13 +1096,13 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
             const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
             return (
               <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: done ? "#F0FBF0" : "#fff", border: `1px solid ${done ? "#C8E6C9" : "#CCD5DE"}`, borderRadius: 10 }}>
-                <div style={{ width: 7, height: 7, borderRadius: "50%", background: done ? "#5CC87A" : "#888", flexShrink: 0 }} />
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: done ? "#5CC87A" : "#555", flexShrink: 0 }} />
                 <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{m.title}</span>
                 {m.type === "checkbox"
                   ? <input type="checkbox" checked={!!val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} style={{ width: 20, height: 20 }} />
                   : <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <SmoothNumber value={val} onCommit={v => updateLog(m.goalId, m.id, v)} style={{ width: 58 }} />
-                      <span className="inter" style={{ fontSize: 12, color: "#555" }}>/ {m.target}</span>
+                      <span className="inter" style={{ fontSize: 12, color: "#222" }}>/ {m.target}</span>
                     </div>
                 }
               </div>
@@ -1128,7 +1128,7 @@ function ValuesCard() {
     <div style={{ marginTop: 24 }}>
       {/* Vision */}
       <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 16, padding: "22px 26px", marginBottom: 16, textAlign: "center" }}>
-        <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "#555", textTransform: "uppercase", marginBottom: 8 }}>Our Vision</div>
+        <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "#222", textTransform: "uppercase", marginBottom: 8 }}>Our Vision</div>
         <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#fff", lineHeight: 1.4 }}>
           "A rare space for abundance<br />and collective exploration."
         </div>
@@ -1140,7 +1140,7 @@ function ValuesCard() {
           <div key={i} style={{ background: "#E5EBF1", border: "1px solid #DDE8EE", borderRadius: 13, padding: "16px 18px" }}>
             <div style={{ fontSize: 22, marginBottom: 8 }}>{v.emoji}</div>
             <div className="lora" style={{ fontSize: 14, fontStyle: "italic", color: "#0D1117", fontWeight: 500, marginBottom: 5 }}>{v.name}</div>
-            <div className="inter" style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>{v.desc}</div>
+            <div className="inter" style={{ fontSize: 12, color: "#222", lineHeight: 1.55 }}>{v.desc}</div>
           </div>
         ))}
       </div>
@@ -1193,7 +1193,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
       {wigGoal && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ flex: 1 }}>
-            <div className="inter" style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#555", textTransform: "uppercase", marginBottom: 4 }}>The Score · {wigGoal.category}</div>
+            <div className="inter" style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#222", textTransform: "uppercase", marginBottom: 4 }}>The Score · {wigGoal.category}</div>
             <div className="lora" style={{ fontSize: 15, color: "#fff", fontStyle: "italic", lineHeight: 1.3 }}>{wigGoal.title}</div>
             <div style={{ marginTop: 8, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden" }}>
               <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
@@ -1201,7 +1201,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
           </div>
           <div style={{ textAlign: "right", flexShrink: 0 }}>
             <div className="lora" style={{ fontSize: 26, color: "#1A5F6A", lineHeight: 1 }}>{pct(wigGoal.current, wigGoal.target)}%</div>
-            <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#222", marginTop: 2 }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
           </div>
         </div>
       )}
@@ -1209,7 +1209,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
         <div>
           <h1 className="lora" style={{ fontSize: 24, fontStyle: "italic", color: "#0D1117" }}>Ops Tasks</h1>
-          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Keep the space excellent. Every shift.</p>
+          <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Keep the space excellent. Every shift.</p>
         </div>
         {isOwner && <button className="btn btn-teal" onClick={addOps}>+ Add task</button>}
       </div>
@@ -1226,10 +1226,10 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                 <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: activeFreq === f.key ? "#fff" : "#1A2530" }}>{f.label}</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ width: 36, height: 3, background: activeFreq === f.key ? "#777" : "#CCD5DE", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: 36, height: 3, background: activeFreq === f.key ? "#444" : "#CCD5DE", borderRadius: 99, overflow: "hidden" }}>
                   <div style={{ width: `${fp}%`, height: "100%", background: activeFreq === f.key ? "#1A5F6A" : "#1A5F6A", borderRadius: 99 }} />
                 </div>
-                <span className="inter" style={{ fontSize: 10, color: activeFreq === f.key ? "rgba(255,255,255,0.8)" : "#4A5568" }}>{fDone}/{fTasks.length}</span>
+                <span className="inter" style={{ fontSize: 10, color: activeFreq === f.key ? "rgba(255,255,255,0.8)" : "#1A2530" }}>{fDone}/{fTasks.length}</span>
               </div>
             </button>
           );
@@ -1257,19 +1257,19 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
             <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#CCD5DE"}`, borderRadius: 12, overflow: "hidden" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 13, padding: "13px 16px" }}>
                 <button onClick={() => isDone ? uncomplete(t.id) : setPicker(isOpen ? null : t.id)}
-                  style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${isDone ? "#5CC87A" : isOpen ? "#1A5F6A" : "#888"}`, background: isDone ? "#5CC87A" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
+                  style={{ width: 32, height: 32, borderRadius: "50%", border: `2px solid ${isDone ? "#5CC87A" : isOpen ? "#1A5F6A" : "#555"}`, background: isDone ? "#5CC87A" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
                   {isDone
                     ? <svg width="13" height="10" fill="none" viewBox="0 0 13 10"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    : <div style={{ width: 7, height: 7, borderRadius: "50%", background: isOpen ? "#1A5F6A" : "#888" }} />
+                    : <div style={{ width: 7, height: 7, borderRadius: "50%", background: isOpen ? "#1A5F6A" : "#555" }} />
                   }
                 </button>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {isEditing
                     ? <SmoothInput value={t.title} onCommit={v => updateOps(t.id, "title", v)} autoFocus style={{ fontSize: 14, fontWeight: 600, border: "none", padding: 0, background: "transparent" }} />
-                    : <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#555" : "#0D1117", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
+                    : <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: isDone ? "#222" : "#0D1117", textDecoration: isDone ? "line-through" : "none" }}>{t.title}</div>
                   }
-                  {t.desc && !isDone && !isEditing && <div className="inter" style={{ fontSize: 12, color: "#777", marginTop: 2 }}>{t.desc}</div>}
+                  {t.desc && !isDone && !isEditing && <div className="inter" style={{ fontSize: 12, color: "#444", marginTop: 2 }}>{t.desc}</div>}
                   {isDone && completion?.at && (
                     <div className="inter" style={{ fontSize: 11, color: "#5CC87A", marginTop: 2 }}>
                       {completion.by} · {new Date(completion.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -1286,7 +1286,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                   }
                   {isOwner && (
                     <button onClick={() => setEditing(editing === t.id ? null : t.id)}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#777", fontSize: 14, padding: "0 2px" }}>✎</button>
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#444", fontSize: 14, padding: "0 2px" }}>✎</button>
                   )}
                 </div>
               </div>
@@ -1301,7 +1301,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                       <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1A5F6A" }}>{person}</span>
                     </button>
                   ))}
-                  <button onClick={() => setPicker(null)} style={{ padding: "7px 13px", borderRadius: 99, border: "1.5px solid #DDE8EE", background: "#E5EBF1", cursor: "pointer", fontSize: 13, color: "#555", fontFamily: "Inter, sans-serif" }}>Cancel</button>
+                  <button onClick={() => setPicker(null)} style={{ padding: "7px 13px", borderRadius: 99, border: "1.5px solid #DDE8EE", background: "#E5EBF1", cursor: "pointer", fontSize: 13, color: "#222", fontFamily: "Inter, sans-serif" }}>Cancel</button>
                 </div>
               )}
 
@@ -1334,7 +1334,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
       {tasks.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div className="lora" style={{ fontSize: 18, color: "#777", fontStyle: "italic" }}>No {activeFreq} tasks yet.</div>
+          <div className="lora" style={{ fontSize: 18, color: "#444", fontStyle: "italic" }}>No {activeFreq} tasks yet.</div>
           {isOwner && <button className="btn btn-teal" onClick={addOps} style={{ marginTop: 14 }}>+ Add one</button>}
         </div>
       )}
@@ -1377,7 +1377,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
         <div>
           <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Goals & Focus</h1>
-          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>What we're building and the actions that get us there.</p>
+          <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>What we're building and the actions that get us there.</p>
         </div>
         {isOwner && <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New goal</button>}
       </div>
@@ -1415,7 +1415,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                     ? <SmoothInput value={g.title} onCommit={v => updateGoal(g.id, "title", v)} style={{ border: "none", padding: 0, fontSize: 16, fontWeight: 600, fontFamily: "Lora, serif", fontStyle: "italic", background: "transparent", color: "#0D1117" }} />
                     : <div className="lora" style={{ fontSize: 16, fontStyle: "italic", fontWeight: 600, color: "#0D1117" }}>{g.title}</div>
                   }
-                  {g.why && <p className="inter" style={{ fontSize: 12, color: "#555", marginTop: 3, lineHeight: 1.5 }}>{g.why}</p>}
+                  {g.why && <p className="inter" style={{ fontSize: 12, color: "#222", marginTop: 3, lineHeight: 1.5 }}>{g.why}</p>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                   <span className="badge" style={{ background: s.bg, color: s.text }}>
@@ -1424,7 +1424,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                   </span>
                   {isOwner && (
                     <button onClick={() => setData(d => ({ ...d, goals: d.goals.filter(x => x.id !== g.id) }))}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 16 }}>✕</button>
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 16 }}>✕</button>
                   )}
                 </div>
               </div>
@@ -1437,8 +1437,8 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                 {isOwner
                   ? <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <SmoothNumber value={g.current} onCommit={v => updateGoal(g.id, "current", v)} style={{ width: 72 }} />
-                      <span className="inter" style={{ fontSize: 13, color: "#555" }}>/</span>
-                      <SmoothNumber value={g.target} onCommit={v => updateGoal(g.id, "target", v)} style={{ width: 72, color: "#555", fontWeight: 600 }} />
+                      <span className="inter" style={{ fontSize: 13, color: "#222" }}>/</span>
+                      <SmoothNumber value={g.target} onCommit={v => updateGoal(g.id, "target", v)} style={{ width: 72, color: "#222", fontWeight: 600 }} />
                     </div>
                   : <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#0D1117", whiteSpace: "nowrap" }}>{fmt(g.current)} / {fmt(g.target)}</span>
                 }
@@ -1468,24 +1468,24 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {measures.map(m => (
                   <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 13px", background: m.done ? "#F0FBF0" : "#F6F9FB", borderRadius: 8, border: `1px solid ${m.done ? "#C8E6C9" : "#CCD5DE"}` }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: m.done ? "#5CC87A" : "#888", flexShrink: 0 }} />
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: m.done ? "#5CC87A" : "#555", flexShrink: 0 }} />
                     {isOwner
                       ? <SmoothInput value={m.title} onCommit={v => updateMeasure(m.id, "title", v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent" }} />
                       : <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{m.title}</span>
                     }
-                    {isOwner && <span className="inter" style={{ fontSize: 11, color: "#555" }}>{m.unit}</span>}
+                    {isOwner && <span className="inter" style={{ fontSize: 11, color: "#222" }}>{m.unit}</span>}
                     {m.type === "checkbox"
                       ? <input type="checkbox" checked={!!m.val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} />
                       : <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                           <SmoothNumber value={m.val} onCommit={v => updateLog(m.goalId, m.id, v)} style={{ width: 54 }} />
-                          <span className="inter" style={{ fontSize: 11, color: "#555" }}>/ {m.target}</span>
+                          <span className="inter" style={{ fontSize: 11, color: "#222" }}>/ {m.target}</span>
                         </div>
                     }
-                    {isOwner && <button onClick={() => deleteMeasure(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 14 }}>✕</button>}
+                    {isOwner && <button onClick={() => deleteMeasure(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 14 }}>✕</button>}
                   </div>
                 ))}
                 {measures.length === 0 && isOwner && (
-                  <p className="inter" style={{ fontSize: 13, color: "#777", fontStyle: "italic" }}>No weekly actions yet — add one above.</p>
+                  <p className="inter" style={{ fontSize: 13, color: "#444", fontStyle: "italic" }}>No weekly actions yet — add one above.</p>
                 )}
               </div>
             </div>
@@ -1511,7 +1511,7 @@ function WorkPage({ data, setData, updateTask, isOwner, TEAM }) {
     <div>
       <div style={{ marginBottom: 24 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Tasks</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>{open.length} open · {done.length} done</p>
+        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>{open.length} open · {done.length} done</p>
       </div>
       <TasksTab data={data} setData={setData} updateTask={updateTask} isOwner={isOwner} TEAM={TEAM} open={open} done={done} overdue={overdue} thisWeek={thisWeek} later={later} today={today} />
     </div>
@@ -1539,7 +1539,7 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
           }
           <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center" }}>
             <span className="badge" style={{ background: pc[t.priority].bg, color: pc[t.priority].text }}>{t.priority}</span>
-            {t.due && <span className="inter" style={{ fontSize: 11, color: isOverdue ? "#C62828" : "#555" }}>{isOverdue ? "⚠ " : ""}Due {t.due}</span>}
+            {t.due && <span className="inter" style={{ fontSize: 11, color: isOverdue ? "#C62828" : "#222" }}>{isOverdue ? "⚠ " : ""}Due {t.due}</span>}
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
@@ -1547,10 +1547,10 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
             <>
               <select value={t.assignee} onChange={e => updateTask(t.id, "assignee", e.target.value)} style={{ width: "auto", fontSize: 12 }}>{TEAM.map(p => <option key={p}>{p}</option>)}</select>
               <input type="date" value={t.due || ""} onChange={e => updateTask(t.id, "due", e.target.value)} style={{ width: 120, fontSize: 12 }} />
-              <button onClick={() => setData(d => ({ ...d, tasks: d.tasks.filter(x => x.id !== t.id) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 16 }}>✕</button>
+              <button onClick={() => setData(d => ({ ...d, tasks: d.tasks.filter(x => x.id !== t.id) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 16 }}>✕</button>
             </>
           ) : (
-            <>{t.assignee && <Avatar name={t.assignee} size={28} />}{t.due && <span className="inter" style={{ fontSize: 11, color: isOverdue ? "#C62828" : "#555" }}>{t.due}</span>}</>
+            <>{t.assignee && <Avatar name={t.assignee} size={28} />}{t.due && <span className="inter" style={{ fontSize: 11, color: isOverdue ? "#C62828" : "#222" }}>{t.due}</span>}</>
           )}
         </div>
       </div>
@@ -1561,8 +1561,8 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <div style={{ width: 7, height: 7, borderRadius: "50%", background: accent }} />
-        <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#555", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
-        <span className="inter" style={{ fontSize: 12, color: "#777" }}>{tasks.length}</span>
+        <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#222", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
+        <span className="inter" style={{ fontSize: 12, color: "#444" }}>{tasks.length}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{tasks.map(t => <TaskRow key={t.id} t={t} />)}</div>
     </div>
@@ -1581,13 +1581,13 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
         </select>
         {isOwner && <button className="btn btn-teal" onClick={addTask}>+ Task</button>}
       </div>
-      {filteredOpen.length === 0 && <div style={{ textAlign: "center", padding: "32px 0" }}><div className="lora" style={{ fontSize: 18, color: "#777", fontStyle: "italic" }}>All clear! 🌊</div></div>}
+      {filteredOpen.length === 0 && <div style={{ textAlign: "center", padding: "32px 0" }}><div className="lora" style={{ fontSize: 18, color: "#444", fontStyle: "italic" }}>All clear! 🌊</div></div>}
       <Section label="Overdue / Today" tasks={filteredOverdue} accent="#EF5350" />
       <Section label="This Week" tasks={filteredThisWeek} accent="#FFC107" />
       <Section label="Later" tasks={filteredLater} accent="#B0B0A8" />
       {done.length > 0 && (
         <details style={{ marginTop: 8 }}>
-          <summary className="inter" style={{ fontSize: 12, color: "#777", cursor: "pointer", padding: "8px 0" }}>Show {done.length} completed</summary>
+          <summary className="inter" style={{ fontSize: 12, color: "#444", cursor: "pointer", padding: "8px 0" }}>Show {done.length} completed</summary>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>{done.map(t => <TaskRow key={t.id} t={t} />)}</div>
         </details>
       )}
@@ -1647,15 +1647,15 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Scoreboard</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>We're building something together. Here's how it's going.</p>
+        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>We're building something together. Here's how it's going.</p>
       </div>
 
       {/* WIG Hero */}
       {wigGoal && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 18, padding: "28px 28px 24px", marginBottom: 20 }}>
-          <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "#555", textTransform: "uppercase", marginBottom: 8 }}>Our Wildly Important Goal</div>
+          <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "#222", textTransform: "uppercase", marginBottom: 8 }}>Our Wildly Important Goal</div>
           <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#fff", marginBottom: 4 }}>{wigGoal.title}</div>
-          <div className="inter" style={{ fontSize: 13, color: "#444", marginBottom: 22, lineHeight: 1.5 }}>{wigGoal.why}</div>
+          <div className="inter" style={{ fontSize: 13, color: "#1a1a1a", marginBottom: 22, lineHeight: 1.5 }}>{wigGoal.why}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
             <div style={{ flex: 1, height: 10, background: "#C5D0DA", borderRadius: 99, overflow: "hidden" }}>
               <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#1A5F6A", borderRadius: 99, transition: "width 0.7s ease" }} />
@@ -1663,7 +1663,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             <span className="lora" style={{ fontSize: 20, color: "#1A5F6A", fontWeight: 600, whiteSpace: "nowrap" }}>{pct(wigGoal.current, wigGoal.target)}%</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span className="inter" style={{ fontSize: 13, color: "#444" }}>{fmt(wigGoal.current)} of {fmt(wigGoal.target)}</span>
+            <span className="inter" style={{ fontSize: 13, color: "#1a1a1a" }}>{fmt(wigGoal.current)} of {fmt(wigGoal.target)}</span>
             {pct(wigGoal.current, wigGoal.target) >= 50 && <span className="inter" style={{ fontSize: 12, color: "#1A5F6A", fontWeight: 600 }}>🎉 Over halfway there!</span>}
           </div>
         </div>
@@ -1680,14 +1680,14 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
               <div className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#0D1117", marginBottom: 6, lineHeight: 1.3 }}>{g.title}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
                 <span className="lora" style={{ fontSize: 22, color: s.bar, fontWeight: 600 }}>{fmt(g.current)}</span>
-                <span className="inter" style={{ fontSize: 13, color: "#555" }}>/ {fmt(g.target)}</span>
+                <span className="inter" style={{ fontSize: 13, color: "#222" }}>/ {fmt(g.target)}</span>
               </div>
               <div style={{ height: 6, background: "#CCD5DE", borderRadius: 99, overflow: "hidden", marginBottom: 6 }}>
                 <div style={{ width: `${p}%`, height: "100%", background: s.bar, borderRadius: 99, transition: "width 0.5s" }} />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span className="inter" style={{ fontSize: 11, fontWeight: 700, color: s.text }}>{p}%</span>
-                {daysLeft !== null && daysLeft > 0 && <span className="inter" style={{ fontSize: 11, color: "#555" }}>{daysLeft}d left</span>}
+                {daysLeft !== null && daysLeft > 0 && <span className="inter" style={{ fontSize: 11, color: "#222" }}>{daysLeft}d left</span>}
               </div>
             </div>
           );
@@ -1713,7 +1713,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
               { label: "Day Passes",     field: "dayPasses",    emoji: "🎟️" },
             ].map(m => (
               <div key={m.field} style={{ background: "#F2F4F7", borderRadius: 10, padding: "12px 14px" }}>
-                <div className="inter" style={{ fontSize: 11, color: "#555", marginBottom: 4 }}>{m.emoji} {m.label}</div>
+                <div className="inter" style={{ fontSize: 11, color: "#222", marginBottom: 4 }}>{m.emoji} {m.label}</div>
                 {isOwner
                   ? <SmoothNumber value={latestMetric[m.field]} onCommit={v => updateMetric(latestMetric.id, m.field, v)} style={{ width: "100%", fontSize: 20, textAlign: "left", border: "none", background: "transparent", padding: "0", fontWeight: 700 }} />
                   : <div className="lora" style={{ fontSize: 22, color: "#0D1117", fontWeight: 600 }}>{latestMetric[m.field]}</div>
@@ -1728,7 +1728,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             </div>
           )}
           {!isOwner && latestMetric.notes && (
-            <p className="inter" style={{ fontSize: 12, color: "#555", fontStyle: "italic", marginTop: 10 }}>{latestMetric.notes}</p>
+            <p className="inter" style={{ fontSize: 12, color: "#222", fontStyle: "italic", marginTop: 10 }}>{latestMetric.notes}</p>
           )}
         </div>
       )}
@@ -1752,8 +1752,8 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
               }
               {isOwner && (
                 <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                  <button onClick={() => toggleSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: s.active ? "#1A5F6A" : "#555", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>{s.active ? "Hide" : "Show"}</button>
-                  <button onClick={() => removeSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 14 }}>✕</button>
+                  <button onClick={() => toggleSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: s.active ? "#1A5F6A" : "#222", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>{s.active ? "Hide" : "Show"}</button>
+                  <button onClick={() => removeSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 14 }}>✕</button>
                 </div>
               )}
             </div>
@@ -1774,17 +1774,17 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             return (
               <div key={person} style={{ background: "#E5EBF1", border: "1px solid #DDE8EE", borderRadius: 16, overflow: "hidden" }}>
                 <div style={{ background: avatarColor(person), padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#999", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.35)", flexShrink: 0 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#666", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.35)", flexShrink: 0 }}>
                     <span className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{initials(person)}</span>
                   </div>
                   <div style={{ flex: 1 }}>
                     <div className="lora" style={{ fontSize: 17, color: "#fff", fontStyle: "italic" }}>{person}</div>
-                    <div className="inter" style={{ fontSize: 11, color: "#444", marginTop: 1 }}>{pd.actions?.length || 0} contribution{pd.actions?.length !== 1 ? "s" : ""} logged this week</div>
+                    <div className="inter" style={{ fontSize: 11, color: "#1a1a1a", marginTop: 1 }}>{pd.actions?.length || 0} contribution{pd.actions?.length !== 1 ? "s" : ""} logged this week</div>
                   </div>
                   {opsCount > 0 && (
                     <div style={{ textAlign: "right" }}>
                       <div className="lora" style={{ fontSize: 20, color: "#fff", lineHeight: 1 }}>{opsCount}</div>
-                      <div className="inter" style={{ fontSize: 10, color: "#555" }}>ops today</div>
+                      <div className="inter" style={{ fontSize: 10, color: "#222" }}>ops today</div>
                     </div>
                   )}
                 </div>
@@ -1796,12 +1796,12 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                           <span style={{ fontSize: 12, marginTop: 1, flexShrink: 0 }}>🌿</span>
                           <span className="inter" style={{ flex: 1, fontSize: 13, color: "#0D1117", lineHeight: 1.5 }}>{a.text}</span>
                           <span className="inter" style={{ fontSize: 10, color: "#B0C8B0", whiteSpace: "nowrap", marginTop: 2 }}>{new Date(a.ts || a.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
-                          {isOwner && <button onClick={() => removeAction(person, idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 14, lineHeight: 1 }}>✕</button>}
+                          {isOwner && <button onClick={() => removeAction(person, idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 14, lineHeight: 1 }}>✕</button>}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="inter" style={{ fontSize: 13, color: "#777", fontStyle: "italic", marginBottom: 10 }}>Nothing logged yet — add something that moved the goal forward!</p>
+                    <p className="inter" style={{ fontSize: 13, color: "#444", fontStyle: "italic", marginBottom: 10 }}>Nothing logged yet — add something that moved the goal forward!</p>
                   )}
                   {showInput ? (
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1812,7 +1812,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                       <button onClick={() => { if (input.trim()) { addAction(person, input); setInput(""); } setShowInput(false); }}
                         style={{ background: avatarColor(person), color: "#fff", border: "none", borderRadius: 9, padding: "9px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 600, flexShrink: 0 }}>Save</button>
                       <button onClick={() => { setShowInput(false); setInput(""); }}
-                        style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 9, padding: "9px 11px", cursor: "pointer", fontSize: 14, color: "#555", flexShrink: 0 }}>✕</button>
+                        style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 9, padding: "9px 11px", cursor: "pointer", fontSize: 14, color: "#222", flexShrink: 0 }}>✕</button>
                     </div>
                   ) : (
                     <button onClick={() => setShowInput(true)}
@@ -1974,7 +1974,7 @@ function MembersPage({ data, setData }) {
     <div>
       <div style={{ marginBottom: 24 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Founding Members</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Imported from Beta · SUCCEEDED transactions only</p>
+        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Imported from Beta · SUCCEEDED transactions only</p>
       </div>
 
       {/* Stats row */}
@@ -1982,7 +1982,7 @@ function MembersPage({ data, setData }) {
         {[
           { label: "Memberships", value: members.length, color: "#1A5F6A" },
           { label: "People Covered", value: members.reduce((s, m) => s + (m.people || 1), 0), color: "#1A5F6A" },
-          { label: "Newest Signup", value: newest?.date || "—", color: "#555" },
+          { label: "Newest Signup", value: newest?.date || "—", color: "#222" },
         ].map(s => (
           <div key={s.label} style={{ background: "#E5EBF1", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px" }}>
             <div className="sec-label">{s.label}</div>
@@ -2022,7 +2022,7 @@ function MembersPage({ data, setData }) {
       </div>
 
       {/* Member count */}
-      <div className="inter" style={{ fontSize: 12, color: "#555", marginBottom: 10 }}>{filtered.length} member{filtered.length !== 1 ? "s" : ""} shown</div>
+      <div className="inter" style={{ fontSize: 12, color: "#222", marginBottom: 10 }}>{filtered.length} member{filtered.length !== 1 ? "s" : ""} shown</div>
 
       {/* Member list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -2033,20 +2033,20 @@ function MembersPage({ data, setData }) {
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#0D1117" }}>{m.name}</div>
-              <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 1 }}>{m.email}</div>
+              <div className="inter" style={{ fontSize: 11, color: "#222", marginTop: 1 }}>{m.email}</div>
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
               <div className="inter" style={{ fontSize: 12, fontWeight: 600, color: "#1A5F6A" }}>{m.type.replace("Founding ", "").replace(" \u2014 ", " · ")}</div>
-              <div className="inter" style={{ fontSize: 11, color: "#555" }}>{m.date} · {m.people || 1} {(m.people || 1) === 1 ? "person" : "people"}</div>
+              <div className="inter" style={{ fontSize: 11, color: "#222" }}>{m.date} · {m.people || 1} {(m.people || 1) === 1 ? "person" : "people"}</div>
             </div>
-            <button onClick={() => removeMember(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 16, padding: "0 4px", flexShrink: 0 }}>✕</button>
+            <button onClick={() => removeMember(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 16, padding: "0 4px", flexShrink: 0 }}>✕</button>
           </div>
         ))}
       </div>
 
       {filtered.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div className="lora" style={{ fontSize: 18, color: "#5A6E7F", fontStyle: "italic" }}>No members match your search.</div>
+          <div className="lora" style={{ fontSize: 18, color: "#2D4050", fontStyle: "italic" }}>No members match your search.</div>
         </div>
       )}
     </div>
@@ -2079,7 +2079,7 @@ function SettingsPage({ data, setData }) {
     <div>
       <div style={{ marginBottom: 28 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Settings</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Manage your team and preferences.</p>
+        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Manage your team and preferences.</p>
       </div>
 
       <div className="card" style={{ maxWidth: 480, marginBottom: 16 }}>
@@ -2090,7 +2090,7 @@ function SettingsPage({ data, setData }) {
           autoComplete="off"
           style={{ ...inputStyle, marginBottom: 4 }}
         />
-        <p className="inter" style={{ fontSize: 11, color: "#555", marginTop: 6 }}>Shown in greetings and the staff view.</p>
+        <p className="inter" style={{ fontSize: 11, color: "#222", marginTop: 6 }}>Shown in greetings and the staff view.</p>
       </div>
 
       <div className="card" style={{ maxWidth: 480 }}>
