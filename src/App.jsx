@@ -800,7 +800,7 @@ export default function App() {
           <div style={{ background: "rgba(248,250,252,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
             {navItems.map(item => (
               <button key={item.key} onClick={() => { setNav(item.key); setMenuOpen(false); }}
-                style={{ display: "flex", alignItems: "center", width: "100%", textAlign: "left", padding: "16px 20px", background: nav === item.key ? "rgba(26,95,106,0.06)" : "none", border: "none", borderBottom: "1px solid rgba(0,0,0,0.05)", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 17, color: nav === item.key ? "#1A5F6A" : "rgba(0,0,0,0.7)", fontWeight: nav === item.key ? 700 : 400, touchAction: "manipulation" }}>
+                style={{ display: "flex", alignItems: "center", width: "100%", textAlign: "left", padding: "16px 20px", background: nav === item.key ? "rgba(26,95,106,0.06)" : "none", border: "none", borderBottom: "1px solid rgba(0,0,0,0.05)", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 17, color: nav === item.key ? "#1A5F6A" : "#1a1a1a", fontWeight: nav === item.key ? 700 : 400, touchAction: "manipulation" }}>
                 {nav === item.key && <span style={{ width: 3, height: 18, background: "#1A5F6A", borderRadius: 99, marginRight: 12, flexShrink: 0 }} />}
                 {item.label}
               </button>
@@ -1724,7 +1724,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
           {isOwner && (
             <div style={{ marginTop: 12 }}>
               <SmoothTextarea value={latestMetric.notes||""} onCommit={v => updateMetric(latestMetric.id, "notes", v)} placeholder="Notes about this month..." rows={2}
-                style={{ fontSize: 12, color: "#A8B8C8", fontStyle: "italic", background: "#F2F4F7", border: "1px solid #DDE8EE", borderRadius: 8, padding: "8px 12px", width: "100%" }} />
+                style={{ fontSize: 12, color: "#333", fontStyle: "italic", background: "#F2F4F7", border: "1px solid #DDE8EE", borderRadius: 8, padding: "8px 12px", width: "100%" }} />
             </div>
           )}
           {!isOwner && latestMetric.notes && (
@@ -1795,7 +1795,7 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
                         <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "7px 11px", background: "rgba(46,125,50,0.1)", borderRadius: 8, border: "1px solid #DCF0DC" }}>
                           <span style={{ fontSize: 12, marginTop: 1, flexShrink: 0 }}>🌿</span>
                           <span className="inter" style={{ flex: 1, fontSize: 13, color: "#0D1117", lineHeight: 1.5 }}>{a.text}</span>
-                          <span className="inter" style={{ fontSize: 10, color: "#B0C8B0", whiteSpace: "nowrap", marginTop: 2 }}>{new Date(a.ts || a.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+                          <span className="inter" style={{ fontSize: 10, color: "#2a4a2a", whiteSpace: "nowrap", marginTop: 2 }}>{new Date(a.ts || a.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
                           {isOwner && <button onClick={() => removeAction(person, idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 14, lineHeight: 1 }}>✕</button>}
                         </div>
                       ))}
