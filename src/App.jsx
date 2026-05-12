@@ -837,7 +837,7 @@ export default function App() {
 
       {/* Main */}
       <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 40px" }}>
-        {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
+        {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
@@ -864,7 +864,7 @@ function Avatar({ name, size = 28, ring }) {
 }
 
 // ── Owner Home ────────────────────────────────────────────────────────────────
-function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
+function OwnerHome({ data, setData, setMemberCount, TEAM, setNav }) {
   const wigGoal = data.goals.find(g => g.id === data.wigId) || data.goals[0];
   const openTasks = data.tasks.filter(t => t.status !== "done").length;
   const today = todayKey();
@@ -874,92 +874,95 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
   const totalChecklist = data.openingChecklist?.length || 0;
   const doneChecklist = data.openingChecklist?.filter(i => i.done).length || 0;
   const now = new Date();
-  const realMemberCount = (data.foundingMembers || []).reduce((s, m) => s + (m.people || 1), 0);
   const membershipCount = (data.foundingMembers || []).length;
 
   return (
     <div>
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 20 }}>
         <h1 className="lora" style={{ fontSize: 28, fontStyle: "italic", color: "#0D1117", marginBottom: 4 }}>
           Good {now.getHours() < 12 ? "morning" : now.getHours() < 17 ? "afternoon" : "evening"}, Collin.
         </h1>
         <p className="inter" style={{ fontSize: 14, color: "#222" }}>Here's where Ripple Boulder stands today.</p>
       </div>
 
-      {/* Opening countdown */}
-      {openingDays !== null && openingDays > 0 && (
-        <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 16, padding: "24px 28px", marginBottom: 24, color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)", textTransform: "uppercase", marginBottom: 6 }}>Until Opening Day</div>
-            <div className="lora" style={{ fontSize: 36, fontWeight: 600, color: "#fff", lineHeight: 1 }}>{openingDays}</div>
-            <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>days to go · {data.openingDate}</div>
+      {/* WIG — at the very top */}
+      {wigGoal && (
+        <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 18, padding: "22px 24px", marginBottom: 20, boxShadow: "0 6px 24px rgba(26,95,106,0.25)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+            <div>
+              <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 6 }}>⭐ Wildly Important Goal</div>
+              <div className="lora" style={{ fontSize: 20, color: "#fff", fontStyle: "italic", lineHeight: 1.3 }}>{wigGoal.title}</div>
+              {wigGoal.why && <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", marginTop: 4 }}>{wigGoal.why}</div>}
+            </div>
+            <select value={data.wigId} onChange={e => setData(d => ({ ...d, wigId: Number(e.target.value) }))}
+              style={{ width: "auto", fontSize: 11, border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "4px 8px", background: "rgba(255,255,255,0.1)", cursor: "pointer", marginLeft: 12, flexShrink: 0, color: "#fff", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#fff" }}>
+              {data.goals.map(g => <option key={g.id} value={g.id} style={{ background: "#1A5F6A" }}>{g.title}</option>)}
+            </select>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>Launch readiness</div>
-            <div className="lora" style={{ fontSize: 28, color: "#7DD3B8" }}>{Math.round((doneChecklist / totalChecklist) * 100)}%</div>
-            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{doneChecklist}/{totalChecklist} items</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#7DD3B8", borderRadius: 99, transition: "width 0.5s" }} />
+            </div>
+            <span className="lora" style={{ fontSize: 22, color: "#7DD3B8", whiteSpace: "nowrap" }}>
+              {pct(wigGoal.current, wigGoal.target)}%
+            </span>
+          </div>
+          <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 6 }}>
+            {fmt(wigGoal.current)} of {fmt(wigGoal.target)}
           </div>
         </div>
       )}
 
-      {/* Member count card — 2 editable fields */}
+      {/* Member count — editable, saves everywhere */}
       <div className="card" style={{ marginBottom: 16, borderTop: "3px solid #1A5F6A" }}>
-        <div className="sec-label">Membership Count — tap to edit</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="g2">
+        <div className="sec-label">Membership Count</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           {[
-            { label: "Total Members", key: "manualMembershipCount", auto: (data.foundingMembers || []).length, onChange: (v) => setMemberCount(v) },
-            { label: "New This Month", key: "manualNewCount", auto: 0, onChange: (v) => setData(d => ({ ...d, manualNewCount: Number(v) || 0 })) },
+            { label: "Total Members", key: "manualMembershipCount", auto: membershipCount, fn: (v) => setMemberCount(v) },
+            { label: "New This Month", key: "manualNewCount", auto: 0, fn: (v) => setData(d => ({ ...d, manualNewCount: Number(v) || 0 })) },
           ].map(item => (
-            <div key={item.key} style={{ textAlign: "center", padding: "16px 12px", background: "#F6F9FB", borderRadius: 14 }}>
-              <div className="inter" style={{ fontSize: 12, color: "#333", marginBottom: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.label}</div>
+            <div key={item.key} style={{ textAlign: "center", padding: "14px 10px", background: "#F6F9FB", borderRadius: 12 }}>
+              <div className="inter" style={{ fontSize: 11, color: "#333", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.label}</div>
               <input
                 type="number"
                 inputMode="numeric"
                 value={data[item.key] !== undefined ? data[item.key] : item.auto}
-                onChange={e => item.onChange(e.target.value)}
-                style={{ width: "100%", fontSize: 40, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 12, padding: "10px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }}
+                onChange={e => item.fn(e.target.value)}
+                onFocus={e => e.target.select()}
+                style={{ width: "100%", fontSize: 38, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "8px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }}
               />
-              <div className="inter" style={{ fontSize: 11, color: "#1A5F6A", marginTop: 8, fontWeight: 600 }}>updates everywhere instantly</div>
+              <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", marginTop: 6 }}>tap to edit · saves instantly</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* WIG */}
-      {wigGoal && (
-        <div className="card-warm" style={{ marginBottom: 16 }}>
-          <div className="sec-label">Wildly Important Goal</div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-            <div>
-              <div className="lora" style={{ fontSize: 18, color: "#0D1117", fontStyle: "italic" }}>{wigGoal.title}</div>
-              <div className="inter" style={{ fontSize: 12, color: "#222", marginTop: 3 }}>{wigGoal.why}</div>
-            </div>
-            <select value={data.wigId} onChange={e => setData(d => ({ ...d, wigId: Number(e.target.value) }))}
-              style={{ width: "auto", fontSize: 12, border: "1px solid #DDE8EE", borderRadius: 8, padding: "4px 8px", background: "#fff", cursor: "pointer", marginLeft: 12, flexShrink: 0 }}>
-              {data.goals.map(g => <option key={g.id} value={g.id}>{g.title}</option>)}
-            </select>
+      {/* Opening countdown */}
+      {openingDays !== null && openingDays > 0 && (
+        <div style={{ background: "linear-gradient(135deg, #0A3540 0%, #1A5F6A 100%)", borderRadius: 14, padding: "18px 22px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 4 }}>Until Opening Day</div>
+            <div className="lora" style={{ fontSize: 32, fontWeight: 600, color: "#fff", lineHeight: 1 }}>{openingDays}</div>
+            <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 3 }}>days to go · {data.openingDate}</div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div className="pbar" style={{ flex: 1 }}>
-              <div className="pfill" style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, background: "#1A5F6A" }} />
-            </div>
-            <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1A5F6A", whiteSpace: "nowrap" }}>
-              {fmt(wigGoal.current)} / {fmt(wigGoal.target)} · {pct(wigGoal.current, wigGoal.target)}%
-            </span>
+          <div style={{ textAlign: "right" }}>
+            <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Launch readiness</div>
+            <div className="lora" style={{ fontSize: 26, color: "#7DD3B8" }}>{Math.round((doneChecklist / totalChecklist) * 100)}%</div>
+            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{doneChecklist}/{totalChecklist} items</div>
           </div>
         </div>
       )}
 
       {/* Quick stats */}
-      <div className="g3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 20 }} className="g3">
         {[
           { label: "Goals on track", value: data.goals.filter(g => g.status === "on-track").length + "/" + data.goals.length, color: "#1A5F6A" },
           { label: "Open tasks", value: openTasks, color: openTasks > 5 ? "#F57F17" : "#1A5F6A" },
           { label: "Ops done today", value: `${dailyDone}/${dailyOps.length}`, color: dailyDone === dailyOps.length ? "#1A5F6A" : "#F57F17" },
         ].map(s => (
-          <div key={s.label} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+          <div key={s.label} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
             <div className="sec-label">{s.label}</div>
-            <div className="lora" style={{ fontSize: 26, color: s.color, marginTop: 2 }}>{s.value}</div>
+            <div className="lora" style={{ fontSize: 24, color: s.color, marginTop: 2 }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -976,7 +979,7 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
                   <span className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#0D1117" }}>{g.title}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span className="inter" style={{ fontSize: 11, color: "#555" }}>{p}%</span>
+                    <span className="inter" style={{ fontSize: 11, color: "#555", fontWeight: 700 }}>{p}%</span>
                     <span className="badge" style={{ background: s.bg, color: s.text }}>
                       <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
                       {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Watch" : "Off track"}
@@ -992,12 +995,10 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
         </div>
       </div>
 
-      {/* Brand values */}
       <ValuesCard />
     </div>
   );
 }
-
 // ── Staff Home ────────────────────────────────────────────────────────────────
 function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
   const today = todayKey();
