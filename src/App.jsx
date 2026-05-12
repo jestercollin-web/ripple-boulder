@@ -883,27 +883,25 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
         </div>
       )}
 
-      {/* Member count card — manually adjustable */}
+      {/* Member count card — all manually adjustable */}
       <div className="card" style={{ marginBottom: 16, borderTop: "3px solid #1A5F6A" }}>
-        <div className="sec-label">Membership Count</div>
+        <div className="sec-label">Membership Count — tap any number to edit</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }} className="g3">
-          <div style={{ textAlign: "center", padding: "12px 8px" }}>
-            <div className="lora" style={{ fontSize: 36, color: "#1A5F6A", lineHeight: 1 }}>{realMemberCount}</div>
-            <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 4 }}>People (auto from Beta)</div>
-          </div>
-          <div style={{ textAlign: "center", padding: "12px 8px" }}>
-            <div className="lora" style={{ fontSize: 36, color: "#1A5F6A", lineHeight: 1 }}>{membershipCount}</div>
-            <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 4 }}>Memberships</div>
-          </div>
-          <div style={{ textAlign: "center", padding: "12px 8px" }}>
-            <div className="inter" style={{ fontSize: 11, color: "#555", marginBottom: 6 }}>Manual override</div>
-            <SmoothNumber
-              value={data.manualMemberCount ?? realMemberCount}
-              onCommit={v => setData(d => ({ ...d, manualMemberCount: v }))}
-              style={{ width: "100%", fontSize: 22, textAlign: "center", fontWeight: 700, color: "#1A5F6A" }}
-            />
-            <div className="inter" style={{ fontSize: 10, color: "#888", marginTop: 4 }}>Edit if needed</div>
-          </div>
+          {[
+            { label: "People", key: "manualPeopleCount", auto: realMemberCount },
+            { label: "Memberships", key: "manualMembershipCount", auto: membershipCount },
+            { label: "New this month", key: "manualNewCount", auto: 0 },
+          ].map(item => (
+            <div key={item.key} style={{ textAlign: "center", padding: "12px 8px", background: "#F6F9FB", borderRadius: 12 }}>
+              <div className="inter" style={{ fontSize: 11, color: "#333", marginBottom: 8, fontWeight: 600 }}>{item.label}</div>
+              <SmoothNumber
+                value={data[item.key] !== undefined ? data[item.key] : item.auto}
+                onCommit={v => setData(d => ({ ...d, [item.key]: v }))}
+                style={{ width: "100%", fontSize: 34, textAlign: "center", fontWeight: 700, color: "#1A5F6A", border: "1.5px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "8px 0" }}
+              />
+              <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", marginTop: 6, fontWeight: 600 }}>✎ tap to edit</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -1964,6 +1962,108 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
   );
 }
 
+// ── Opening Page ──────────────────────────────────────────────────────────────
+function OpeningPage({ data, setData, isOwner, TEAM }) {
+  const [filter, setFilter] = useState("all");
+  const items = data.openingChecklist || [];
+  const filtered = filter === "all" ? items : items.filter(i => i.owner === filter);
+  const cats = [...new Set(items.map(i => i.category))];
+  const doneCount = items.filter(i => i.done).length;
+  const pctDone = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+  const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
+
+  const toggle = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, done: !i.done } : i) }));
+  const updateItem = (id, f, v) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, [f]: v } : i) }));
+  const addItem = (cat) => { const id = `oc${Date.now()}`; setData(d => ({ ...d, openingChecklist: [...d.openingChecklist, { id, category: cat, item: "New item", done: false, owner: TEAM[0], notes: "" }] })); };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Opening Roadmap</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#333", marginTop: 2 }}>Everything that needs to happen before we open the doors.</p>
+        </div>
+        {openingDays !== null && (
+          <div style={{ textAlign: "right", background: openingDays <= 14 ? "#FFEBEE" : "#E8F2F4", border: `1px solid ${openingDays <= 14 ? "#FFCDD2" : "#B2D8DD"}`, borderRadius: 12, padding: "10px 16px" }}>
+            <div className="lora" style={{ fontSize: 28, color: openingDays <= 14 ? "#C62828" : "#1A5F6A", lineHeight: 1 }}>{openingDays > 0 ? openingDays : "🎉"}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{openingDays > 0 ? "days to go" : "Open!"}</div>
+            {isOwner && <input type="date" value={data.openingDate||""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
+              style={{ fontSize: 10, border: "none", background: "transparent", color: "#888", marginTop: 4, cursor: "pointer", textAlign: "right", WebkitTextFillColor: "#888" }} />}
+          </div>
+        )}
+      </div>
+
+      {/* Progress */}
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#0D1117" }}>{doneCount} of {items.length} complete</span>
+          <span className="lora" style={{ fontSize: 22, color: pctDone === 100 ? "#2E7D32" : "#1A5F6A" }}>{pctDone}%</span>
+        </div>
+        <div style={{ height: 8, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
+        </div>
+        {pctDone === 100 && <p className="inter" style={{ fontSize: 13, color: "#2E7D32", marginTop: 8, fontWeight: 600 }}>🎉 Ready to open!</p>}
+      </div>
+
+      {/* Filter */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
+          <option value="all">All owners</option>
+          {TEAM.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </div>
+
+      {/* Categories */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {cats.map(cat => {
+          const catItems = filtered.filter(i => i.category === cat);
+          if (!catItems.length) return null;
+          const catDone = catItems.filter(i => i.done).length;
+          const cp = Math.round((catDone / catItems.length) * 100);
+          return (
+            <div key={cat}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#0D1117" }}>{cat}</span>
+                  <span className="inter" style={{ fontSize: 11, color: "#555" }}>{catDone}/{catItems.length}</span>
+                  <div style={{ width: 48, height: 3, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${cp}%`, height: "100%", background: cp === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
+                  </div>
+                </div>
+                {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {catItems.map(item => (
+                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
+                    <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
+                    <div style={{ flex: 1 }}>
+                      {isOwner
+                        ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)}
+                            style={{ border: "none", padding: 0, fontSize: 13, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none", WebkitTextFillColor: item.done ? "#888" : "#0D1117" }} />
+                        : <div className="inter" style={{ fontSize: 13, fontWeight: item.done ? 400 : 500, color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none" }}>{item.item}</div>
+                      }
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                      {isOwner
+                        ? <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", border: "1px solid #DDE8EE", borderRadius: 6 }}>
+                            {TEAM.map(t => <option key={t}>{t}</option>)}
+                          </select>
+                        : <Avatar name={item.owner} size={26} />
+                      }
+                      {isOwner && <button onClick={() => setData(d => ({ ...d, openingChecklist: d.openingChecklist.filter(x => x.id !== item.id) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 14 }}>✕</button>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Members Page ──────────────────────────────────────────────────────────────
 function MembersPage({ data, setData }) {
   const members = data.foundingMembers || [];
   const [search, setSearch] = useState("");
