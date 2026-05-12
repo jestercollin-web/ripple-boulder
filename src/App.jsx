@@ -490,16 +490,24 @@ export default function App() {
   const updateLog = (gid, mid, v) => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [gid]: { ...d.weeklyLogs[gid], [mid]: v } } }));
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
 
-  // When manual member count changes, sync it to the membership goal current value
-  const setMemberCount = (v) => setData(d => ({
-    ...d,
-    manualMembershipCount: v,
-    goals: d.goals.map(g =>
-      g.title.toLowerCase().includes("member") || g.title.toLowerCase().includes("founding")
-        ? { ...g, current: v }
-        : g
-    )
-  }));
+  // Single source of truth for member count — updates goals + scoreboard simultaneously
+  const setMemberCount = (v) => {
+    const num = Number(v) || 0;
+    setData(d => ({
+      ...d,
+      manualMembershipCount: num,
+      // Update the first membership-related goal automatically
+      goals: d.goals.map(g =>
+        (g.title.toLowerCase().includes("member") || g.title.toLowerCase().includes("founding"))
+          ? { ...g, current: num }
+          : g
+      ),
+      // Also update latest monthly metric
+      monthlyMetrics: (d.monthlyMetrics || []).map((m, i, arr) =>
+        i === arr.length - 1 ? { ...m, foundingMembers: num } : m
+      ),
+    }));
+  };
 
   // Auto-sync founding member count from real Beta data — counts people, not memberships
   const realFoundingCount = (data.foundingMembers || []).reduce((s, m) => s + (m.people || 1), 0);
@@ -899,17 +907,19 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
         <div className="sec-label">Membership Count — tap to edit</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="g2">
           {[
-            { label: "Total Members", key: "manualMembershipCount", auto: (data.foundingMembers || []).length, onCommit: (v) => setMemberCount(v) },
-            { label: "New This Month", key: "manualNewCount", auto: 0, onCommit: (v) => setData(d => ({ ...d, manualNewCount: v })) },
+            { label: "Total Members", key: "manualMembershipCount", auto: (data.foundingMembers || []).length, onChange: (v) => setMemberCount(v) },
+            { label: "New This Month", key: "manualNewCount", auto: 0, onChange: (v) => setData(d => ({ ...d, manualNewCount: Number(v) || 0 })) },
           ].map(item => (
             <div key={item.key} style={{ textAlign: "center", padding: "16px 12px", background: "#F6F9FB", borderRadius: 14 }}>
               <div className="inter" style={{ fontSize: 12, color: "#333", marginBottom: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.label}</div>
-              <SmoothNumber
+              <input
+                type="number"
+                inputMode="numeric"
                 value={data[item.key] !== undefined ? data[item.key] : item.auto}
-                onCommit={item.onCommit}
-                style={{ width: "100%", fontSize: 40, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 12, padding: "10px 0" }}
+                onChange={e => item.onChange(e.target.value)}
+                style={{ width: "100%", fontSize: 40, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 12, padding: "10px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }}
               />
-              <div className="inter" style={{ fontSize: 11, color: "#1A5F6A", marginTop: 8, fontWeight: 600 }}>✎ tap to edit</div>
+              <div className="inter" style={{ fontSize: 11, color: "#1A5F6A", marginTop: 8, fontWeight: 600 }}>updates everywhere instantly</div>
             </div>
           ))}
         </div>
