@@ -490,6 +490,17 @@ export default function App() {
   const updateLog = (gid, mid, v) => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [gid]: { ...d.weeklyLogs[gid], [mid]: v } } }));
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
 
+  // When manual member count changes, sync it to the membership goal current value
+  const setMemberCount = (v) => setData(d => ({
+    ...d,
+    manualMembershipCount: v,
+    goals: d.goals.map(g =>
+      g.title.toLowerCase().includes("member") || g.title.toLowerCase().includes("founding")
+        ? { ...g, current: v }
+        : g
+    )
+  }));
+
   // Auto-sync founding member count from real Beta data — counts people, not memberships
   const realFoundingCount = (data.foundingMembers || []).reduce((s, m) => s + (m.people || 1), 0);
   // Only auto-fill if the goal still has the placeholder value (31) — don't override manual edits
@@ -883,23 +894,22 @@ function OwnerHome({ data, setData, updateGoal, TEAM, setNav }) {
         </div>
       )}
 
-      {/* Member count card — all manually adjustable */}
+      {/* Member count card — 2 editable fields */}
       <div className="card" style={{ marginBottom: 16, borderTop: "3px solid #1A5F6A" }}>
-        <div className="sec-label">Membership Count — tap any number to edit</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }} className="g3">
+        <div className="sec-label">Membership Count — tap to edit</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="g2">
           {[
-            { label: "People", key: "manualPeopleCount", auto: realMemberCount },
-            { label: "Memberships", key: "manualMembershipCount", auto: membershipCount },
-            { label: "New this month", key: "manualNewCount", auto: 0 },
+            { label: "Total Members", key: "manualMembershipCount", auto: (data.foundingMembers || []).length, onCommit: (v) => setMemberCount(v) },
+            { label: "New This Month", key: "manualNewCount", auto: 0, onCommit: (v) => setData(d => ({ ...d, manualNewCount: v })) },
           ].map(item => (
-            <div key={item.key} style={{ textAlign: "center", padding: "12px 8px", background: "#F6F9FB", borderRadius: 12 }}>
-              <div className="inter" style={{ fontSize: 11, color: "#333", marginBottom: 8, fontWeight: 600 }}>{item.label}</div>
+            <div key={item.key} style={{ textAlign: "center", padding: "16px 12px", background: "#F6F9FB", borderRadius: 14 }}>
+              <div className="inter" style={{ fontSize: 12, color: "#333", marginBottom: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.label}</div>
               <SmoothNumber
                 value={data[item.key] !== undefined ? data[item.key] : item.auto}
-                onCommit={v => setData(d => ({ ...d, [item.key]: v }))}
-                style={{ width: "100%", fontSize: 34, textAlign: "center", fontWeight: 700, color: "#1A5F6A", border: "1.5px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "8px 0" }}
+                onCommit={item.onCommit}
+                style={{ width: "100%", fontSize: 40, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 12, padding: "10px 0" }}
               />
-              <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", marginTop: 6, fontWeight: 600 }}>✎ tap to edit</div>
+              <div className="inter" style={{ fontSize: 11, color: "#1A5F6A", marginTop: 8, fontWeight: 600 }}>✎ tap to edit</div>
             </div>
           ))}
         </div>
