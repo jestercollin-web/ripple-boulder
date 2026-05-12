@@ -490,11 +490,8 @@ export default function App() {
   const updateLog = (gid, mid, v) => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [gid]: { ...d.weeklyLogs[gid], [mid]: v } } }));
   const updateTask = (id, f, v) => setData(d => ({ ...d, tasks: d.tasks.map(t => t.id === id ? { ...t, [f]: v } : t) }));
 
-  // Auto-sync founding member count from real Beta data
-  const realFoundingCount = (data.foundingMembers || []).length;
-  const goalsWithRealCount = data.goals.map(g =>
-    g.title.toLowerCase().includes("founding") ? { ...g, current: realFoundingCount } : g
-  );
+    const realFoundingCount = (data.foundingMembers || []).reduce((s, m) => s + (m.people || 1), 0);
+  const goalsWithRealCount = data.goals;
 
   const ownerNav = [
     { key: "home",       label: "Home" },
