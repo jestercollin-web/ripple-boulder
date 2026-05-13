@@ -445,6 +445,14 @@ export default function App() {
   const [data, setData] = useState(INITIAL_DATA);
   const [nav, setNav] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Seamless view switching — always lands on the right page
+  const switchView = () => {
+    const next = data.viewMode === "owner" ? "staff" : "owner";
+    setData(d => ({ ...d, viewMode: next }));
+    setMenuOpen(false);
+    setNav(next === "staff" ? "ops" : "home");
+  };
   const [loading, setLoading] = useState(true);
   const saveTimer = useRef(null);
 
@@ -532,6 +540,14 @@ export default function App() {
     { key: "scoreboard", label: "Scoreboard" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
+
+  // If current nav page doesn't exist in the active view, redirect to home
+  useEffect(() => {
+    const validKeys = navItems.map(n => n.key);
+    if (!validKeys.includes(nav)) {
+      setNav(isOwner ? "home" : "ops");
+    }
+  }, [isOwner]);
 
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
@@ -806,9 +822,9 @@ export default function App() {
               </button>
             ))}
             <div style={{ width: 1, height: 16, background: "#2D4050", margin: "0 8px" }} />
-            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(isOwner ? "ops" : "home"); }}
-              style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif", fontWeight: 600, padding: "6px 8px" }}>
-              Switch
+            <button onClick={switchView}
+              style={{ background: isOwner ? "rgba(26,95,106,0.08)" : "rgba(26,95,106,0.12)", border: "1px solid rgba(26,95,106,0.25)", borderRadius: 99, cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700, padding: "5px 14px" }}>
+              {isOwner ? "👤 Staff view" : "🔑 Owner view"}
             </button>
           </nav>
           {/* Mobile menu button */}
@@ -827,8 +843,9 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <button onClick={() => { setData(d => ({ ...d, viewMode: d.viewMode === "owner" ? "staff" : "owner" })); setNav(isOwner ? "ops" : "home"); setMenuOpen(false); }}
-              style={{ display: "block", width: "100%", textAlign: "left", padding: "16px 20px", background: "none", border: "none", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, color: "#1A5F6A", fontWeight: 600 }}>
+            <button onClick={switchView}
+              style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", padding: "16px 20px", background: "rgba(26,95,106,0.05)", border: "none", borderTop: "2px solid rgba(26,95,106,0.1)", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 16, color: "#1A5F6A", fontWeight: 700 }}>
+              <span style={{ fontSize: 18 }}>{isOwner ? "👤" : "🔑"}</span>
               Switch to {isOwner ? "Staff" : "Owner"} view
             </button>
           </div>
@@ -1683,11 +1700,12 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
   const wk = weekKey();
   const today = todayKey();
   const wigGoal = data.goals.find(g => g.id === data.wigId) || data.goals[0];
+  const wigPct = wigGoal ? pct(wigGoal.current, wigGoal.target) : 0;
   const contributions = data.contributions || {};
   const weekContribs = contributions[wk] || {};
-  const suggestions = data.weeklySuggestions || [];
-  const monthlyMetrics = data.monthlyMetrics || [];
+  const suggestions = (data.weeklySuggestions || []).filter(s => s.active);
 
+  // Ops completed today per person
   const opsToday = {};
   TEAM.forEach(p => { opsToday[p] = 0; });
   (data.opsTasks || []).forEach(t => {
@@ -1696,281 +1714,226 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
   });
   const totalDailyOps = (data.opsTasks || []).filter(t => ["opening","midday","closing"].includes(t.freq)).length;
 
+  // Lead measures for the WIG
+  const wigMeasures = data.leadMeasures.filter(m => m.goalId === wigGoal?.id);
+
   const addAction = (person, text) => {
     if (!text.trim()) return;
     setData(d => {
       const wkData = d.contributions?.[wk] || {};
-      const pd = wkData[person] || { actions: [], note: "" };
+      const pd = wkData[person] || { actions: [] };
       return { ...d, contributions: { ...d.contributions, [wk]: { ...wkData, [person]: { ...pd, actions: [...pd.actions, { text: text.trim(), ts: new Date().toISOString() }] } } } };
     });
   };
   const removeAction = (person, idx) => setData(d => {
     const wkData = d.contributions?.[wk] || {};
-    const pd = wkData[person] || { actions: [], note: "" };
+    const pd = wkData[person] || { actions: [] };
     return { ...d, contributions: { ...d.contributions, [wk]: { ...wkData, [person]: { ...pd, actions: pd.actions.filter((_, i) => i !== idx) } } } };
   });
-  const toggleSuggestion = (id) => setData(d => ({ ...d, weeklySuggestions: (d.weeklySuggestions||[]).map(s => s.id === id ? { ...s, active: !s.active } : s) }));
   const updateSuggestion = (id, text) => setData(d => ({ ...d, weeklySuggestions: (d.weeklySuggestions||[]).map(s => s.id === id ? { ...s, text } : s) }));
-  const addSuggestion = () => setData(d => ({ ...d, weeklySuggestions: [...(d.weeklySuggestions||[]), { id: `ws${Date.now()}`, text: "New suggestion for the team", active: true }] }));
+  const addSuggestion = () => setData(d => ({ ...d, weeklySuggestions: [...(d.weeklySuggestions||[]), { id: `ws${Date.now()}`, text: "New focus for the team", active: true }] }));
+  const toggleSuggestion = (id) => setData(d => ({ ...d, weeklySuggestions: (d.weeklySuggestions||[]).map(s => s.id === id ? { ...s, active: !s.active } : s) }));
   const removeSuggestion = (id) => setData(d => ({ ...d, weeklySuggestions: (d.weeklySuggestions||[]).filter(s => s.id !== id) }));
-  const addMonthlyEntry = () => {
-    const now = new Date();
-    const label = now.toLocaleString("default", { month: "long", year: "numeric" });
-    setData(d => ({ ...d, monthlyMetrics: [...(d.monthlyMetrics||[]), { id: `mm${Date.now()}`, month: label, activeMembers: 0, newMembers: 0, foundingMembers: 0, referrals: 0, dayPasses: 0, notes: "" }] }));
-  };
-  const updateMetric = (id, f, v) => setData(d => ({ ...d, monthlyMetrics: (d.monthlyMetrics||[]).map(m => m.id === id ? { ...m, [f]: v } : m) }));
-  const latestMetric = monthlyMetrics[monthlyMetrics.length - 1];
-  const wigPct = wigGoal ? pct(wigGoal.current, wigGoal.target) : 0;
 
   const milestones = [
-    { pct: 0,   emoji: "🚀", msg: "Every action counts — let's build something great!" },
-    { pct: 25,  emoji: "🌱", msg: "We're gaining momentum. Keep showing up!" },
-    { pct: 50,  emoji: "🔥", msg: "Halfway there — the team is making it happen!" },
-    { pct: 75,  emoji: "⚡", msg: "Almost there — one final push together!" },
-    { pct: 100, emoji: "🏆", msg: "GOAL COMPLETE! The team did it!" },
+    { pct: 0,   emoji: "🚀", msg: "Every shift counts. Let's build this together!" },
+    { pct: 25,  emoji: "🌱", msg: "Momentum is building — keep showing up!" },
+    { pct: 50,  emoji: "🔥", msg: "Halfway there. The team is making it happen!" },
+    { pct: 75,  emoji: "⚡", msg: "So close — one final push together!" },
+    { pct: 100, emoji: "🏆", msg: "WE DID IT! Goal complete!" },
   ];
   const milestone = [...milestones].reverse().find(m => wigPct >= m.pct) || milestones[0];
-
-  const totalTeamActions = TEAM.reduce((s, p) => s + ((weekContribs[p]?.actions?.length) || 0), 0);
+  const totalWins = TEAM.reduce((s, p) => s + ((weekContribs[p]?.actions?.length) || 0), 0);
   const totalOpsToday = Object.values(opsToday).reduce((a, b) => a + b, 0);
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
 
       {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 className="lora" style={{ fontSize: 28, fontStyle: "italic", color: "#0D1117" }}>The Scoreboard 🏔️</h1>
-        <p className="inter" style={{ fontSize: 14, color: "#333", marginTop: 3 }}>Every shift moves us closer. Here's where we stand.</p>
+      <div style={{ marginBottom: 20 }}>
+        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Team Scoreboard 🏔️</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 3 }}>Your daily work is what moves us forward.</p>
       </div>
 
       {/* WIG HERO */}
       {wigGoal && (
-        <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 22, padding: "28px 24px 24px", marginBottom: 20, position: "relative", overflow: "hidden", boxShadow: "0 8px 32px rgba(26,95,106,0.28)" }}>
-          <div style={{ position: "absolute", top: -60, right: -60, width: 220, height: 220, background: "rgba(255,255,255,0.04)", borderRadius: "50%" }} />
-          <div style={{ position: "absolute", bottom: -30, left: -30, width: 140, height: 140, background: "rgba(125,211,184,0.07)", borderRadius: "50%" }} />
-
-          <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.15em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 8 }}>🎯 Wildly Important Goal</div>
-          <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#fff", marginBottom: 4, lineHeight: 1.3 }}>{wigGoal.title}</div>
-          {wigGoal.why && <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", marginBottom: 22, lineHeight: 1.55 }}>{wigGoal.why}</div>}
-
-          {/* Big number + bar */}
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 20, marginBottom: 18 }}>
-            <div>
-              <div className="lora" style={{ fontSize: 60, color: "#7DD3B8", lineHeight: 1, fontWeight: 600 }}>
-                {wigPct}<span style={{ fontSize: 30, color: "rgba(125,211,184,0.7)" }}>%</span>
-              </div>
-              <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>{fmt(wigGoal.current)} of {fmt(wigGoal.target)} people</div>
+        <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 20, padding: "22px 22px 20px", marginBottom: 20, boxShadow: "0 6px 24px rgba(26,95,106,0.22)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -50, right: -50, width: 160, height: 160, background: "rgba(255,255,255,0.04)", borderRadius: "50%" }} />
+          <div className="inter" style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.15em", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", marginBottom: 6 }}>⭐ Our Wildly Important Goal</div>
+          <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#fff", marginBottom: 3, lineHeight: 1.3 }}>{wigGoal.title}</div>
+          {wigGoal.why && <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginBottom: 16, lineHeight: 1.5 }}>{wigGoal.why}</div>}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
+            <div style={{ flex: 1, height: 10, background: "rgba(255,255,255,0.12)", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ width: `${wigPct}%`, height: "100%", background: "linear-gradient(90deg, #7DD3B8, #4DB896)", borderRadius: 99, transition: "width 0.8s" }} />
             </div>
-            <div style={{ flex: 1, paddingBottom: 22 }}>
-              {/* Segmented milestone bar */}
-              <div style={{ display: "flex", gap: 3, marginBottom: 8 }}>
-                {[25, 50, 75, 100].map((mark, i) => {
-                  const segPct = Math.min(100, Math.max(0, (wigPct - (i * 25)) / 25 * 100));
-                  return (
-                    <div key={mark} style={{ flex: 1, height: 10, background: "rgba(255,255,255,0.1)", borderRadius: 99, overflow: "hidden" }}>
-                      <div style={{ width: `${segPct}%`, height: "100%", background: "linear-gradient(90deg, #7DD3B8, #4DB896)", borderRadius: 99, transition: "width 0.8s" }} />
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                {[25, 50, 75, 100].map(m => (
-                  <span key={m} className="inter" style={{ fontSize: 10, color: wigPct >= m ? "rgba(125,211,184,0.9)" : "rgba(255,255,255,0.25)", fontWeight: 700 }}>{m}%</span>
-                ))}
-              </div>
-            </div>
+            <div className="lora" style={{ fontSize: 28, color: "#7DD3B8", lineHeight: 1, flexShrink: 0 }}>{wigPct}%</div>
           </div>
-
-          {/* Milestone message */}
-          <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 18px", display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 22 }}>{milestone.emoji}</span>
-            <span className="inter" style={{ fontSize: 15, color: "#fff", fontWeight: 700 }}>{milestone.msg}</span>
+          <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>{fmt(wigGoal.current)} of {fmt(wigGoal.target)}</div>
+          <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 18 }}>{milestone.emoji}</span>
+            <span className="inter" style={{ fontSize: 14, color: "#fff", fontWeight: 700 }}>{milestone.msg}</span>
           </div>
 
           {/* Team quick stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 14 }}>
             {[
-              { label: "Team wins this week", value: totalTeamActions, emoji: "🌿" },
-              { label: "Ops completed today", value: `${totalOpsToday}/${totalDailyOps}`, emoji: "✅" },
+              { label: "Wins this week", value: totalWins, emoji: "🌿" },
+              { label: "Ops done today", value: `${totalOpsToday}/${totalDailyOps}`, emoji: "✅" },
               { label: "Days to opening", value: data.openingDate ? Math.max(0, Math.ceil((new Date(data.openingDate) - new Date()) / 86400000)) : "—", emoji: "📅" },
             ].map(s => (
-              <div key={s.label} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px 14px", textAlign: "center" }}>
-                <div style={{ fontSize: 18, marginBottom: 4 }}>{s.emoji}</div>
-                <div className="lora" style={{ fontSize: 22, color: "#fff", lineHeight: 1 }}>{s.value}</div>
-                <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 3, lineHeight: 1.3 }}>{s.label}</div>
+              <div key={s.label} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
+                <div style={{ fontSize: 16, marginBottom: 3 }}>{s.emoji}</div>
+                <div className="lora" style={{ fontSize: 20, color: "#fff", lineHeight: 1 }}>{s.value}</div>
+                <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", marginTop: 3, lineHeight: 1.3 }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* All goals grid */}
-      <div style={{ marginBottom: 20 }}>
-        <div className="sec-label" style={{ marginBottom: 12 }}>All Goals</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="g2">
-          {data.goals.map(g => {
-            const p = pct(g.current, g.target);
-            const s = sc[g.status];
-            const isWig = g.id === data.wigId;
-            return (
-              <div key={g.id} style={{ background: "#fff", border: `1px solid ${isWig ? "#1A5F6A" : "#DDE8EE"}`, borderRadius: 16, padding: "16px 18px", borderTop: `3px solid ${isWig ? "#1A5F6A" : s.bar}`, boxShadow: isWig ? "0 4px 16px rgba(26,95,106,0.12)" : "0 1px 4px rgba(0,0,0,0.04)" }}>
-                {isWig && <div className="inter" style={{ fontSize: 9, fontWeight: 800, color: "#1A5F6A", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>⭐ WIG</div>}
-                <div className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#0D1117", marginBottom: 8, lineHeight: 1.35 }}>{g.title}</div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
-                  <span className="lora" style={{ fontSize: 24, color: s.bar, fontWeight: 600 }}>{fmt(g.current)}</span>
-                  <span className="inter" style={{ fontSize: 12, color: "#555" }}>/ {fmt(g.target)}</span>
-                </div>
-                <div style={{ height: 6, background: "#EEF4F7", borderRadius: 99, overflow: "hidden", marginBottom: 6 }}>
-                  <div style={{ width: `${p}%`, height: "100%", background: s.bar, borderRadius: 99, transition: "width 0.6s" }} />
-                </div>
-                <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: s.bar }}>{p}% complete</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Monthly snapshot */}
-      {latestMetric && (
+      {/* Lead measures — the scoreboard of what moves the WIG */}
+      {wigMeasures.length > 0 && (
         <div className="card" style={{ marginBottom: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <div>
-              <div className="sec-label">Monthly Snapshot</div>
-              <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#0D1117" }}>{latestMetric.month}</div>
-            </div>
-            {isOwner && <button className="btn btn-teal" onClick={addMonthlyEntry} style={{ fontSize: 12, padding: "6px 14px" }}>+ New Month</button>}
+          <div className="sec-label" style={{ marginBottom: 14 }}>What moves the goal 🎯</div>
+          <p className="inter" style={{ fontSize: 12, color: "#555", marginBottom: 14, lineHeight: 1.5 }}>
+            These are the specific actions our team takes every week that directly grow our membership and push us toward our goal.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {wigMeasures.map(m => {
+              const val = data.weeklyLogs[m.goalId]?.[m.id] ?? 0;
+              const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
+              const progress = m.type === "checkbox" ? (done ? 100 : 0) : Math.min(100, Math.round((Number(val) / m.target) * 100));
+              return (
+                <div key={m.id} style={{ padding: "14px 16px", background: done ? "linear-gradient(135deg, #F0FBF5, #E8F9F0)" : "#F6F9FB", borderRadius: 12, border: `1.5px solid ${done ? "#A8DCC0" : "#DDE8EE"}` }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: done ? "#4CAF50" : "#1A5F6A", flexShrink: 0 }} />
+                      <span className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#0D1117" }}>{m.title}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {m.type !== "checkbox" && (
+                        <SmoothNumber value={val} onCommit={v => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [m.goalId]: { ...d.weeklyLogs[m.goalId], [m.id]: v } } }))}
+                          style={{ width: 52, textAlign: "center", fontSize: 14, fontWeight: 700, color: done ? "#2E7D32" : "#1A5F6A" }} />
+                      )}
+                      <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: done ? "#2E7D32" : "#888" }}>
+                        {m.type === "checkbox" ? (done ? "✓ Done" : "—") : `/ ${m.target}`}
+                      </span>
+                      {m.type === "checkbox" && (
+                        <input type="checkbox" checked={!!val} onChange={e => setData(d => ({ ...d, weeklyLogs: { ...d.weeklyLogs, [m.goalId]: { ...d.weeklyLogs[m.goalId], [m.id]: e.target.checked } } }))} />
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ height: 5, background: "#E0EAF0", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${progress}%`, height: "100%", background: done ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
+                  </div>
+                  {m.unit && <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 4 }}>{m.unit} · week of {wk}</div>}
+                </div>
+              );
+            })}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }} className="g3">
-            {[
-              { label: "Active Members", field: "activeMembers", emoji: "🧗" },
-              { label: "New Members",    field: "newMembers",    emoji: "✨" },
-              { label: "Members",        field: "foundingMembers", emoji: "⭐" },
-              { label: "Referrals",      field: "referrals",    emoji: "🤝" },
-              { label: "Day Passes",     field: "dayPasses",    emoji: "🎟️" },
-            ].map(m => (
-              <div key={m.field} style={{ background: "#F6F9FB", borderRadius: 12, padding: "12px 14px" }}>
-                <div className="inter" style={{ fontSize: 11, color: "#333", marginBottom: 4 }}>{m.emoji} {m.label}</div>
-                {isOwner
-                  ? <SmoothNumber value={latestMetric[m.field]} onCommit={v => updateMetric(latestMetric.id, m.field, v)} style={{ width: "100%", fontSize: 20, textAlign: "left", border: "none", background: "transparent", padding: 0, fontWeight: 700, color: "#0D1117" }} />
-                  : <div className="lora" style={{ fontSize: 22, color: "#0D1117", fontWeight: 600 }}>{latestMetric[m.field]}</div>
-                }
-              </div>
-            ))}
-          </div>
-          {(isOwner || latestMetric.notes) && (
-            <div style={{ marginTop: 12 }}>
-              <SmoothTextarea value={latestMetric.notes||""} onCommit={v => updateMetric(latestMetric.id, "notes", v)} readOnly={!isOwner}
-                placeholder={isOwner ? "Add a note about this month..." : ""} rows={2}
-                style={{ fontSize: 13, color: "#333", fontStyle: "italic", background: "#F6F9FB", border: "1px solid #DDE8EE", borderRadius: 10, padding: "10px 14px", width: "100%", WebkitTextFillColor: "#333" }} />
-            </div>
-          )}
         </div>
       )}
 
-      {/* This week's focus */}
-      <div style={{ background: "linear-gradient(135deg, #F0FBF5 0%, #E8F6FF 100%)", border: "1px solid #C8E8D8", borderRadius: 18, padding: "20px 22px", marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-          <div>
-            <div className="sec-label" style={{ color: "#1A5F6A", marginBottom: 4 }}>This Week at Ripple</div>
-            <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#0D1117" }}>Ways to help this week 🌱</div>
-          </div>
-          {isOwner && <button onClick={addSuggestion} style={{ background: "none", border: "1px solid #1A5F6A", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>+ Add</button>}
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {suggestions.filter(s => s.active || isOwner).map((s, i) => (
-            <div key={s.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "12px 14px", background: s.active ? "#fff" : "rgba(255,255,255,0.5)", borderRadius: 12, border: `1px solid ${s.active ? "#B8E0CC" : "#D8ECE4"}`, opacity: s.active ? 1 : 0.5, boxShadow: s.active ? "0 1px 4px rgba(0,0,0,0.05)" : "none" }}>
-              <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>{["💚","🌟","🤝","💡","📸","🗣️","🧗","✨"][i % 8]}</span>
-              {isOwner
-                ? <SmoothInput value={s.text} onCommit={v => updateSuggestion(s.id, v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, background: "transparent", color: "#1A2530", fontWeight: 500, lineHeight: 1.5, WebkitTextFillColor: "#1A2530" }} />
-                : <span className="inter" style={{ flex: 1, fontSize: 14, color: "#1A2530", lineHeight: 1.55, fontWeight: 500 }}>{s.text}</span>
-              }
-              {isOwner && (
-                <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                  <button onClick={() => toggleSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>{s.active ? "Hide" : "Show"}</button>
-                  <button onClick={() => removeSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#888", fontSize: 14 }}>✕</button>
-                </div>
-              )}
+      {/* This week's focus — what the team should do */}
+      {(suggestions.length > 0 || isOwner) && (
+        <div style={{ background: "linear-gradient(135deg, #F0FBF5, #E8F4FF)", border: "1px solid #C8E8D8", borderRadius: 18, padding: "18px 20px", marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div>
+              <div className="sec-label" style={{ color: "#1A5F6A", marginBottom: 3 }}>This week's focus</div>
+              <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#0D1117" }}>Ways YOU can help us win 🌱</div>
             </div>
-          ))}
+            {isOwner && <button onClick={addSuggestion} style={{ background: "none", border: "1px solid #1A5F6A", borderRadius: 8, padding: "5px 12px", cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>+ Add</button>}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {(isOwner ? (data.weeklySuggestions || []) : suggestions).map((s, i) => (
+              <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px", background: s.active ? "#fff" : "rgba(255,255,255,0.4)", borderRadius: 10, border: `1px solid ${s.active ? "#B8E0CC" : "#D8ECE4"}`, opacity: s.active ? 1 : 0.5 }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>{["💚","🌟","🤝","💡","📸","🗣️","🧗","✨"][i % 8]}</span>
+                {isOwner
+                  ? <SmoothInput value={s.text} onCommit={v => updateSuggestion(s.id, v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, background: "transparent", color: "#1A2530", fontWeight: 500, WebkitTextFillColor: "#1A2530" }} />
+                  : <span className="inter" style={{ flex: 1, fontSize: 14, color: "#1A2530", fontWeight: 500, lineHeight: 1.5 }}>{s.text}</span>
+                }
+                {isOwner && (
+                  <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                    <button onClick={() => toggleSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 11, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>{s.active ? "Hide" : "Show"}</button>
+                    <button onClick={() => removeSuggestion(s.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 14 }}>✕</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Team cards */}
+      {/* Team cards — personal contribution tracker */}
       <div>
-        <div className="sec-label" style={{ marginBottom: 14 }}>The Team This Week 🙌</div>
+        <div className="sec-label" style={{ marginBottom: 14 }}>Team contributions this week 🙌</div>
+        <p className="inter" style={{ fontSize: 12, color: "#555", marginBottom: 16, lineHeight: 1.5 }}>Every conversation, every connection, every great experience you create — log it here. This is how the team sees the impact of your work.</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {TEAM.map(person => {
             const pd = weekContribs[person] || { actions: [] };
             const opsCount = opsToday[person] || 0;
+            const actionCount = pd.actions?.length || 0;
+            const color = avatarColor(person);
+            const opsPct = totalDailyOps ? Math.round((opsCount / totalDailyOps) * 100) : 0;
             const [input, setInput] = useState("");
             const [showInput, setShowInput] = useState(false);
-            const color = avatarColor(person);
-            const actionCount = pd.actions?.length || 0;
-            const opsPct = totalDailyOps ? Math.round((opsCount / totalDailyOps) * 100) : 0;
 
             return (
-              <div key={person} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}>
+              <div key={person} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
                 {/* Header */}
-                <div style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}DD 100%)`, padding: "18px 20px", display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", border: "2.5px solid rgba(255,255,255,0.5)", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>
-                    <span className="inter" style={{ fontSize: 17, fontWeight: 800, color: "#fff" }}>{initials(person)}</span>
+                <div style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}DD 100%)`, padding: "14px 18px", display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid rgba(255,255,255,0.4)", flexShrink: 0 }}>
+                    <span className="inter" style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>{initials(person)}</span>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div className="lora" style={{ fontSize: 20, color: "#fff", fontStyle: "italic", fontWeight: 500 }}>{person}</div>
-                    <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", marginTop: 2 }}>
-                      {actionCount > 0 ? `${actionCount} win${actionCount !== 1 ? "s" : ""} logged this week 🌿` : "Ready to make a move this week"}
+                    <div className="lora" style={{ fontSize: 18, color: "#fff", fontStyle: "italic" }}>{person}</div>
+                    <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 1 }}>
+                      {actionCount > 0 ? `${actionCount} contribution${actionCount !== 1 ? "s" : ""} logged 🌿` : "Ready to make a move!"}
                     </div>
                   </div>
-                  {/* Ops mini badge */}
-                  <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 12, padding: "8px 14px", backdropFilter: "blur(8px)" }}>
-                    <div className="lora" style={{ fontSize: 22, color: "#fff", lineHeight: 1 }}>{opsCount}</div>
-                    <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>ops today</div>
+                  <div style={{ textAlign: "center", background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "6px 12px", flexShrink: 0 }}>
+                    <div className="lora" style={{ fontSize: 20, color: "#fff", lineHeight: 1 }}>{opsCount}</div>
+                    <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.65)", textTransform: "uppercase", letterSpacing: "0.07em" }}>ops today</div>
                   </div>
                 </div>
-
-                {/* Ops progress bar */}
                 <div style={{ height: 4, background: "#EEF4F7" }}>
-                  <div style={{ width: `${opsPct}%`, height: "100%", background: `linear-gradient(90deg, ${color}, ${color}99)`, transition: "width 0.5s" }} />
+                  <div style={{ width: `${opsPct}%`, height: "100%", background: `${color}99`, transition: "width 0.5s" }} />
                 </div>
 
-                {/* Body */}
-                <div style={{ padding: "16px 20px" }}>
+                <div style={{ padding: "14px 18px" }}>
                   {actionCount > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
                       {pd.actions.map((a, idx) => (
-                        <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: "linear-gradient(135deg, #F0FBF5, #E8F6FF)", borderRadius: 10, border: "1px solid #C8E8D8" }}>
-                          <span style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}>🌿</span>
-                          <span className="inter" style={{ flex: 1, fontSize: 13, color: "#0D1117", lineHeight: 1.55, fontWeight: 500 }}>{a.text}</span>
-                          <span className="inter" style={{ fontSize: 10, color: "#5A8A6A", whiteSpace: "nowrap", marginTop: 2 }}>{new Date(a.ts || a.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
-                          {isOwner && <button onClick={() => removeAction(person, idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 14, lineHeight: 1 }}>✕</button>}
+                        <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 12px", background: "linear-gradient(135deg, #F0FBF5, #E8F4FF)", borderRadius: 8, border: "1px solid #C8E8D8" }}>
+                          <span style={{ fontSize: 13, flexShrink: 0, marginTop: 1 }}>🌿</span>
+                          <span className="inter" style={{ flex: 1, fontSize: 13, color: "#0D1117", lineHeight: 1.5, fontWeight: 500 }}>{a.text}</span>
+                          <span className="inter" style={{ fontSize: 10, color: "#5A8A6A", whiteSpace: "nowrap" }}>{new Date(a.ts || a.timestamp).toLocaleDateString([], { month: "short", day: "numeric" })}</span>
+                          {isOwner && <button onClick={() => removeAction(person, idx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 13 }}>✕</button>}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div style={{ textAlign: "center", padding: "14px 0 16px" }}>
-                      <div style={{ fontSize: 30, marginBottom: 6 }}>✨</div>
-                      <p className="inter" style={{ fontSize: 13, color: "#555", fontStyle: "italic" }}>Nothing logged yet — add a win for {person.split(" ")[0]}!</p>
+                    <div style={{ textAlign: "center", padding: "10px 0 12px" }}>
+                      <div style={{ fontSize: 24, marginBottom: 6 }}>✨</div>
+                      <p className="inter" style={{ fontSize: 13, color: "#888", fontStyle: "italic" }}>Nothing logged yet — what did {person.split(" ")[0]} do to move us closer?</p>
                     </div>
                   )}
 
-                  {/* Log input */}
                   {showInput ? (
                     <div style={{ display: "flex", gap: 8 }}>
                       <input autoFocus value={input} onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === "Enter" && input.trim()) { addAction(person, input); setInput(""); setShowInput(false); } if (e.key === "Escape") setShowInput(false); }}
-                        placeholder={`What did ${person.split(" ")[0]} do to move the goal?`}
-                        style={{ flex: 1, fontSize: 14, color: "#0D1117", background: "#fff", border: `2px solid ${color}`, borderRadius: 10, padding: "11px 14px", fontFamily: "Inter, sans-serif", outline: "none", fontWeight: 500, WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
+                        placeholder={`What did ${person.split(" ")[0]} do to move us toward ${fmt(wigGoal?.target)} members?`}
+                        style={{ flex: 1, fontSize: 13, color: "#0D1117", background: "#fff", border: `2px solid ${color}`, borderRadius: 10, padding: "10px 14px", fontFamily: "Inter, sans-serif", outline: "none", fontWeight: 500, WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
                       <button onClick={() => { if (input.trim()) { addAction(person, input); setInput(""); } setShowInput(false); }}
-                        style={{ background: color, color: "#fff", border: "none", borderRadius: 10, padding: "11px 18px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700, flexShrink: 0 }}>
-                        Save ✓
-                      </button>
+                        style={{ background: color, color: "#fff", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700, flexShrink: 0 }}>Save</button>
                       <button onClick={() => { setShowInput(false); setInput(""); }}
-                        style={{ background: "#F6F9FB", border: "1px solid #DDE8EE", borderRadius: 10, padding: "11px 13px", cursor: "pointer", fontSize: 14, color: "#555", flexShrink: 0 }}>✕</button>
+                        style={{ background: "#F6F9FB", border: "1px solid #DDE8EE", borderRadius: 10, padding: "10px 12px", cursor: "pointer", fontSize: 14, color: "#555", flexShrink: 0 }}>✕</button>
                     </div>
                   ) : (
                     <button onClick={() => setShowInput(true)}
-                      style={{ width: "100%", background: `${color}10`, border: `1.5px dashed ${color}50`, borderRadius: 12, padding: "12px 16px", cursor: "pointer", fontSize: 14, color: color, fontFamily: "Inter, sans-serif", fontWeight: 700, textAlign: "center", transition: "all 0.15s", touchAction: "manipulation" }}>
-                      + Log a win for {person.split(" ")[0]} 🌿
+                      style={{ width: "100%", background: `${color}0D`, border: `1.5px dashed ${color}55`, borderRadius: 10, padding: "11px 16px", cursor: "pointer", fontSize: 13, color: color, fontFamily: "Inter, sans-serif", fontWeight: 700, textAlign: "center", touchAction: "manipulation" }}>
+                      + Log a contribution for {person.split(" ")[0]} 🌿
                     </button>
                   )}
                 </div>
@@ -1983,108 +1946,6 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
   );
 }
 
-// ── Opening Page ──────────────────────────────────────────────────────────────
-function OpeningPage({ data, setData, isOwner, TEAM }) {
-  const [filter, setFilter] = useState("all");
-  const items = data.openingChecklist || [];
-  const filtered = filter === "all" ? items : items.filter(i => i.owner === filter);
-  const cats = [...new Set(items.map(i => i.category))];
-  const doneCount = items.filter(i => i.done).length;
-  const pctDone = items.length ? Math.round((doneCount / items.length) * 100) : 0;
-  const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
-
-  const toggle = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, done: !i.done } : i) }));
-  const updateItem = (id, f, v) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, [f]: v } : i) }));
-  const addItem = (cat) => { const id = `oc${Date.now()}`; setData(d => ({ ...d, openingChecklist: [...d.openingChecklist, { id, category: cat, item: "New item", done: false, owner: TEAM[0], notes: "" }] })); };
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
-        <div>
-          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Opening Roadmap</h1>
-          <p className="inter" style={{ fontSize: 13, color: "#333", marginTop: 2 }}>Everything that needs to happen before we open the doors.</p>
-        </div>
-        {openingDays !== null && (
-          <div style={{ textAlign: "right", background: openingDays <= 14 ? "#FFEBEE" : "#E8F2F4", border: `1px solid ${openingDays <= 14 ? "#FFCDD2" : "#B2D8DD"}`, borderRadius: 12, padding: "10px 16px" }}>
-            <div className="lora" style={{ fontSize: 28, color: openingDays <= 14 ? "#C62828" : "#1A5F6A", lineHeight: 1 }}>{openingDays > 0 ? openingDays : "🎉"}</div>
-            <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{openingDays > 0 ? "days to go" : "Open!"}</div>
-            {isOwner && <input type="date" value={data.openingDate||""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
-              style={{ fontSize: 10, border: "none", background: "transparent", color: "#888", marginTop: 4, cursor: "pointer", textAlign: "right", WebkitTextFillColor: "#888" }} />}
-          </div>
-        )}
-      </div>
-
-      {/* Progress */}
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#0D1117" }}>{doneCount} of {items.length} complete</span>
-          <span className="lora" style={{ fontSize: 22, color: pctDone === 100 ? "#2E7D32" : "#1A5F6A" }}>{pctDone}%</span>
-        </div>
-        <div style={{ height: 8, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
-          <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
-        </div>
-        {pctDone === 100 && <p className="inter" style={{ fontSize: 13, color: "#2E7D32", marginTop: 8, fontWeight: 600 }}>🎉 Ready to open!</p>}
-      </div>
-
-      {/* Filter */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-        <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
-          <option value="all">All owners</option>
-          {TEAM.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </div>
-
-      {/* Categories */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        {cats.map(cat => {
-          const catItems = filtered.filter(i => i.category === cat);
-          if (!catItems.length) return null;
-          const catDone = catItems.filter(i => i.done).length;
-          const cp = Math.round((catDone / catItems.length) * 100);
-          return (
-            <div key={cat}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#0D1117" }}>{cat}</span>
-                  <span className="inter" style={{ fontSize: 11, color: "#555" }}>{catDone}/{catItems.length}</span>
-                  <div style={{ width: 48, height: 3, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
-                    <div style={{ width: `${cp}%`, height: "100%", background: cp === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
-                  </div>
-                </div>
-                {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {catItems.map(item => (
-                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
-                    <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
-                    <div style={{ flex: 1 }}>
-                      {isOwner
-                        ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)}
-                            style={{ border: "none", padding: 0, fontSize: 13, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none", WebkitTextFillColor: item.done ? "#888" : "#0D1117" }} />
-                        : <div className="inter" style={{ fontSize: 13, fontWeight: item.done ? 400 : 500, color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none" }}>{item.item}</div>
-                      }
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                      {isOwner
-                        ? <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", border: "1px solid #DDE8EE", borderRadius: 6 }}>
-                            {TEAM.map(t => <option key={t}>{t}</option>)}
-                          </select>
-                        : <Avatar name={item.owner} size={26} />
-                      }
-                      {isOwner && <button onClick={() => setData(d => ({ ...d, openingChecklist: d.openingChecklist.filter(x => x.id !== item.id) }))} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 14 }}>✕</button>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ── Members Page ──────────────────────────────────────────────────────────────
 function MembersPage({ data, setData }) {
   const members = data.foundingMembers || [];
   const [search, setSearch] = useState("");
