@@ -2161,25 +2161,31 @@ function MembersPage({ data, setData }) {
             style={{ width: "100%", fontSize: 22, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "6px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset", marginTop: 4 }} />
           <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", marginTop: 4, fontWeight: 600 }}>✎ tap to edit</div>
         </div>
-        <div style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
-          <div className="sec-label">Newest Signup</div>
-          <div className="lora" style={{ fontSize: 16, color: "#222", fontWeight: 600, marginTop: 6 }}>{newest?.date || "—"}</div>
-        </div>
       </div>
 
-      {/* Membership type breakdown */}
+      {/* Membership type breakdown — editable counts */}
       <div className="card" style={{ marginBottom: 20 }}>
         <div className="sec-label">Breakdown by Type</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {byType.map(t => (
-            <div key={t.type} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span className="inter" style={{ fontSize: 13, color: "#0D1117", flex: 1 }}>{t.type}</span>
-              <div style={{ width: 120, height: 5, background: "#CCD5DE", borderRadius: 99, overflow: "hidden" }}>
-                <div style={{ width: `${Math.round((t.count / members.length) * 100)}%`, height: "100%", background: "#1A5F6A", borderRadius: 99 }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {byType.map(t => {
+            const overrideKey = `typeCount_${t.type.replace(/\s+/g, "_")}`;
+            const displayCount = data[overrideKey] !== undefined ? data[overrideKey] : t.count;
+            const total = data.manualMembershipCount !== undefined ? data.manualMembershipCount : members.length;
+            const barPct = total > 0 ? Math.round((displayCount / total) * 100) : 0;
+            return (
+              <div key={t.type} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span className="inter" style={{ fontSize: 13, color: "#0D1117", flex: 1, lineHeight: 1.3 }}>{t.type.replace("Founding ", "").replace(" — ", " · ")}</span>
+                <div style={{ width: 80, height: 5, background: "#CCD5DE", borderRadius: 99, overflow: "hidden", flexShrink: 0 }}>
+                  <div style={{ width: `${barPct}%`, height: "100%", background: "#1A5F6A", borderRadius: 99 }} />
+                </div>
+                <input type="number" inputMode="numeric"
+                  value={displayCount}
+                  onChange={e => setData(d => ({ ...d, [overrideKey]: Number(e.target.value) || 0 }))}
+                  onFocus={e => e.target.select()}
+                  style={{ width: 52, fontSize: 14, textAlign: "center", fontWeight: 700, color: "#1A5F6A", border: "1.5px solid #1A5F6A", background: "#fff", borderRadius: 8, padding: "4px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset", flexShrink: 0 }} />
               </div>
-              <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#1A5F6A", minWidth: 28, textAlign: "right" }}>{t.count}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
