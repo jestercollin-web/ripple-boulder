@@ -44,7 +44,7 @@ function useNumberField(externalValue, onCommit) {
     },
   };
 }
-const fmt = (n) => n >= 1000 ? "$" + (n / 1000).toFixed(1) + "K" : String(n);
+const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1) + "K" : String(n ?? 0);
 const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
 const AVATAR_PALETTE = ["#1A5F6A","#7B5EA7","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
 const avatarColor = (name) => AVATAR_PALETTE[(name?.charCodeAt(0) || 0) % AVATAR_PALETTE.length];
@@ -1529,13 +1529,21 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
                 {isOwner
                   ? <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                       <div style={{ textAlign: "center" }}>
-                        <div className="inter" style={{ fontSize: 9, color: "#888", marginBottom: 2 }}>CURRENT</div>
-                        <SmoothNumber value={g.current} onCommit={v => updateGoal(g.id, "current", v)} style={{ width: 70, fontSize: 15, textAlign: "center" }} />
+                        <div className="inter" style={{ fontSize: 9, color: "#888", marginBottom: 2, fontWeight: 700 }}>CURRENT</div>
+                        <input type="number" inputMode="numeric"
+                          value={g.current}
+                          onChange={e => updateGoal(g.id, "current", Number(e.target.value) || 0)}
+                          onFocus={e => e.target.select()}
+                          style={{ width: 80, fontSize: 18, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "6px 4px", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
                       </div>
-                      <span className="inter" style={{ fontSize: 16, color: "#bbb" }}>/</span>
+                      <span className="inter" style={{ fontSize: 20, color: "#ccc", fontWeight: 300 }}>/</span>
                       <div style={{ textAlign: "center" }}>
-                        <div className="inter" style={{ fontSize: 9, color: "#888", marginBottom: 2 }}>TARGET</div>
-                        <SmoothNumber value={g.target} onCommit={v => updateGoal(g.id, "target", v)} style={{ width: 70, fontSize: 15, textAlign: "center" }} />
+                        <div className="inter" style={{ fontSize: 9, color: "#888", marginBottom: 2, fontWeight: 700 }}>TARGET</div>
+                        <input type="number" inputMode="numeric"
+                          value={g.target}
+                          onChange={e => updateGoal(g.id, "target", Number(e.target.value) || 0)}
+                          onFocus={e => e.target.select()}
+                          style={{ width: 80, fontSize: 18, textAlign: "center", fontWeight: 800, color: "#333", border: "2px solid #DDE8EE", background: "#F6F9FB", borderRadius: 10, padding: "6px 4px", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#333", WebkitBoxShadow: "0 0 0px 1000px #F6F9FB inset" }} />
                       </div>
                     </div>
                   : <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#0D1117", whiteSpace: "nowrap" }}>{fmt(g.current)} / {fmt(g.target)}</span>
@@ -1941,6 +1949,106 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             );
           })}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Opening Page ──────────────────────────────────────────────────────────────
+function OpeningPage({ data, setData, isOwner, TEAM }) {
+  const [filter, setFilter] = useState("all");
+  const items = data.openingChecklist || [];
+  const filtered = filter === "all" ? items : items.filter(i => i.owner === filter);
+  const cats = [...new Set(items.map(i => i.category))];
+  const doneCount = items.filter(i => i.done).length;
+  const pctDone = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+  const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
+
+  const toggle = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, done: !i.done } : i) }));
+  const updateItem = (id, f, v) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, [f]: v } : i) }));
+  const addItem = (cat) => setData(d => ({ ...d, openingChecklist: [...d.openingChecklist, { id: `oc${Date.now()}`, category: cat, item: "New item", done: false, owner: TEAM[0], notes: "" }] }));
+  const removeItem = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.filter(x => x.id !== id) }));
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Opening Roadmap</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#333", marginTop: 2 }}>Everything that needs to happen before we open.</p>
+        </div>
+        {openingDays !== null && (
+          <div style={{ textAlign: "right", background: openingDays <= 14 ? "#FFEBEE" : "#E8F2F4", border: `1px solid ${openingDays <= 14 ? "#FFCDD2" : "#B2D8DD"}`, borderRadius: 12, padding: "10px 16px" }}>
+            <div className="lora" style={{ fontSize: 28, color: openingDays <= 14 ? "#C62828" : "#1A5F6A", lineHeight: 1 }}>{openingDays > 0 ? openingDays : "🎉"}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#333", marginTop: 2 }}>{openingDays > 0 ? "days to go" : "We\'re open!"}</div>
+            {isOwner && <input type="date" value={data.openingDate || ""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
+              style={{ fontSize: 11, border: "none", background: "transparent", color: "#888", marginTop: 4, cursor: "pointer", WebkitTextFillColor: "#888" }} />}
+          </div>
+        )}
+      </div>
+
+      {/* Progress bar */}
+      <div className="card" style={{ marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#0D1117" }}>{doneCount} of {items.length} complete</span>
+          <span className="lora" style={{ fontSize: 22, color: pctDone === 100 ? "#2E7D32" : "#1A5F6A" }}>{pctDone}%</span>
+        </div>
+        <div style={{ height: 8, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
+        </div>
+        {pctDone === 100 && <p className="inter" style={{ fontSize: 13, color: "#2E7D32", marginTop: 8, fontWeight: 700 }}>🎉 Ready to open!</p>}
+      </div>
+
+      {/* Filter */}
+      <div style={{ marginBottom: 20 }}>
+        <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
+          <option value="all">All owners</option>
+          {TEAM.map(t => <option key={t}>{t}</option>)}
+        </select>
+      </div>
+
+      {/* Categories */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {cats.map(cat => {
+          const catItems = filtered.filter(i => i.category === cat);
+          if (!catItems.length) return null;
+          const catDone = catItems.filter(i => i.done).length;
+          const cp = Math.round((catDone / catItems.length) * 100);
+          return (
+            <div key={cat}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#0D1117" }}>{cat}</span>
+                  <span className="inter" style={{ fontSize: 11, color: "#555" }}>{catDone}/{catItems.length}</span>
+                  <div style={{ width: 48, height: 4, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${cp}%`, height: "100%", background: cp === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
+                  </div>
+                </div>
+                {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {catItems.map(item => (
+                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
+                    <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 20, height: 20, accentColor: "#1A5F6A", flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      {isOwner
+                        ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)}
+                            style={{ border: "none", padding: 0, fontSize: 14, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none", WebkitTextFillColor: item.done ? "#888" : "#0D1117", width: "100%" }} />
+                        : <span className="inter" style={{ fontSize: 14, fontWeight: item.done ? 400 : 500, color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none" }}>{item.item}</span>
+                      }
+                    </div>
+                    {isOwner && (
+                      <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", flexShrink: 0 }}>
+                        {TEAM.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                    )}
+                    {!isOwner && <Avatar name={item.owner} size={26} />}
+                    {isOwner && <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 16, flexShrink: 0 }}>✕</button>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
