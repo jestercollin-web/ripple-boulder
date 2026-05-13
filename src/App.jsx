@@ -806,6 +806,13 @@ export default function App() {
           box-shadow: 0 1px 6px rgba(0,0,0,0.06);
         }
 
+        /* View transition */
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        main > * { animation: fadeSlideIn 0.22s ease; }
+
         /* Responsive */
         @media(max-width:680px) {
           .g2 { grid-template-columns: 1fr !important; }
@@ -860,9 +867,9 @@ export default function App() {
 
       {/* Header */}
       <header style={{ background: "rgba(242,244,247,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(0,0,0,0.07)", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 12px rgba(0,0,0,0.06)" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 56, padding: "0 16px" }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, padding: "0 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 32, width: "auto" }} />
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 42, width: "auto" }} />
             <span className="inter" style={{ fontSize: 10, color: "#1A5F6A", background: "rgba(26,95,106,0.1)", padding: "2px 10px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.08em" }}>
               {isOwner ? "OWNER" : "STAFF"}
             </span>
@@ -2111,6 +2118,7 @@ function MembersPage({ data, setData }) {
   const members = data.foundingMembers || [];
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [expanded, setExpanded] = useState(null);
 
   const types = [...new Set(members.map(m => m.type))].sort();
   const filtered = members.filter(m => {
@@ -2119,116 +2127,163 @@ function MembersPage({ data, setData }) {
     return matchSearch && matchType;
   });
 
-  const totalPeople = members.reduce((s, m) => s + (m.people || 1), 0);
   const byType = types.map(t => ({ type: t, count: members.filter(m => m.type === t).length }));
+  const totalDisplay = data.manualMembershipCount !== undefined ? data.manualMembershipCount : members.length;
 
-  // Most recent join date
-  const sorted = [...members].sort((a, b) => b.date.localeCompare(a.date));
-  const newest = sorted[0];
-
-  const addMember = () => {
-    setData(d => ({
-      ...d,
-      foundingMembers: [{
-        id: `manual_${Date.now()}`,
-        name: "New Member",
-        email: "",
-        date: new Date().toISOString().split("T")[0],
-        type: "Founding Monthly — Individual",
-        people: 1
-      }, ...(d.foundingMembers || [])]
-    }));
-  };
-
+  const addMember = () => setData(d => ({
+    ...d,
+    foundingMembers: [{ id: `manual_${Date.now()}`, name: "New Member", email: "", date: new Date().toISOString().split("T")[0], type: "Founding Monthly — Individual", people: 1 }, ...(d.foundingMembers || [])]
+  }));
   const updateMember = (id, f, v) => setData(d => ({ ...d, foundingMembers: d.foundingMembers.map(m => m.id === id ? { ...m, [f]: v } : m) }));
   const removeMember = (id) => { if (window.confirm("Remove this member?")) setData(d => ({ ...d, foundingMembers: d.foundingMembers.filter(m => m.id !== id) })); };
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Members</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Imported from Beta · SUCCEEDED transactions only</p>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Members</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Founding members · SUCCEEDED transactions only</p>
+        </div>
+        <button className="btn btn-teal" onClick={addMember} style={{ fontSize: 13, padding: "9px 18px" }}>+ Add</button>
       </div>
 
-      {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-        <div style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
-          <div className="sec-label">Memberships</div>
+      {/* Big count card */}
+      <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 18, padding: "22px 24px", marginBottom: 20, boxShadow: "0 6px 24px rgba(26,95,106,0.2)" }}>
+        <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 8 }}>Total Memberships</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <input type="number" inputMode="numeric"
-            value={data.manualMembershipCount !== undefined ? data.manualMembershipCount : members.length}
+            value={totalDisplay}
             onChange={e => setData(d => ({ ...d, manualMembershipCount: Number(e.target.value) || 0 }))}
             onFocus={e => e.target.select()}
-            style={{ width: "100%", fontSize: 22, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "6px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset", marginTop: 4 }} />
-          <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", marginTop: 4, fontWeight: 600 }}>✎ tap to edit</div>
+            style={{ width: 120, fontSize: 52, textAlign: "center", fontWeight: 800, color: "#7DD3B8", border: "none", background: "transparent", fontFamily: "Lora, Georgia, serif", outline: "none", WebkitTextFillColor: "#7DD3B8", WebkitBoxShadow: "0 0 0px 1000px transparent inset", padding: 0, lineHeight: 1 }} />
+          <div>
+            <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>Tap the number to edit</div>
+            <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{members.length} imported from Beta · {members.reduce((s, m) => s + (m.people || 1), 0)} people covered</div>
+          </div>
         </div>
       </div>
 
-      {/* Membership type breakdown — editable counts */}
+      {/* Type breakdown — editable */}
       <div className="card" style={{ marginBottom: 20 }}>
-        <div className="sec-label">Breakdown by Type</div>
+        <div className="sec-label" style={{ marginBottom: 14 }}>Breakdown by Type</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {byType.map(t => {
             const overrideKey = `typeCount_${t.type.replace(/\s+/g, "_")}`;
             const displayCount = data[overrideKey] !== undefined ? data[overrideKey] : t.count;
-            const total = data.manualMembershipCount !== undefined ? data.manualMembershipCount : members.length;
-            const barPct = total > 0 ? Math.round((displayCount / total) * 100) : 0;
+            const barPct = totalDisplay > 0 ? Math.min(100, Math.round((displayCount / totalDisplay) * 100)) : 0;
+            const label = t.type.replace("Founding ", "").replace(" — ", " · ");
             return (
               <div key={t.type} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span className="inter" style={{ fontSize: 13, color: "#0D1117", flex: 1, lineHeight: 1.3 }}>{t.type.replace("Founding ", "").replace(" — ", " · ")}</span>
-                <div style={{ width: 80, height: 5, background: "#CCD5DE", borderRadius: 99, overflow: "hidden", flexShrink: 0 }}>
-                  <div style={{ width: `${barPct}%`, height: "100%", background: "#1A5F6A", borderRadius: 99 }} />
+                <span className="inter" style={{ fontSize: 13, color: "#0D1117", flex: 1, fontWeight: 500 }}>{label}</span>
+                <div style={{ width: 100, height: 6, background: "#EEF4F7", borderRadius: 99, overflow: "hidden", flexShrink: 0 }}>
+                  <div style={{ width: `${barPct}%`, height: "100%", background: "#1A5F6A", borderRadius: 99, transition: "width 0.4s" }} />
                 </div>
                 <input type="number" inputMode="numeric"
                   value={displayCount}
                   onChange={e => setData(d => ({ ...d, [overrideKey]: Number(e.target.value) || 0 }))}
                   onFocus={e => e.target.select()}
-                  style={{ width: 52, fontSize: 14, textAlign: "center", fontWeight: 700, color: "#1A5F6A", border: "1.5px solid #1A5F6A", background: "#fff", borderRadius: 8, padding: "4px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset", flexShrink: 0 }} />
+                  style={{ width: 52, fontSize: 14, textAlign: "center", fontWeight: 700, color: "#1A5F6A", border: "1.5px solid #1A5F6A", background: "#fff", borderRadius: 8, padding: "5px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset", flexShrink: 0 }} />
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Filters + search */}
+      {/* Search + filter */}
       <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-        <input
-          value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search by name or email..."
-          style={{ flex: 1, minWidth: 200, fontSize: 13, padding: "9px 13px", border: "1px solid #D0DCE4", borderRadius: 9, outline: "none", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#0D1117" }}
-        />
-        <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ width: "auto", fontSize: 13 }}>
+        <input value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="🔍  Search by name or email..."
+          style={{ flex: 1, minWidth: 200, fontSize: 14, padding: "11px 14px", border: "1.5px solid #DDE8EE", borderRadius: 12, outline: "none", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#0D1117", background: "#fff", color: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
+        <select value={filterType} onChange={e => setFilterType(e.target.value)}
+          style={{ width: "auto", fontSize: 13, borderRadius: 12, border: "1.5px solid #DDE8EE" }}>
           <option value="all">All types</option>
-          {types.map(t => <option key={t} value={t}>{t}</option>)}
+          {types.map(t => <option key={t} value={t}>{t.replace("Founding ", "").replace(" — ", " · ")}</option>)}
         </select>
-        <button className="btn btn-teal" onClick={addMember} style={{ fontSize: 12, padding: "8px 16px" }}>+ Add manually</button>
       </div>
 
-      {/* Member count */}
-      <div className="inter" style={{ fontSize: 12, color: "#222", marginBottom: 10 }}>{filtered.length} member{filtered.length !== 1 ? "s" : ""} shown</div>
+      <div className="inter" style={{ fontSize: 12, color: "#555", marginBottom: 12, fontWeight: 500 }}>
+        Showing {filtered.length} of {members.length} members
+      </div>
 
       {/* Member list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {filtered.map(m => (
-          <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "#E5EBF1", border: "1px solid #DDE8EE", borderRadius: 11 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#CCD5DE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1A5F6A" }}>{initials(m.name)}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {filtered.map(m => {
+          const color = avatarColor(m.name);
+          const isOpen = expanded === m.id;
+          return (
+            <div key={m.id} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", transition: "box-shadow 0.15s" }}>
+              {/* Row */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "pointer" }}
+                onClick={() => setExpanded(isOpen ? null : m.id)}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${color}18`, border: `2px solid ${color}40`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 800, color }}>{initials(m.name)}</span>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#0D1117" }}>{m.name}</div>
+                  <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 1 }}>{m.email}</div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color, background: `${color}12`, padding: "2px 8px", borderRadius: 99 }}>
+                    {m.type.replace("Founding ", "").replace(" — ", " · ")}
+                  </div>
+                  <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 3 }}>{m.date}</div>
+                </div>
+                <span style={{ color: "#bbb", fontSize: 14, flexShrink: 0, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+              </div>
+
+              {/* Expanded edit panel */}
+              {isOpen && (
+                <div style={{ borderTop: "1px solid #EEF4F7", padding: "14px 16px", background: "#F8FBFC", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="g2">
+                    <div>
+                      <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Name</div>
+                      <SmoothInput value={m.name} onCommit={v => updateMember(m.id, "name", v)} style={{ fontSize: 14, fontWeight: 500, color: "#0D1117", WebkitTextFillColor: "#0D1117" }} />
+                    </div>
+                    <div>
+                      <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Email</div>
+                      <SmoothInput value={m.email} onCommit={v => updateMember(m.id, "email", v)} style={{ fontSize: 13, color: "#555", WebkitTextFillColor: "#555" }} />
+                    </div>
+                    <div>
+                      <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Date</div>
+                      <input type="date" value={m.date} onChange={e => updateMember(m.id, "date", e.target.value)} style={{ fontSize: 13, width: "100%" }} />
+                    </div>
+                    <div>
+                      <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>People</div>
+                      <input type="number" value={m.people || 1} min={1} max={10}
+                        onChange={e => updateMember(m.id, "people", Number(e.target.value))}
+                        style={{ fontSize: 14, width: "100%", fontWeight: 700, color: "#1A5F6A", WebkitTextFillColor: "#1A5F6A" }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="inter" style={{ fontSize: 10, fontWeight: 700, color: "#555", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>Membership Type</div>
+                    <select value={m.type} onChange={e => updateMember(m.id, "type", e.target.value)} style={{ fontSize: 13, width: "100%" }}>
+                      <option>Founding Monthly — Individual</option>
+                      <option>Founding Monthly — Couple</option>
+                      <option>Founding Monthly — Family (Couple + Child)</option>
+                      <option>Founding Monthly — Family (Couple + 2 Children)</option>
+                      <option>Founding Monthly — Family (Couple + 3 Children)</option>
+                      <option>Founding Annual — Individual</option>
+                      <option>Founding Annual — Couple</option>
+                    </select>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button onClick={() => removeMember(m.id)}
+                      style={{ background: "none", border: "1px solid #FFCDD2", borderRadius: 8, padding: "6px 14px", cursor: "pointer", fontSize: 12, color: "#C62828", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
+                      Remove member
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#0D1117" }}>{m.name}</div>
-              <div className="inter" style={{ fontSize: 11, color: "#222", marginTop: 1 }}>{m.email}</div>
-            </div>
-            <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div className="inter" style={{ fontSize: 12, fontWeight: 600, color: "#1A5F6A" }}>{m.type.replace("Founding ", "").replace(" \u2014 ", " · ")}</div>
-              <div className="inter" style={{ fontSize: 11, color: "#222" }}>{m.date} · {m.people || 1} {(m.people || 1) === 1 ? "person" : "people"}</div>
-            </div>
-            <button onClick={() => removeMember(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#555", fontSize: 16, padding: "0 4px", flexShrink: 0 }}>✕</button>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <div className="lora" style={{ fontSize: 18, color: "#2D4050", fontStyle: "italic" }}>No members match your search.</div>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>🔍</div>
+          <div className="lora" style={{ fontSize: 18, color: "#555", fontStyle: "italic" }}>No members match your search.</div>
         </div>
       )}
     </div>
