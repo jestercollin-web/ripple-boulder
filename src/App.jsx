@@ -2151,7 +2151,7 @@ function MembersPage({ data, setData }) {
       </div>
 
       {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }} className="g3">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
         <div style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
           <div className="sec-label">Memberships</div>
           <input type="number" inputMode="numeric"
@@ -2160,11 +2160,6 @@ function MembersPage({ data, setData }) {
             onFocus={e => e.target.select()}
             style={{ width: "100%", fontSize: 22, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "6px 0", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset", marginTop: 4 }} />
           <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", marginTop: 4, fontWeight: 600 }}>✎ tap to edit</div>
-        </div>
-        <div style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
-          <div className="sec-label">People Covered</div>
-          <div className="lora" style={{ fontSize: 22, color: "#1A5F6A", fontWeight: 600, marginTop: 6 }}>{members.reduce((s, m) => s + (m.people || 1), 0)}</div>
-          <div className="inter" style={{ fontSize: 10, color: "#888", marginTop: 4 }}>auto from Beta</div>
         </div>
         <div style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
           <div className="sec-label">Newest Signup</div>
