@@ -445,13 +445,38 @@ export default function App() {
   const [data, setData] = useState(INITIAL_DATA);
   const [nav, setNav] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const OWNER_PIN = "5255";
 
-  // Seamless view switching — always lands on the right page
+  // Seamless view switching — PIN required to enter owner view
   const switchView = () => {
-    const next = data.viewMode === "owner" ? "staff" : "owner";
-    setData(d => ({ ...d, viewMode: next }));
-    setMenuOpen(false);
-    setNav(next === "staff" ? "ops" : "home");
+    if (data.viewMode === "owner") {
+      // Switching to staff — no PIN needed
+      setData(d => ({ ...d, viewMode: "staff" }));
+      setMenuOpen(false);
+      setNav("ops");
+    } else {
+      // Switching to owner — require PIN
+      setPinInput("");
+      setPinError(false);
+      setShowPinModal(true);
+      setMenuOpen(false);
+    }
+  };
+
+  const submitPin = () => {
+    if (pinInput === OWNER_PIN) {
+      setShowPinModal(false);
+      setPinInput("");
+      setPinError(false);
+      setData(d => ({ ...d, viewMode: "owner" }));
+      setNav("home");
+    } else {
+      setPinError(true);
+      setPinInput("");
+    }
   };
   const [loading, setLoading] = useState(true);
   const saveTimer = useRef(null);
@@ -801,6 +826,34 @@ export default function App() {
           <div style={{ textAlign: "center" }}>
             <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, marginBottom: 16, opacity: 0.7 }} />
             <div className="inter" style={{ fontSize: 13, color: "#333" }}>Getting things ready…</div>
+          </div>
+        </div>
+      )}
+
+      {/* PIN Modal */}
+      {showPinModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}
+          onClick={e => { if (e.target === e.currentTarget) { setShowPinModal(false); setPinInput(""); setPinError(false); } }}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: "32px 28px", width: "100%", maxWidth: 340, textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🔑</div>
+            <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#0D1117", marginBottom: 6 }}>Owner Access</div>
+            <div className="inter" style={{ fontSize: 13, color: "#555", marginBottom: 24 }}>Enter your PIN to switch to owner view</div>
+            <input
+              type="password"
+              inputMode="numeric"
+              maxLength={4}
+              value={pinInput}
+              autoFocus
+              onChange={e => { setPinInput(e.target.value.replace(/\D/g, "")); setPinError(false); }}
+              onKeyDown={e => { if (e.key === "Enter") submitPin(); if (e.key === "Escape") { setShowPinModal(false); setPinInput(""); setPinError(false); } }}
+              placeholder="••••"
+              style={{ width: "100%", fontSize: 32, textAlign: "center", letterSpacing: "0.3em", border: `2px solid ${pinError ? "#EF5350" : "#DDE8EE"}`, borderRadius: 12, padding: "12px 0", fontFamily: "Inter, sans-serif", outline: "none", marginBottom: 8, background: "#F6F9FB", color: "#0D1117", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #F6F9FB inset" }}
+            />
+            {pinError && <div className="inter" style={{ fontSize: 13, color: "#EF5350", marginBottom: 12, fontWeight: 600 }}>Incorrect PIN — try again</div>}
+            <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+              <button onClick={() => { setShowPinModal(false); setPinInput(""); setPinError(false); }} className="btn" style={{ flex: 1, padding: "12px 0" }}>Cancel</button>
+              <button onClick={submitPin} className="btn btn-teal" style={{ flex: 1, padding: "12px 0", fontSize: 15 }}>Enter</button>
+            </div>
           </div>
         </div>
       )}
