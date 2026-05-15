@@ -1236,6 +1236,41 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
         </div>
       </div>
 
+      {/* The Ripple Effect — going above and beyond */}
+      <div style={{ marginTop: 28 }}>
+        <div style={{ background: "linear-gradient(135deg, #F8F4FF 0%, #EEF4FF 100%)", border: "1px solid #D8CCF0", borderRadius: 18, padding: "20px 20px 18px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <span style={{ fontSize: 24 }}>🌟</span>
+            <div>
+              <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#3D2B7A" }}>The Ripple Effect</div>
+              <div className="inter" style={{ fontSize: 10, color: "#7B6A9C", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>Going further than expected</div>
+            </div>
+          </div>
+          <p className="inter" style={{ fontSize: 13, color: "#3D2B7A", lineHeight: 1.65, marginBottom: 14 }}>
+            Great gyms aren't built by people doing the minimum — they're built by people who notice the extra thing and do it anyway. These are the small actions that create a Ripple.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {[
+              { emoji: "💬", text: "Learn a member's name and use it today" },
+              { emoji: "🧹", text: "Clean something that doesn't need to be cleaned — yet" },
+              { emoji: "📸", text: "Share something real from today on social media" },
+              { emoji: "🤝", text: "Introduce two members who don't know each other" },
+              { emoji: "🎯", text: "Tell a friend about Ripple and invite them to visit" },
+              { emoji: "💡", text: "Spot something that could be better and write it down" },
+              { emoji: "🌱", text: "Make someone's first visit feel like coming home" },
+            ].map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: "rgba(255,255,255,0.7)", borderRadius: 10, border: "1px solid rgba(216,204,240,0.5)" }}>
+                <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>{item.emoji}</span>
+                <span className="inter" style={{ fontSize: 13, color: "#3D2B7A", lineHeight: 1.5, fontWeight: 500 }}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(61,43,122,0.07)", borderRadius: 10, textAlign: "center" }}>
+            <span className="inter" style={{ fontSize: 12, color: "#7B6A9C", fontStyle: "italic" }}>"Every small ripple eventually becomes a wave." 🌊</span>
+          </div>
+        </div>
+      </div>
+
       <ValuesCard />
     </div>
   );
