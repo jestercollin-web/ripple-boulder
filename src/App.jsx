@@ -1020,12 +1020,12 @@ function OwnerHome({ data, setData, setMemberCount, TEAM, setNav }) {
           <div>
             <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 4 }}>Until Opening Day</div>
             <div className="lora" style={{ fontSize: 32, fontWeight: 600, color: "#fff", lineHeight: 1 }}>{openingDays}</div>
-            <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 3 }}>days to go · {data.openingDate}</div>
+            <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>days to go · {data.openingDate}</div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>Launch readiness</div>
+            <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginBottom: 4 }}>Launch readiness</div>
             <div className="lora" style={{ fontSize: 26, color: "#7DD3B8" }}>{Math.round((doneChecklist / totalChecklist) * 100)}%</div>
-            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{doneChecklist}/{totalChecklist} items</div>
+            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>{doneChecklist}/{totalChecklist} items</div>
           </div>
         </div>
       )}
@@ -1112,9 +1112,9 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
           </p>
         </div>
         {wigGoal && (
-          <div style={{ textAlign: "right", background: "rgba(26,95,106,0.2)", borderRadius: 10, padding: "8px 14px" }}>
-            <div className="inter" style={{ fontSize: 10, color: "#1A5F6A", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>The Score</div>
-            <div className="lora" style={{ fontSize: 20, color: "#1A5F6A" }}>{pct(wigGoal.current, wigGoal.target)}%</div>
+          <div style={{ textAlign: "right", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", borderRadius: 10, padding: "8px 14px" }}>
+            <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>The Score</div>
+            <div className="lora" style={{ fontSize: 20, color: "#7DD3B8" }}>{pct(wigGoal.current, wigGoal.target)}%</div>
             <div className="inter" style={{ fontSize: 11, color: "#222" }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
           </div>
         )}
@@ -1288,7 +1288,7 @@ function ValuesCard() {
     <div style={{ marginTop: 24 }}>
       {/* Vision */}
       <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 16, padding: "22px 26px", marginBottom: 16, textAlign: "center" }}>
-        <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "#222", textTransform: "uppercase", marginBottom: 8 }}>Our Vision</div>
+        <div className="inter" style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 8 }}>Our Vision</div>
         <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#fff", lineHeight: 1.4 }}>
           "A rare space for abundance<br />and collective exploration."
         </div>
