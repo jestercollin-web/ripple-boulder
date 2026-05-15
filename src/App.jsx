@@ -575,12 +575,14 @@ export default function App() {
   }, [isOwner]);
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117", border: "none", outline: "none" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { border: none !important; outline: none !important; scrollbar-width: none; -ms-overflow-style: none; }
         html { -webkit-tap-highlight-color: transparent; }
-        body { background: #F2F4F7; overscroll-behavior-y: none; }
+        body::-webkit-scrollbar { display: none; }
+        body { background: #F2F4F7; overscroll-behavior-y: none; border: none !important; }
 
         .lora { font-family: 'Lora', Georgia, serif; }
         .inter { font-family: 'Inter', system-ui, sans-serif; }
@@ -879,7 +881,7 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <div style={{ width: 1, height: 16, background: "#2D4050", margin: "0 8px" }} />
+            <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.1)", margin: "0 8px" }} />
             <button onClick={switchView}
               style={{ background: isOwner ? "rgba(26,95,106,0.08)" : "rgba(26,95,106,0.12)", border: "1px solid rgba(26,95,106,0.25)", borderRadius: 99, cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700, padding: "5px 14px" }}>
               {isOwner ? "👤 Staff view" : "🔑 Owner view"}
@@ -893,7 +895,7 @@ export default function App() {
         </div>
         {/* Mobile menu */}
         {menuOpen && (
-          <div style={{ background: "rgba(248,250,252,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "rgba(248,250,252,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: "none" }}>
             {navItems.map(item => (
               <button key={item.key} onClick={() => { setNav(item.key); setMenuOpen(false); }}
                 style={{ display: "flex", alignItems: "center", width: "100%", textAlign: "left", padding: "16px 20px", background: nav === item.key ? "rgba(26,95,106,0.06)" : "none", border: "none", borderBottom: "1px solid rgba(0,0,0,0.05)", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 17, color: nav === item.key ? "#1A5F6A" : "#1a1a1a", fontWeight: nav === item.key ? 700 : 400, touchAction: "manipulation" }}>
