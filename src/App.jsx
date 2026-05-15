@@ -587,33 +587,31 @@ export default function App() {
 
         /* Glass cards — light version */
         .card {
-          background: rgba(255,255,255,0.75);
-          border: 1px solid rgba(255,255,255,0.9);
+          background: #fff;
+          border: none;
           border-radius: 20px;
           padding: 20px 22px;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          box-shadow: 0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+          box-shadow: 0 2px 20px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
         }
         .card-warm {
-          background: rgba(26,95,106,0.06);
-          border: 1px solid rgba(26,95,106,0.14);
+          background: rgba(26,95,106,0.05);
+          border: none;
           border-radius: 20px;
           padding: 20px 22px;
-          box-shadow: 0 2px 12px rgba(26,95,106,0.08);
+          box-shadow: 0 2px 16px rgba(26,95,106,0.1);
         }
         .card-solid {
           background: #fff;
-          border: 1px solid rgba(0,0,0,0.07);
+          border: none;
           border-radius: 20px;
           padding: 20px 22px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+          box-shadow: 0 2px 16px rgba(0,0,0,0.07);
         }
 
         /* Buttons */
         .btn {
-          border: 1px solid rgba(0,0,0,0.1);
-          background: rgba(255,255,255,0.9);
+          border: none;
+          background: #fff;
           border-radius: 12px;
           padding: 10px 18px;
           font-family: 'Inter', sans-serif;
@@ -624,7 +622,7 @@ export default function App() {
           transition: all 0.15s;
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .btn:hover { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
         .btn:active { transform: scale(0.97); }
@@ -694,17 +692,17 @@ export default function App() {
           gap: 14px;
           padding: 16px 18px;
           border-radius: 16px;
-          border: 1px solid rgba(0,0,0,0.07);
-          background: rgba(255,255,255,0.8);
+          border: none;
+          background: #fff;
           transition: all 0.15s;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
           min-height: 64px;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+          box-shadow: 0 2px 10px rgba(0,0,0,0.06);
         }
         .task-row:active { transform: scale(0.98); background: #fff; }
-        .task-row.done { background: rgba(26,160,80,0.06); border-color: rgba(26,160,80,0.18); }
+        .task-row.done { background: rgba(26,160,80,0.06); box-shadow: 0 2px 10px rgba(26,160,80,0.1); }
 
         /* Check circle */
         .check-circle {
@@ -741,15 +739,15 @@ export default function App() {
         .freq-tab {
           padding: 10px 16px;
           border-radius: 12px;
-          border: 1.5px solid rgba(0,0,0,0.09);
-          background: rgba(255,255,255,0.8);
+          border: none;
+          background: #fff;
           cursor: pointer;
           flex-shrink: 0;
           text-align: left;
           transition: all 0.15s;
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+          box-shadow: 0 2px 10px rgba(0,0,0,0.07);
         }
         .freq-tab.active {
           background: linear-gradient(135deg,#1A6B78,#1A5F6A);
@@ -796,14 +794,14 @@ export default function App() {
 
         /* Stat cards */
         .stat-card {
-          background: rgba(255,255,255,0.8);
-          border: 1px solid rgba(0,0,0,0.07);
+          background: #fff;
+          border: none;
           border-radius: 16px;
           padding: 16px;
           display: flex;
           flex-direction: column;
           gap: 6px;
-          box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.07);
         }
 
         /* View transition */
@@ -866,7 +864,7 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header style={{ background: "rgba(242,244,247,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(0,0,0,0.07)", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 12px rgba(0,0,0,0.06)" }}>
+      <header style={{ background: "rgba(242,244,247,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "none", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
         <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, padding: "0 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 42, width: "auto" }} />
@@ -923,7 +921,7 @@ export default function App() {
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.05)", padding: "20px 16px", textAlign: "center" }}>
+      <footer style={{ borderTop: "none", padding: "20px 16px", textAlign: "center" }}>
         <p className="inter" style={{ fontSize: 11, color: "#555" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
       </footer>
     </div>
@@ -1037,7 +1035,7 @@ function OwnerHome({ data, setData, setMemberCount, TEAM, setNav }) {
           { label: "Open tasks", value: openTasks, color: openTasks > 5 ? "#F57F17" : "#1A5F6A" },
           { label: "Ops done today", value: `${dailyDone}/${dailyOps.length}`, color: dailyDone === dailyOps.length ? "#1A5F6A" : "#F57F17" },
         ].map(s => (
-          <div key={s.label} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+          <div key={s.label} style={{ background: "#fff", border: "none", borderRadius: 12, padding: "14px 16px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
             <div className="sec-label">{s.label}</div>
             <div className="lora" style={{ fontSize: 24, color: s.color, marginTop: 2 }}>{s.value}</div>
           </div>
@@ -2247,7 +2245,7 @@ function MembersPage({ data, setData }) {
           const color = avatarColor(m.name);
           const isOpen = expanded === m.id;
           return (
-            <div key={m.id} style={{ background: "#fff", border: "1px solid #DDE8EE", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", transition: "box-shadow 0.15s" }}>
+            <div key={m.id} style={{ background: "#fff", border: "none", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", transition: "box-shadow 0.15s" }}>
               {/* Row */}
               <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "pointer" }}
                 onClick={() => setExpanded(isOpen ? null : m.id)}>
