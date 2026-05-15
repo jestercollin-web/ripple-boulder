@@ -1353,15 +1353,15 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
       {wigGoal && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ flex: 1 }}>
-            <div className="inter" style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "#222", textTransform: "uppercase", marginBottom: 4 }}>The Score · {wigGoal.category}</div>
+            <div className="inter" style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.55)", textTransform: "uppercase", marginBottom: 4 }}>The Score · {wigGoal.category}</div>
             <div className="lora" style={{ fontSize: 15, color: "#fff", fontStyle: "italic", lineHeight: 1.3 }}>{wigGoal.title}</div>
             <div style={{ marginTop: 8, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden" }}>
-              <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
+              <div style={{ width: `${pct(wigGoal.current, wigGoal.target)}%`, height: "100%", background: "#7DD3B8", borderRadius: 99, transition: "width 0.5s" }} />
             </div>
           </div>
           <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div className="lora" style={{ fontSize: 26, color: "#1A5F6A", lineHeight: 1 }}>{pct(wigGoal.current, wigGoal.target)}%</div>
-            <div className="inter" style={{ fontSize: 11, color: "#222", marginTop: 2 }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
+            <div className="lora" style={{ fontSize: 26, color: "#7DD3B8", lineHeight: 1 }}>{pct(wigGoal.current, wigGoal.target)}%</div>
+            <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>{fmt(wigGoal.current)} / {fmt(wigGoal.target)}</div>
           </div>
         </div>
       )}
@@ -1764,7 +1764,7 @@ function TasksTab({ data, setData, updateTask, isOwner, TEAM, open, done, overdu
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <div style={{ width: 7, height: 7, borderRadius: "50%", background: accent }} />
-        <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#222", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
+        <span className="inter" style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.55)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{label}</span>
         <span className="inter" style={{ fontSize: 12, color: "#444" }}>{tasks.length}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{tasks.map(t => <TaskRow key={t.id} t={t} />)}</div>
