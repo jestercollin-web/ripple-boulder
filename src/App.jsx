@@ -861,9 +861,9 @@ export default function App() {
 
       {/* Header */}
       <header style={{ background: "rgba(242,244,247,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "none", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 64, padding: "0 16px" }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72, padding: "0 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 42, width: "auto" }} />
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, width: "auto" }} />
             <span className="inter" style={{ fontSize: 10, color: "#1A5F6A", background: "rgba(26,95,106,0.1)", padding: "2px 10px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.08em" }}>
               {isOwner ? "OWNER" : "STAFF"}
             </span>
