@@ -501,7 +501,7 @@ export default function App() {
 
   useEffect(() => {
     // Always unlock after 6 seconds no matter what — iPad Safari safety net
-    const fallback = setTimeout(() => setLoading(false), 6000);
+    const fallback = setTimeout(() => setLoading(false), 3000);
     async function load() {
       try {
         const { data: rows } = await supabase.from("app_data").select("*").eq("id", 1).single();
@@ -833,10 +833,11 @@ export default function App() {
 
       {/* Loading */}
       {loading && (
-        <div style={{ position: "fixed", inset: 0, background: "#F2F4F7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
+        <div style={{ position: "fixed", inset: 0, background: "#F2F4F7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }} onClick={() => setLoading(false)}>
           <div style={{ textAlign: "center" }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, marginBottom: 16, opacity: 0.7 }} />
-            <div className="inter" style={{ fontSize: 13, color: "#333" }}>Getting things ready…</div>
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 64, marginBottom: 20, opacity: 0.9 }} />
+            <div style={{ fontSize: 14, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>Getting things ready…</div>
+            <div style={{ fontSize: 12, color: "#888", fontFamily: "Inter, sans-serif", marginTop: 8 }}>Tap anywhere if this takes too long</div>
           </div>
         </div>
       )}
