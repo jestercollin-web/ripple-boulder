@@ -558,11 +558,13 @@ export default function App() {
     { key: "goals",      label: "Goals" },
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
+    { key: "guide",      label: "📋 Guide" },
     { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
     { key: "ops",        label: "My Shift" },
     { key: "scoreboard", label: "Scoreboard" },
+    { key: "guide",      label: "📋 Guide" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
 
@@ -914,6 +916,7 @@ export default function App() {
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "guide"      && <MembershipGuidePage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
@@ -2485,6 +2488,399 @@ function MembersPage({ data, setData }) {
           <div className="lora" style={{ fontSize: 18, color: "#555", fontStyle: "italic" }}>No members match your search.</div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Membership Guide Page ─────────────────────────────────────────────────────
+function MembershipGuidePage() {
+  const [search, setSearch] = useState("");
+  const [openSection, setOpenSection] = useState(null);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [copied, setCopied] = useState(null);
+
+  const copy = (text, id) => {
+    navigator.clipboard.writeText(text).then(() => { setCopied(id); setTimeout(() => setCopied(null), 2000); });
+  };
+
+  const toggle = (key) => setOpenSection(s => s === key ? null : key);
+  const toggleFaq = (key) => setOpenFaq(f => f === key ? null : key);
+
+  const memberships = [
+    {
+      key: "day",
+      title: "Day Passes",
+      color: "#2E7D8C",
+      emoji: "🎟️",
+      items: [
+        { name: "Day Pass", price: "$19", bestFor: "First-timers, occasional visitors", tip: "Great way to try it out before committing" },
+        { name: "Shoe Rental", price: "$6", bestFor: "Anyone who doesn't own shoes", tip: "Always mention this before checkout" },
+      ],
+      talking: ["This is the perfect way to experience Ripple before committing.", "Shoes are included as a rental add-on — most people grab them their first time."],
+      script: "\"We have day passes for $19 — and if you don't have climbing shoes, we rent those for $6. A lot of first-timers grab both and have a blast.\"",
+      upgrade: "If they're having fun → mention punch passes before they leave.",
+    },
+    {
+      key: "punch",
+      title: "Punch Passes",
+      color: "#1A7A6E",
+      emoji: "👊",
+      items: [
+        { name: "5-Punch Pass", price: "$90", bestFor: "2–4x/month climbers", tip: "Saves $5 vs day passes" },
+        { name: "10-Punch Pass", price: "$180", bestFor: "Regular but not daily climbers", tip: "Saves $10 — best value for casual regulars" },
+      ],
+      talking: ["You get a small savings with each punch — and they never expire, so no pressure.", "A lot of people keep these in their wallet for whenever the mood strikes."],
+      script: "\"If you see yourself coming back a few times a month, the punch pass is a nice middle ground — no commitment, just a little savings built in.\"",
+      upgrade: "Climbing 2x+/week? → Nudge toward monthly membership.",
+    },
+    {
+      key: "monthly",
+      title: "Monthly Memberships",
+      color: "#1A5F6A",
+      emoji: "📅",
+      items: [
+        { name: "Standard Monthly", price: "$75/mo", bestFor: "Regular climbers 2x+/week", tip: "Core membership — best value for consistent visitors" },
+        { name: "Discounted Monthly", price: "$65/mo", bestFor: "Teachers, military, first responders, refugees", tip: "Always ask gently — don't assume" },
+      ],
+      talking: ["At this rate, you're paying less than $4 a visit if you come twice a week.", "Members get to know each other — there's a real community that forms.", "You can put it on hold for $5/month if life gets busy."],
+      script: "\"Most people who climb two or three times a week find the membership pays for itself pretty quickly — and the community piece is honestly what people love most.\"",
+      upgrade: "Staying for a year? → Mention annual savings.",
+    },
+    {
+      key: "prepaid",
+      title: "Prepaid & Annual",
+      color: "#7A4100",
+      emoji: "🏆",
+      items: [
+        { name: "One Single Month", price: "$85", bestFor: "Traveling for a month, short stays", tip: "Non-recurring — good for trial" },
+        { name: "Annual – Standard", price: "$800/yr", bestFor: "Committed climbers, saves ~$100", tip: "Equivalent to $67/month" },
+        { name: "Annual – Discounted", price: "$700/yr", bestFor: "Teachers, military, first responders, refugees", tip: "Equivalent to $58/month" },
+      ],
+      talking: ["If you know you're in for the year, the annual is genuinely a great deal — you're saving around $100.", "A lot of people who get the annual say it motivates them to actually come in."],
+      script: "\"If you're the kind of person who commits to things, the annual pays itself back fast — you're basically getting two months free.\"",
+      upgrade: "Annual member? → They're your biggest fans. Ask how their climbing is going.",
+    },
+    {
+      key: "family",
+      title: "Family Memberships",
+      color: "#4A3780",
+      emoji: "👨‍👩‍👧",
+      items: [
+        { name: "Kids Duo (14 & under)", price: "$98/mo", bestFor: "Two kids under 14", tip: "Great for siblings or friends" },
+        { name: "Duo Monthly", price: "$110/mo", bestFor: "Two adults or adult + kid", tip: "Best value for climbing pairs" },
+        { name: "Additional Family Member", price: "$35/mo", bestFor: "Adding to an existing membership", tip: "Each extra person after the duo" },
+        { name: "Duo Prepaid Annual", price: "$1,210/yr", bestFor: "Committed climbing households", tip: "Big savings for annual duos" },
+        { name: "Additional Member Annual", price: "$385/yr", bestFor: "Adding another person annually", tip: "Equivalent to ~$32/month" },
+      ],
+      talking: ["Families love it here — there's something for every level.", "Kids climb free on some events — worth mentioning if they have little ones.", "The duo membership basically makes the second person a huge discount."],
+      script: "\"If you're coming with a partner or your kids regularly, the duo membership is honestly one of the best deals we have — the second person is way less than a solo membership.\"",
+      upgrade: "Family members → great candidates for events and community nights.",
+    },
+  ];
+
+  const fees = [
+    { name: "Sign Up Fee", amount: "$30", doSay: "It's a one-time fee to get your account and profile set up — you're all set after that.", avoid: "Avoid: 'You have to pay to join.' Frame it as setup, not a tax." },
+    { name: "Hold Fee", amount: "$5/month", doSay: "If you ever need to pause — travel, injury, busy stretch — you can hold it for just $5 a month and keep your rate locked in.", avoid: "Avoid: 'You still have to pay even if you're not climbing.'" },
+    { name: "Cancellation Fee", amount: "$15", doSay: "If you ever need to cancel, there's a small $15 processing fee — but we hope you'll hold it instead and come back.", avoid: "Avoid leading with the fee. Always mention the hold option first." },
+  ];
+
+  const faqs = [
+    { q: "Can I pause my membership?", a: "Yes — we offer a hold for $5/month. You keep your rate and can reactivate anytime. Great for travel, injury, or busy seasons." },
+    { q: "How do I cancel?", a: "You can cancel anytime with a $15 fee. We'd love to help you find a pause option first — let us know what's going on." },
+    { q: "Do you have guest passes?", a: "Yes! Members can bring guests — ask at the front desk for current guest pass details." },
+    { q: "Do I need to rent shoes?", a: "You don't have to, but climbing shoes make a real difference. Rentals are $6 and we carry a great selection for purchase too." },
+    { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Our walls are designed so anyone can find something approachable on day one. We'd love to show you around." },
+    { q: "Can my kids climb here?", a: "Yes! Kids of all ages are welcome. We have family memberships and kid-friendly areas. Staff can help orient young climbers." },
+    { q: "What's the best membership for a family?", a: "The Duo Monthly at $110 is the most popular — it covers two people and any additional members are just $35/month each." },
+    { q: "Is the annual worth it?", a: "If you plan to climb consistently, absolutely. Standard annual is $800 — that's about $67/month vs $75 for monthly. You save ~$100 and never have to think about it." },
+    { q: "I'm visiting from out of town — what should I get?", a: "A Day Pass at $19 is perfect. If you're here for a week or more, ask about our week options. We want you to feel welcome for however long you're here." },
+  ];
+
+  const conversations = [
+    {
+      key: "firsttime",
+      label: "🧗 First-time visitor",
+      script: `GUEST: "I've never climbed before — I just wanted to check it out."
+
+YOU: "Perfect — you came to the right place. Ripple is honestly built for exactly that moment. A day pass is $19 and shoe rentals are $6 if you need them. We'll get you set up and point you toward the best spots to start."
+
+[After a bit] "How are you finding it? If you end up loving it and want to come back, we have some really flexible options — no pressure at all."`,
+    },
+    {
+      key: "student",
+      label: "🎓 College student",
+      script: `GUEST: "I'm a college student — is there anything cheaper?"
+
+YOU: "We do have a discounted membership for $65/month for teachers and a few other groups. Let me check what might apply for you. Either way, the punch pass is super flexible if you want to try it without committing — 10 visits for $180, no expiration."`,
+    },
+    {
+      key: "family",
+      label: "👨‍👩‍👧 Family",
+      script: `GUEST: "We're looking for something for the whole family."
+
+YOU: "Love that. So we have a duo membership for $110/month that covers two people — and then each additional family member is just $35. For two adults and two kids that's $180/month, which honestly works out to less per person than a lot of gyms charge for one."
+
+[If they have kids under 14] "We also have a kids duo option at $98 for two kids — really popular for siblings."`,
+    },
+    {
+      key: "hesitant",
+      label: "🤔 Hesitant about commitment",
+      script: `GUEST: "I want to try it but I'm not ready to commit to a monthly thing."
+
+YOU: "Totally fair. The punch pass is actually perfect for that — you buy 10 visits for $180, they never expire, and you come whenever you want. No auto-billing, no commitment. Then if you find yourself burning through them fast, the monthly ends up saving you money — but there's zero pressure."`,
+    },
+    {
+      key: "price",
+      label: "💰 Asking about pricing",
+      script: `GUEST: "How much does it cost?"
+
+YOU: "So there are a few ways to do it depending on how often you think you'd come. Day pass is $19. If you'd come a few times a month, our punch pass is $90 for 5 visits or $180 for 10 — those never expire. And if you're the kind of person who wants to climb regularly, the monthly membership is $75 — at twice a week that's less than $10 a visit. What does your schedule look like usually?"`,
+    },
+    {
+      key: "experienced",
+      label: "🏆 Experienced climber",
+      script: `GUEST: "I've been climbing for a while — just moved here."
+
+YOU: "Welcome to Indy! We're stoked to have experienced climbers in the community. Our monthly is $75 — and honestly a lot of the crew here will be excited to climb with someone who knows what they're doing. The annual is $800 if you know you're sticking around — saves you about $100."`,
+    },
+  ];
+
+  const filteredFaqs = search
+    ? faqs.filter(f => f.q.toLowerCase().includes(search.toLowerCase()) || f.a.toLowerCase().includes(search.toLowerCase()))
+    : faqs;
+
+  return (
+    <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      {/* Hero */}
+      <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 20, padding: "28px 26px", marginBottom: 24, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, background: "rgba(255,255,255,0.04)", borderRadius: "50%" }} />
+        <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 8 }}>Staff Reference</div>
+        <div className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#fff", marginBottom: 6, lineHeight: 1.3 }}>Ripple Boulder Membership Guide</div>
+        <p className="inter" style={{ fontSize: 14, color: "rgba(255,255,255,0.75)", marginBottom: 16, lineHeight: 1.6 }}>Helping people find belonging, movement, and community.</p>
+        <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "12px 16px", display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <span style={{ fontSize: 18, flexShrink: 0 }}>🫶</span>
+          <span className="inter" style={{ fontSize: 13, color: "#fff", lineHeight: 1.6, fontWeight: 500 }}>
+            <strong>Hospitality first.</strong> We are helping people feel at home — not just selling memberships. Every conversation is a chance to make someone feel like they belong here.
+          </span>
+        </div>
+      </div>
+
+      {/* Quick pricing reference */}
+      <div style={{ background: "#fff", borderRadius: 16, padding: "18px 20px", marginBottom: 24, boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
+        <div className="sec-label" style={{ marginBottom: 12 }}>⚡ Quick Reference Pricing</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+          {[
+            ["Day Pass", "$19"], ["Shoe Rental", "$6"],
+            ["5-Punch Pass", "$90"], ["10-Punch Pass", "$180"],
+            ["Standard Monthly", "$75/mo"], ["Discounted Monthly", "$65/mo"],
+            ["Duo Monthly", "$110/mo"], ["Add. Family Member", "$35/mo"],
+            ["Annual Standard", "$800/yr"], ["Annual Discounted", "$700/yr"],
+            ["Sign Up Fee", "$30"], ["Hold Fee", "$5/mo"],
+          ].map(([name, price]) => (
+            <div key={name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 10px", background: "#F6F9FB", borderRadius: 8 }}>
+              <span className="inter" style={{ fontSize: 12, color: "#333", fontWeight: 500 }}>{name}</span>
+              <span className="inter" style={{ fontSize: 13, color: "#1A5F6A", fontWeight: 800 }}>{price}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Membership cards */}
+      <div className="sec-label" style={{ marginBottom: 14 }}>Membership Options</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
+        {memberships.map(m => (
+          <div key={m.key} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
+            <button onClick={() => toggle(m.key)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 12, padding: "16px 20px", textAlign: "left", touchAction: "manipulation" }}>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: `${m.color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span style={{ fontSize: 20 }}>{m.emoji}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#0D1117" }}>{m.title}</div>
+                <div className="inter" style={{ fontSize: 12, color: "#555", marginTop: 1 }}>{m.items.map(i => i.price).join(" · ")}</div>
+              </div>
+              <span style={{ fontSize: 14, color: "#888", transform: openSection === m.key ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
+            </button>
+
+            {openSection === m.key && (
+              <div style={{ borderTop: "1px solid #F0F4F7", padding: "16px 20px 20px" }}>
+                {/* Pricing table */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+                  {m.items.map((item, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#F6F9FB", borderRadius: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <div className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#0D1117" }}>{item.name}</div>
+                        <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 1 }}>{item.bestFor}</div>
+                      </div>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div className="inter" style={{ fontSize: 16, fontWeight: 800, color: m.color }}>{item.price}</div>
+                        <div className="inter" style={{ fontSize: 10, color: "#888", marginTop: 1 }}>{item.tip}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Talking points */}
+                <div style={{ marginBottom: 14 }}>
+                  <div className="inter" style={{ fontSize: 10, fontWeight: 800, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Talking Points</div>
+                  {m.talking.map((t, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
+                      <span style={{ color: m.color, flexShrink: 0, marginTop: 1 }}>•</span>
+                      <span className="inter" style={{ fontSize: 13, color: "#333", lineHeight: 1.5 }}>{t}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Script */}
+                <div style={{ background: `${m.color}0D`, borderLeft: `3px solid ${m.color}`, borderRadius: "0 10px 10px 0", padding: "12px 14px", marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                    <div>
+                      <div className="inter" style={{ fontSize: 10, fontWeight: 800, color: m.color, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>💬 Suggested Wording</div>
+                      <p className="inter" style={{ fontSize: 13, color: "#0D1117", lineHeight: 1.6, fontStyle: "italic" }}>{m.script}</p>
+                    </div>
+                    <button onClick={() => copy(m.script, m.key + "_script")}
+                      style={{ background: copied === m.key + "_script" ? m.color : "rgba(0,0,0,0.05)", border: "none", borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 11, color: copied === m.key + "_script" ? "#fff" : "#555", fontFamily: "Inter, sans-serif", fontWeight: 700, flexShrink: 0, transition: "all 0.2s" }}>
+                      {copied === m.key + "_script" ? "✓ Copied" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Upgrade tip */}
+                <div style={{ display: "flex", gap: 8, padding: "10px 14px", background: "#FFF8EC", borderRadius: 10, border: "1px solid #FFD599" }}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }}>⬆️</span>
+                  <span className="inter" style={{ fontSize: 12, color: "#7A4100", fontWeight: 600 }}>{m.upgrade}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Fees section */}
+      <div className="sec-label" style={{ marginBottom: 14 }}>Fees & How to Explain Them</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+        {fees.map((f, i) => (
+          <div key={i} style={{ background: "#fff", borderRadius: 14, padding: "16px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <span className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#0D1117" }}>{f.name}</span>
+              <span className="inter" style={{ fontSize: 16, fontWeight: 800, color: "#1A5F6A" }}>{f.amount}</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8, padding: "10px 12px", background: "#F0FBF5", borderRadius: 8 }}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>✅</span>
+              <span className="inter" style={{ fontSize: 13, color: "#2E7D32", lineHeight: 1.5, fontWeight: 500 }}><strong>Do say:</strong> {f.doSay}</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, padding: "10px 12px", background: "#FFF0F0", borderRadius: 8 }}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+              <span className="inter" style={{ fontSize: 13, color: "#C62828", lineHeight: 1.5 }}>{f.avoid}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Recommendation guide */}
+      <div className="sec-label" style={{ marginBottom: 14 }}>How to Recommend the Right Membership</div>
+      <div style={{ background: "#fff", borderRadius: 16, padding: "18px 20px", marginBottom: 28, boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+          {[
+            { freq: "1x/month", rec: "Day Pass", why: "No commitment — come and go freely." },
+            { freq: "2–4x/month", rec: "Punch Pass", why: "Built-in savings, no auto-billing." },
+            { freq: "2x+/week", rec: "Monthly Membership", why: "Pays for itself fast — real community." },
+            { freq: "Staying a full year", rec: "Annual Membership", why: "~$100 savings and peace of mind." },
+          ].map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#F6F9FB", borderRadius: 10 }}>
+              <div style={{ width: 90, flexShrink: 0 }}>
+                <span className="inter" style={{ fontSize: 12, color: "#555", fontWeight: 600 }}>{r.freq}</span>
+              </div>
+              <span style={{ color: "#1A5F6A", fontSize: 14, flexShrink: 0 }}>→</span>
+              <div style={{ flex: 1 }}>
+                <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#1A5F6A" }}>{r.rec}</span>
+                <span className="inter" style={{ fontSize: 12, color: "#555" }}> · {r.why}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background: "#F0FBF5", borderRadius: 10, padding: "12px 14px" }}>
+          <div className="inter" style={{ fontSize: 10, fontWeight: 800, color: "#2E7D32", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>💡 Staff Tips</div>
+          {[
+            "\"Most people climbing twice a week find the membership saves them money pretty quickly.\"",
+            "\"A lot of members enjoy having a consistent place to unwind and connect.\"",
+            "\"Let me ask — how often do you think you'd realistically come in?\" (Let them guide the recommendation.)",
+          ].map((t, i) => (
+            <p key={i} className="inter" style={{ fontSize: 13, color: "#2E7D32", lineHeight: 1.6, marginBottom: i < 2 ? 6 : 0, fontStyle: "italic" }}>{t}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Conversation examples */}
+      <div className="sec-label" style={{ marginBottom: 14 }}>Sales Conversation Examples</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+        {conversations.map(c => (
+          <div key={c.key} style={{ background: "#fff", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <button onClick={() => toggle("conv_" + c.key)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", textAlign: "left", touchAction: "manipulation" }}>
+              <span className="inter" style={{ fontSize: 14, fontWeight: 600, color: "#0D1117" }}>{c.label}</span>
+              <span style={{ fontSize: 14, color: "#888", transform: openSection === "conv_" + c.key ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+            </button>
+            {openSection === "conv_" + c.key && (
+              <div style={{ borderTop: "1px solid #F0F4F7", padding: "14px 18px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                  <pre style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "#0D1117", lineHeight: 1.75, whiteSpace: "pre-wrap", flex: 1 }}>{c.script}</pre>
+                  <button onClick={() => copy(c.script, "conv_" + c.key)}
+                    style={{ background: copied === "conv_" + c.key ? "#1A5F6A" : "rgba(0,0,0,0.05)", border: "none", borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 11, color: copied === "conv_" + c.key ? "#fff" : "#555", fontFamily: "Inter, sans-serif", fontWeight: 700, flexShrink: 0, transition: "all 0.2s" }}>
+                    {copied === "conv_" + c.key ? "✓ Copied" : "Copy"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* FAQ */}
+      <div className="sec-label" style={{ marginBottom: 14 }}>FAQ</div>
+      <input value={search} onChange={e => setSearch(e.target.value)}
+        placeholder="🔍  Search FAQs..."
+        style={{ width: "100%", fontSize: 14, padding: "12px 16px", border: "none", borderRadius: 12, marginBottom: 12, fontFamily: "Inter, sans-serif", background: "#fff", color: "#0D1117", outline: "none", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 28 }}>
+        {filteredFaqs.map((f, i) => (
+          <div key={i} style={{ background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 8px rgba(0,0,0,0.05)" }}>
+            <button onClick={() => toggleFaq(i)} style={{ width: "100%", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", textAlign: "left", touchAction: "manipulation" }}>
+              <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#0D1117", flex: 1, paddingRight: 12 }}>{f.q}</span>
+              <span style={{ fontSize: 13, color: "#888", transform: openFaq === i ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
+            </button>
+            {openFaq === i && (
+              <div style={{ borderTop: "1px solid #F0F4F7", padding: "12px 16px", background: "#F8FBFC" }}>
+                <p className="inter" style={{ fontSize: 13, color: "#333", lineHeight: 1.65 }}>{f.a}</p>
+              </div>
+            )}
+          </div>
+        ))}
+        {filteredFaqs.length === 0 && (
+          <div style={{ textAlign: "center", padding: "24px", color: "#888" }} className="inter">No FAQs match your search.</div>
+        )}
+      </div>
+
+      {/* Events & Community */}
+      <div style={{ background: "linear-gradient(135deg, #F8F4FF, #EEF4FF)", border: "1px solid #D8CCF0", borderRadius: 18, padding: "20px 20px", marginBottom: 28 }}>
+        <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
+          <span style={{ fontSize: 24 }}>🎉</span>
+          <div>
+            <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#3D2B7A" }}>Events & Community</div>
+            <div className="inter" style={{ fontSize: 10, color: "#7B6A9C", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>Coming soon — be excited, don't overpromise</div>
+          </div>
+        </div>
+        <p className="inter" style={{ fontSize: 13, color: "#3D2B7A", lineHeight: 1.65, marginBottom: 14 }}>
+          Community nights, clinics, competitions, and gatherings are all in the works. These are a huge part of what makes Ripple different — not just a gym, but a place people want to be.
+        </p>
+        <div style={{ background: "rgba(255,255,255,0.7)", borderRadius: 10, padding: "12px 14px", marginBottom: 8 }}>
+          <div className="inter" style={{ fontSize: 11, fontWeight: 800, color: "#7B6A9C", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>💬 What to say when asked</div>
+          {[
+            "\"We're building out a really cool events calendar — community nights, clinics, that kind of thing. Stay tuned, it's going to be great.\"",
+            "\"Members get first access to everything when it launches — another reason the membership is worth it.\"",
+            "\"I don't want to overpromise on dates but it's something we're really excited about.\"",
+          ].map((s, i) => (
+            <p key={i} className="inter" style={{ fontSize: 13, color: "#3D2B7A", fontStyle: "italic", lineHeight: 1.6, marginBottom: i < 2 ? 6 : 0 }}>{s}</p>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
