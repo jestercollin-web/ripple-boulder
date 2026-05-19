@@ -48,8 +48,8 @@ const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1) + "K" : String(n ?? 0);
 const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
 const AVATAR_PALETTE = ["#1A5F6A","#7B5EA7","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
 const avatarColor = (name) => AVATAR_PALETTE[(name?.charCodeAt(0) || 0) % AVATAR_PALETTE.length];
-const todayKey = () => new Date().toISOString().split("T")[0];
-const weekKey = () => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(new Date().setDate(diff)).toISOString().split("T")[0]; };
+const todayKey = () => { try { return new Date().toISOString().split("T")[0]; } catch(e) { return "2026-01-01"; } };
+const weekKey = () => { try { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); const mon = new Date(d); mon.setDate(diff); return mon.toISOString().split("T")[0]; } catch(e) { return new Date().toISOString().split("T")[0]; } };
 const monthKey = () => new Date().toISOString().slice(0, 7);
 
 // ── Reusable smooth input components ─────────────────────────────────────────
