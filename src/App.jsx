@@ -580,7 +580,7 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { -webkit-tap-highlight-color: transparent; }
-        body { background: #F2F4F7; overscroll-behavior-y: none; }
+        body { background: #F2F4F7; }
 
         .lora { font-family: 'Lora', Georgia, serif; }
         .inter { font-family: 'Inter', system-ui, sans-serif; }
@@ -621,7 +621,6 @@ export default function App() {
           color: #1A2530;
           transition: all 0.15s;
           -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .btn:hover { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
@@ -697,7 +696,6 @@ export default function App() {
           transition: all 0.15s;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
           min-height: 64px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.06);
         }
@@ -731,7 +729,6 @@ export default function App() {
           transition: all 0.15s;
           white-space: nowrap;
           -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
         }
         .nav-tab.active { color: #1A5F6A; border-bottom-color: #1A5F6A; }
 
@@ -806,10 +803,10 @@ export default function App() {
 
         /* View transition */
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(8px); }
+          from { opacity: 0; transform: translateY(6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        main > * { animation: fadeSlideIn 0.22s ease; }
+        main > * { animation: fadeSlideIn 0.2s ease; }
 
         /* Responsive */
         @media(max-width:680px) {
@@ -821,7 +818,6 @@ export default function App() {
         }
         @media(min-width:681px) { .show-sm-only { display: none !important; } }
 
-        * { -webkit-overflow-scrolling: touch; }
         :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
       `}</style>
 
@@ -911,7 +907,7 @@ export default function App() {
       </header>
 
       {/* Main */}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 40px" }}>
+      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
         {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
