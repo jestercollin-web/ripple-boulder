@@ -499,7 +499,28 @@ export default function App() {
   }, [data, loading]);
 
 
-  const isOwner = data.viewMode === "owner";
+  useEffect(() => {
+    // Always unlock after 6 seconds no matter what — iPad Safari safety net
+    const fallback = setTimeout(() => setLoading(false), 6000);
+    async function load() {
+      try {
+        const { data: rows } = await supabase.from("app_data").select("*").eq("id", 1).single();
+        if (rows?.payload) setData({ ...INITIAL_DATA, ...rows.payload });
+      } catch (e) {
+        console.warn("Ripple: using defaults");
+      }
+      clearTimeout(fallback);
+      setLoading(false);
+    }
+    load();
+    const channel = supabase.channel("app_data_changes")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "app_data", filter: "id=eq.1" }, (payload) => {
+        if (payload.new?.payload) setData({ ...INITIAL_DATA, ...payload.new.payload });
+      }).subscribe();
+    return () => { clearTimeout(fallback); supabase.removeChannel(channel); };
+  }, []);
+
+
   const TEAM = data.team || ["Caleb", "Madeline", "Collin"];
 
   const updateGoal = (id, f, v) => setData(d => ({ ...d, goals: d.goals.map(g => g.id === id ? { ...g, [f]: v } : g) }));
