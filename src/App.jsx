@@ -2808,6 +2808,34 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
             <p key={i} className="inter" style={{ fontSize: 13, color: "#2E7D32", lineHeight: 1.6, marginBottom: i < 2 ? 6 : 0, fontStyle: "italic" }}>{t}</p>
           ))}
         </div>
+
+        {/* Recognition tip — convert regulars */}
+        <div style={{ marginTop: 12, background: "linear-gradient(135deg, #FFF8EC, #FFF3E0)", border: "1px solid #FFD599", borderRadius: 12, padding: "14px 16px" }}>
+          <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 20, flexShrink: 0 }}>👀</span>
+            <div>
+              <div className="inter" style={{ fontSize: 12, fontWeight: 800, color: "#7A4100", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Recognizing the Right Moment</div>
+              <p className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.65, marginBottom: 10 }}>
+                <strong>If you see the same face more than twice in a month — that's your moment.</strong> They're already a member in spirit. Your job is just to make it official and save them money.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {[
+                  { label: "When they scan in a 3rd time:", script: "\"Hey! Good to see you again — looks like you're becoming a regular! Have you thought about the membership? At this rate it would actually save you money.\"" },
+                  { label: "When they buy another punch:", script: "\"Before I ring that up — you've been in a lot lately. The monthly membership might actually work out cheaper for you. Want me to show you the math real quick?\"" },
+                  { label: "When they mention coming back soon:", script: "\"Since you're planning to come back, it might be worth doing the membership now — you'd be paying less per visit and you wouldn't have to think about it.\"" },
+                ].map((ex, i) => (
+                  <div key={i} style={{ background: "rgba(255,255,255,0.7)", borderRadius: 10, padding: "10px 12px", border: "1px solid rgba(255,180,60,0.25)" }}>
+                    <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#B36B00", marginBottom: 4 }}>{ex.label}</div>
+                    <p className="inter" style={{ fontSize: 13, color: "#5C3000", fontStyle: "italic", lineHeight: 1.55 }}>{ex.script}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="inter" style={{ fontSize: 12, color: "#B36B00", marginTop: 10, lineHeight: 1.6 }}>
+                🎯 <strong>The goal isn't to sell them —</strong> it's to help them realize they're already getting value from Ripple. The membership just makes it official.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Conversation examples */}
