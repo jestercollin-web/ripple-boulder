@@ -1547,6 +1547,24 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
           }));
         };
         const [beyondPicker, setBeyondPicker] = useState(null);
+        const [addingBeyond, setAddingBeyond] = useState(false);
+        const [newBeyondText, setNewBeyondText] = useState("");
+
+        const customItems = data.beyondCustom?.[wk] || [];
+        const allWeekItems = [...weekItems, ...customItems];
+
+        const addCustomItem = () => {
+          if (!newBeyondText.trim()) return;
+          setData(d => ({
+            ...d,
+            beyondCustom: {
+              ...(d.beyondCustom || {}),
+              [wk]: [...(d.beyondCustom?.[wk] || []), { emoji: "✨", text: newBeyondText.trim(), custom: true }]
+            }
+          }));
+          setNewBeyondText("");
+          setAddingBeyond(false);
+        };
 
         return (
           <div style={{ marginTop: 28 }}>
@@ -1568,7 +1586,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
               </p>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {weekItems.map((item, i) => {
+                {allWeekItems.map((item, i) => {
                   const done = beyondLog[i] || [];
                   const isDone = done.length > 0;
                   return (
@@ -1608,6 +1626,33 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Add your own item */}
+              <div style={{ marginTop: 12 }}>
+                {addingBeyond ? (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      autoFocus
+                      value={newBeyondText}
+                      onChange={e => setNewBeyondText(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") addCustomItem(); if (e.key === "Escape") { setAddingBeyond(false); setNewBeyondText(""); } }}
+                      placeholder="What did you notice and do?"
+                      style={{ flex: 1, fontSize: 13, padding: "10px 14px", border: "1.5px solid rgba(255,180,60,0.5)", borderRadius: 10, fontFamily: "Inter, sans-serif", background: "#fff", color: "#5C3000", outline: "none", WebkitTextFillColor: "#5C3000", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }}
+                    />
+                    <button onClick={addCustomItem}
+                      style={{ background: "linear-gradient(135deg, #F5A623, #E8950F)", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontSize: 13, color: "#fff", fontFamily: "Inter, sans-serif", fontWeight: 700, flexShrink: 0 }}>
+                      Add ✓
+                    </button>
+                    <button onClick={() => { setAddingBeyond(false); setNewBeyondText(""); }}
+                      style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,180,60,0.3)", borderRadius: 10, padding: "10px 12px", cursor: "pointer", fontSize: 14, color: "#B36B00", flexShrink: 0 }}>✕</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setAddingBeyond(true)}
+                    style={{ width: "100%", background: "rgba(255,255,255,0.5)", border: "1.5px dashed rgba(255,180,60,0.4)", borderRadius: 10, padding: "11px 16px", cursor: "pointer", fontSize: 13, color: "#B36B00", fontFamily: "Inter, sans-serif", fontWeight: 700, textAlign: "center" }}>
+                    + Add something you noticed ✨
+                  </button>
+                )}
               </div>
 
               <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(255,180,60,0.1)", borderRadius: 10, textAlign: "center" }}>
