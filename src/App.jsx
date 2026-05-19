@@ -1493,46 +1493,130 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
         </div>
       )}
 
-      {!isOwner && (
-        <div style={{ marginTop: 28 }}>
-          <div style={{ background: "linear-gradient(135deg, #FFF8EC 0%, #FFF3E0 100%)", border: "1px solid #FFD599", borderRadius: 18, padding: "20px 20px 18px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-              <span style={{ fontSize: 24 }}>⚡</span>
-              <div>
-                <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#7A4100" }}>Beyond the List</div>
-                <div className="inter" style={{ fontSize: 10, color: "#B36B00", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>Tasks nobody assigned — but you notice anyway</div>
+      {!isOwner && (() => {
+        // Full pool of beyond-the-list items — rotates each week
+        const allBeyondItems = [
+          { emoji: "🪴", text: "Water the plants if they look dry" },
+          { emoji: "🎵", text: "Adjust the music if the vibe is off" },
+          { emoji: "📦", text: "Restock something before it runs out" },
+          { emoji: "🧲", text: "Fix a hold that looks loose or spun" },
+          { emoji: "🪣", text: "Wipe down a crash pad that looks dirty" },
+          { emoji: "💬", text: "Welcome someone who looks new or nervous" },
+          { emoji: "📋", text: "Write down a problem so it doesn't get forgotten" },
+          { emoji: "🔦", text: "Check a dark corner that might have been missed" },
+          { emoji: "🛒", text: "Tell someone about retail gear they'd love" },
+          { emoji: "📸", text: "Capture a real moment worth sharing" },
+          { emoji: "🧹", text: "Deep clean something that rarely gets cleaned" },
+          { emoji: "🤝", text: "Introduce two members who don't know each other" },
+          { emoji: "🪑", text: "Rearrange seating to feel more welcoming" },
+          { emoji: "🌟", text: "Give a member a genuine compliment on their climbing" },
+          { emoji: "🗺️", text: "Help a new climber figure out where to start" },
+          { emoji: "🧴", text: "Refill chalk or brush stations before they run out" },
+          { emoji: "💡", text: "Suggest a new system that could make things easier" },
+          { emoji: "🎯", text: "Tell a friend about Ripple and why they'd love it" },
+          { emoji: "🧽", text: "Wipe down a surface nobody thinks to clean" },
+          { emoji: "📱", text: "Share something genuine about your shift on social" },
+          { emoji: "🌿", text: "Freshen up the entry area so it feels inviting" },
+          { emoji: "🔧", text: "Report a piece of equipment that needs attention" },
+          { emoji: "☕", text: "Make the break area feel nicer for the next person" },
+          { emoji: "👀", text: "Notice if someone is struggling and offer help" },
+          { emoji: "🏔️", text: "Learn the name of someone you haven't met yet" },
+        ];
+
+        // Deterministic weekly rotation — different 8 items each week
+        const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+        const shuffled = [...allBeyondItems].sort((a, b) => {
+          const ha = (a.text.charCodeAt(0) * 31 + weekNum * 17) % allBeyondItems.length;
+          const hb = (b.text.charCodeAt(0) * 31 + weekNum * 17) % allBeyondItems.length;
+          return ha - hb;
+        });
+        const weekItems = shuffled.slice(0, 8);
+
+        const beyondLog = data.beyondLog?.[wk] || {};
+        const logItem = (idx, person) => {
+          if (!person) return;
+          setData(d => ({
+            ...d,
+            beyondLog: {
+              ...(d.beyondLog || {}),
+              [wk]: {
+                ...beyondLog,
+                [idx]: [...(beyondLog[idx] || []), { person, ts: new Date().toISOString() }]
+              }
+            }
+          }));
+        };
+        const [beyondPicker, setBeyondPicker] = useState(null);
+
+        return (
+          <div style={{ marginTop: 28 }}>
+            <div style={{ background: "linear-gradient(135deg, #FFF8EC 0%, #FFF3E0 100%)", border: "1px solid #FFD599", borderRadius: 18, padding: "20px 20px 18px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>⚡</span>
+                  <div>
+                    <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#7A4100" }}>Beyond the List</div>
+                    <div className="inter" style={{ fontSize: 10, color: "#B36B00", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>This week's extras — changes every Monday</div>
+                  </div>
+                </div>
+                <div className="inter" style={{ fontSize: 11, color: "#B36B00", fontWeight: 700, background: "rgba(255,180,60,0.15)", padding: "4px 10px", borderRadius: 99 }}>
+                  Week of {wk}
+                </div>
+              </div>
+              <p className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.6, marginBottom: 14 }}>
+                Nobody asked. You noticed anyway. Tap your name when you do one — let the team see who's going further.
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {weekItems.map((item, i) => {
+                  const done = beyondLog[i] || [];
+                  const isDone = done.length > 0;
+                  return (
+                    <div key={i} style={{ background: isDone ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.6)", borderRadius: 12, border: `1px solid ${isDone ? "rgba(255,180,60,0.5)" : "rgba(255,180,60,0.2)"}`, overflow: "hidden" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 14px" }}>
+                        <span style={{ fontSize: 18, flexShrink: 0 }}>{item.emoji}</span>
+                        <span className="inter" style={{ flex: 1, fontSize: 13, color: "#5C3000", lineHeight: 1.5, fontWeight: 500 }}>{item.text}</span>
+                        {isDone
+                          ? <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                              {done.map((d, di) => (
+                                <div key={di} style={{ width: 28, height: 28, borderRadius: "50%", background: avatarColor(d.person), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <span className="inter" style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{initials(d.person)}</span>
+                                </div>
+                              ))}
+                              <button onClick={() => setBeyondPicker(beyondPicker === i ? null : i)}
+                                style={{ background: "rgba(255,180,60,0.15)", border: "none", borderRadius: 99, padding: "3px 8px", cursor: "pointer", fontSize: 11, color: "#B36B00", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>+</button>
+                            </div>
+                          : <button onClick={() => setBeyondPicker(beyondPicker === i ? null : i)}
+                              style={{ background: "linear-gradient(135deg, #F5A623, #E8950F)", border: "none", borderRadius: 99, padding: "6px 14px", cursor: "pointer", fontSize: 12, color: "#fff", fontFamily: "Inter, sans-serif", fontWeight: 700, flexShrink: 0, boxShadow: "0 2px 8px rgba(245,166,35,0.3)" }}>
+                              I did this ⚡
+                            </button>
+                        }
+                      </div>
+                      {beyondPicker === i && (
+                        <div style={{ borderTop: "1px solid rgba(255,180,60,0.2)", padding: "10px 14px", background: "rgba(255,248,236,0.8)", display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          {TEAM.map(person => (
+                            <button key={person} onClick={() => { logItem(i, person); setBeyondPicker(null); }}
+                              style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", background: "#fff", border: "1.5px solid rgba(255,180,60,0.4)", borderRadius: 99, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#7A4100", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                              <div style={{ width: 22, height: 22, borderRadius: "50%", background: avatarColor(person), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: "#fff" }}>{initials(person)}</span>
+                              </div>
+                              {person.split(" ")[0]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(255,180,60,0.1)", borderRadius: 10, textAlign: "center" }}>
+                <span className="inter" style={{ fontSize: 12, color: "#B36B00", fontStyle: "italic" }}>"You don't need permission to make something better." ⚡</span>
               </div>
             </div>
-            <p className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.65, marginBottom: 14 }}>
-              The checklist gets the gym open. What makes Ripple special is everything else — the stuff you do because you care, not because it was on a list.
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-              {[
-                { emoji: "🪴", text: "Water the plants if they look dry" },
-                { emoji: "🎵", text: "Adjust the music if the vibe is off" },
-                { emoji: "📦", text: "Restock something before it runs out" },
-                { emoji: "🧲", text: "Fix a hold that looks loose or spun" },
-                { emoji: "🪣", text: "Wipe down a crash pad that looks dirty" },
-                { emoji: "💬", text: "Welcome someone who looks new or nervous" },
-                { emoji: "📋", text: "Write down a problem so it doesn't get forgotten" },
-                { emoji: "🔦", text: "Check a dark corner that might have been missed" },
-                { emoji: "🛒", text: "Let someone know about retail gear they'd love" },
-                { emoji: "📸", text: "Capture a real moment worth sharing" },
-              ].map((item, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: "rgba(255,255,255,0.7)", borderRadius: 10, border: "1px solid rgba(255,180,60,0.25)" }}>
-                  <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>{item.emoji}</span>
-                  <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5, fontWeight: 500 }}>{item.text}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(255,180,60,0.1)", borderRadius: 10, textAlign: "center" }}>
-              <span className="inter" style={{ fontSize: 12, color: "#B36B00", fontStyle: "italic" }}>
-                "You don't need permission to make something better." ⚡
-              </span>
-            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {!isOwner && <ValuesCard />}
     </div>
