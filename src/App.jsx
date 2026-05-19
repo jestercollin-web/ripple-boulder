@@ -575,14 +575,11 @@ export default function App() {
   }, [isOwner]);
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117", border: "none", outline: "none", width: "100%", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; border: none; outline: none; }
-        html, body { border: none !important; outline: none !important; margin: 0 !important; padding: 0 !important; width: 100%; overflow-x: hidden; scrollbar-width: none; -ms-overflow-style: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         html { -webkit-tap-highlight-color: transparent; }
-        body::-webkit-scrollbar { display: none; width: 0; }
-        *::-webkit-scrollbar { display: none; width: 0; }
         body { background: #F2F4F7; overscroll-behavior-y: none; }
 
         .lora { font-family: 'Lora', Georgia, serif; }
