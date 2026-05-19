@@ -794,14 +794,18 @@ export default function App() {
         main > * { animation: fadeSlideIn 0.2s ease; }
 
         /* Responsive */
-        @media(max-width:680px) {
+        @media(max-width:900px) {
           .g2 { grid-template-columns: 1fr !important; }
           .g3 { grid-template-columns: 1fr 1fr !important; }
           .hide-sm { display: none !important; }
           .card { padding: 16px; border-radius: 18px; }
           .hero-card { padding: 20px 18px; border-radius: 20px; }
         }
-        @media(min-width:681px) { .show-sm-only { display: none !important; } }
+        @media(min-width:901px) { .show-sm-only { display: none !important; } }
+        /* iPad specific */
+        @media(min-width:768px) and (max-width:1024px) {
+          main { padding-left: 24px !important; padding-right: 24px !important; }
+        }
 
         :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
       `}</style>
@@ -896,7 +900,7 @@ export default function App() {
       </header>
 
       {/* Main */}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
+      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 20px 80px", minHeight: "calc(100vh - 72px)" }}>
         {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}

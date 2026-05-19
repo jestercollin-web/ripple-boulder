@@ -3,14 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Ripple Boulder" />
     <meta name="theme-color" content="#F2F4F7" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Ripple Boulder</title>
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { width: 100%; overflow-x: hidden; background: #F2F4F7; }
-      ::-webkit-scrollbar { display: none; }
-      body { scrollbar-width: none; -ms-overflow-style: none; }
+      html, body {
+        width: 100%;
+        height: 100%;
+        background: #F2F4F7;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      #root { width: 100%; min-height: 100%; }
     </style>
   </head>
   <body>
