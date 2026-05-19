@@ -1493,6 +1493,47 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
         </div>
       )}
 
+      {!isOwner && (
+        <div style={{ marginTop: 28 }}>
+          <div style={{ background: "linear-gradient(135deg, #FFF8EC 0%, #FFF3E0 100%)", border: "1px solid #FFD599", borderRadius: 18, padding: "20px 20px 18px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 24 }}>⚡</span>
+              <div>
+                <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#7A4100" }}>Beyond the List</div>
+                <div className="inter" style={{ fontSize: 10, color: "#B36B00", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 2 }}>Tasks nobody assigned — but you notice anyway</div>
+              </div>
+            </div>
+            <p className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.65, marginBottom: 14 }}>
+              The checklist gets the gym open. What makes Ripple special is everything else — the stuff you do because you care, not because it was on a list.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              {[
+                { emoji: "🪴", text: "Water the plants if they look dry" },
+                { emoji: "🎵", text: "Adjust the music if the vibe is off" },
+                { emoji: "📦", text: "Restock something before it runs out" },
+                { emoji: "🧲", text: "Fix a hold that looks loose or spun" },
+                { emoji: "🪣", text: "Wipe down a crash pad that looks dirty" },
+                { emoji: "💬", text: "Welcome someone who looks new or nervous" },
+                { emoji: "📋", text: "Write down a problem so it doesn't get forgotten" },
+                { emoji: "🔦", text: "Check a dark corner that might have been missed" },
+                { emoji: "🛒", text: "Let someone know about retail gear they'd love" },
+                { emoji: "📸", text: "Capture a real moment worth sharing" },
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px", background: "rgba(255,255,255,0.7)", borderRadius: 10, border: "1px solid rgba(255,180,60,0.25)" }}>
+                  <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>{item.emoji}</span>
+                  <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5, fontWeight: 500 }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 14, padding: "10px 14px", background: "rgba(255,180,60,0.1)", borderRadius: 10, textAlign: "center" }}>
+              <span className="inter" style={{ fontSize: 12, color: "#B36B00", fontStyle: "italic" }}>
+                "You don't need permission to make something better." ⚡
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!isOwner && <ValuesCard />}
     </div>
   );
