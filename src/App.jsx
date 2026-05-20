@@ -48,8 +48,8 @@ const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1) + "K" : String(n ?? 0);
 const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
 const AVATAR_PALETTE = ["#1A5F6A","#7B5EA7","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
 const avatarColor = (name) => AVATAR_PALETTE[(name?.charCodeAt(0) || 0) % AVATAR_PALETTE.length];
-const todayKey = () => { try { return new Date().toISOString().split("T")[0]; } catch(e) { return "2026-01-01"; } };
-const weekKey = () => { try { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); const mon = new Date(d); mon.setDate(diff); return mon.toISOString().split("T")[0]; } catch(e) { return new Date().toISOString().split("T")[0]; } };
+const todayKey = () => new Date().toISOString().split("T")[0];
+const weekKey = () => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(new Date().setDate(diff)).toISOString().split("T")[0]; };
 const monthKey = () => new Date().toISOString().slice(0, 7);
 
 // ── Reusable smooth input components ─────────────────────────────────────────
@@ -499,28 +499,7 @@ export default function App() {
   }, [data, loading]);
 
 
-  useEffect(() => {
-    // Always unlock after 6 seconds no matter what — iPad Safari safety net
-    const fallback = setTimeout(() => setLoading(false), 3000);
-    async function load() {
-      try {
-        const { data: rows } = await supabase.from("app_data").select("*").eq("id", 1).single();
-        if (rows?.payload) setData({ ...INITIAL_DATA, ...rows.payload });
-      } catch (e) {
-        console.warn("Ripple: using defaults");
-      }
-      clearTimeout(fallback);
-      setLoading(false);
-    }
-    load();
-    const channel = supabase.channel("app_data_changes")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "app_data", filter: "id=eq.1" }, (payload) => {
-        if (payload.new?.payload) setData({ ...INITIAL_DATA, ...payload.new.payload });
-      }).subscribe();
-    return () => { clearTimeout(fallback); supabase.removeChannel(channel); };
-  }, []);
-
-
+  const isOwner = data.viewMode === "owner";
   const TEAM = data.team || ["Caleb", "Madeline", "Collin"];
 
   const updateGoal = (id, f, v) => setData(d => ({ ...d, goals: d.goals.map(g => g.id === id ? { ...g, [f]: v } : g) }));
@@ -815,29 +794,24 @@ export default function App() {
         main > * { animation: fadeSlideIn 0.2s ease; }
 
         /* Responsive */
-        @media(max-width:900px) {
+        @media(max-width:680px) {
           .g2 { grid-template-columns: 1fr !important; }
           .g3 { grid-template-columns: 1fr 1fr !important; }
           .hide-sm { display: none !important; }
           .card { padding: 16px; border-radius: 18px; }
           .hero-card { padding: 20px 18px; border-radius: 20px; }
         }
-        @media(min-width:901px) { .show-sm-only { display: none !important; } }
-        /* iPad specific */
-        @media(min-width:768px) and (max-width:1024px) {
-          main { padding-left: 24px !important; padding-right: 24px !important; }
-        }
+        @media(min-width:681px) { .show-sm-only { display: none !important; } }
 
         :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
       `}</style>
 
       {/* Loading */}
       {loading && (
-        <div style={{ position: "fixed", inset: 0, background: "#F2F4F7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }} onClick={() => setLoading(false)}>
+        <div style={{ position: "fixed", inset: 0, background: "#F2F4F7", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
           <div style={{ textAlign: "center" }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 64, marginBottom: 20, opacity: 0.9 }} />
-            <div style={{ fontSize: 14, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>Getting things ready…</div>
-            <div style={{ fontSize: 12, color: "#888", fontFamily: "Inter, sans-serif", marginTop: 8 }}>Tap anywhere if this takes too long</div>
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, marginBottom: 16, opacity: 0.7 }} />
+            <div className="inter" style={{ fontSize: 13, color: "#333" }}>Getting things ready…</div>
           </div>
         </div>
       )}
@@ -922,7 +896,7 @@ export default function App() {
       </header>
 
       {/* Main */}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 20px 80px", minHeight: "calc(100vh - 72px)" }}>
+      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
         {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
