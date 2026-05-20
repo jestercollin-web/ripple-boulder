@@ -48,8 +48,8 @@ const fmt = (n) => n >= 1000 ? (n / 1000).toFixed(1) + "K" : String(n ?? 0);
 const initials = (name) => name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?";
 const AVATAR_PALETTE = ["#1A5F6A","#7B5EA7","#2A3F6B","#4A6B2A","#6B2A4A","#2A6B5F"];
 const avatarColor = (name) => AVATAR_PALETTE[(name?.charCodeAt(0) || 0) % AVATAR_PALETTE.length];
-const todayKey = () => new Date().toISOString().split("T")[0];
-const weekKey = () => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(new Date().setDate(diff)).toISOString().split("T")[0]; };
+const todayKey = () => { try { return new Date().toISOString().split("T")[0]; } catch(e) { return "2026-01-01"; } };
+const weekKey = () => { try { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); const mon = new Date(d); mon.setDate(diff); return mon.toISOString().split("T")[0]; } catch(e) { return new Date().toISOString().split("T")[0]; } };
 const monthKey = () => new Date().toISOString().slice(0, 7);
 
 // ── Reusable smooth input components ─────────────────────────────────────────
@@ -245,52 +245,124 @@ const INITIAL_DATA = {
   ],
 
   openingChecklist: [
-    { id: "oc1", category: "Construction & Build", item: "Finish remaining construction", done: false, owner: "Collin", notes: "" },
-    { id: "oc2", category: "Construction & Build", item: "Electrical and lighting complete", done: false, owner: "Collin", notes: "" },
-    { id: "oc3", category: "Construction & Build", item: "Final painting and touch-ups", done: false, owner: "Collin", notes: "" },
-    { id: "oc4", category: "Construction & Build", item: "HVAC and air filtration checked", done: false, owner: "Collin", notes: "" },
-    { id: "oc5", category: "Construction & Build", item: "Bathroom completion", done: false, owner: "Collin", notes: "" },
-    { id: "oc6", category: "Construction & Build", item: "Final contractor walkthrough", done: false, owner: "Collin", notes: "" },
-    { id: "oc7", category: "Construction & Build", item: "Signage installed", done: false, owner: "Collin", notes: "" },
-    { id: "oc8", category: "Construction & Build", item: "Door & access system tested", done: false, owner: "Collin", notes: "" },
-    { id: "oc9", category: "Climbing Infrastructure", item: "Wall inspection complete", done: false, owner: "Collin", notes: "" },
-    { id: "oc10", category: "Climbing Infrastructure", item: "Holds inspected and organized", done: false, owner: "Caleb", notes: "" },
-    { id: "oc11", category: "Climbing Infrastructure", item: "Hold washing & prep done", done: false, owner: "Caleb", notes: "" },
-    { id: "oc12", category: "Climbing Infrastructure", item: "Route setting complete", done: false, owner: "Caleb", notes: "" },
-    { id: "oc13", category: "Climbing Infrastructure", item: "Routes quality tested", done: false, owner: "Caleb", notes: "" },
-    { id: "oc14", category: "Climbing Infrastructure", item: "Beginner climbs ready", done: false, owner: "Caleb", notes: "" },
-    { id: "oc15", category: "Climbing Infrastructure", item: "Pad alignment & safety checks", done: false, owner: "Collin", notes: "" },
-    { id: "oc16", category: "Climbing Infrastructure", item: "TB2/Tension board setup tested", done: false, owner: "Caleb", notes: "" },
-    { id: "oc17", category: "Front Desk & Retail", item: "Front desk construction done", done: false, owner: "Collin", notes: "" },
-    { id: "oc18", category: "Front Desk & Retail", item: "Shoe & bag cubbies installed", done: false, owner: "Collin", notes: "" },
-    { id: "oc19", category: "Front Desk & Retail", item: "Retail organized and stocked", done: false, owner: "Madeline", notes: "" },
-    { id: "oc20", category: "Front Desk & Retail", item: "POS system set up and tested", done: false, owner: "Collin", notes: "" },
-    { id: "oc21", category: "Front Desk & Retail", item: "Beta integration tested end-to-end", done: false, owner: "Collin", notes: "" },
-    { id: "oc22", category: "Front Desk & Retail", item: "Rental systems set up", done: false, owner: "Madeline", notes: "" },
-    { id: "oc23", category: "Operations & Systems", item: "Staff handbook complete", done: false, owner: "Collin", notes: "" },
-    { id: "oc24", category: "Operations & Systems", item: "Staff trained", done: false, owner: "Collin", notes: "" },
-    { id: "oc25", category: "Operations & Systems", item: "SOPs created", done: false, owner: "Collin", notes: "" },
-    { id: "oc26", category: "Operations & Systems", item: "Emergency procedures reviewed", done: false, owner: "Collin", notes: "" },
-    { id: "oc27", category: "Operations & Systems", item: "Security cameras set up", done: false, owner: "Collin", notes: "" },
-    { id: "oc28", category: "Operations & Systems", item: "Music & audio tested", done: false, owner: "Caleb", notes: "" },
-    { id: "oc29", category: "Operations & Systems", item: "Wifi tested throughout space", done: false, owner: "Collin", notes: "" },
-    { id: "oc30", category: "Operations & Systems", item: "Waiver & privacy policy complete", done: false, owner: "Collin", notes: "" },
-    { id: "oc31", category: "Membership & Launch", item: "Founding member push underway", done: false, owner: "Collin", notes: "" },
-    { id: "oc32", category: "Membership & Launch", item: "Referral campaign live", done: false, owner: "Collin", notes: "" },
-    { id: "oc33", category: "Membership & Launch", item: "Social media rollout planned", done: false, owner: "Caleb", notes: "" },
-    { id: "oc34", category: "Membership & Launch", item: "Soft opening planned", done: false, owner: "Collin", notes: "" },
-    { id: "oc35", category: "Membership & Launch", item: "Grand opening planned", done: false, owner: "Collin", notes: "" },
-    { id: "oc36", category: "Membership & Launch", item: "Community partnerships confirmed", done: false, owner: "Collin", notes: "" },
-    { id: "oc37", category: "Brand & Hospitality", item: "Plants and aesthetics in place", done: false, owner: "Madeline", notes: "" },
-    { id: "oc38", category: "Brand & Hospitality", item: "Lounge setup complete", done: false, owner: "Madeline", notes: "" },
-    { id: "oc39", category: "Brand & Hospitality", item: "Lighting atmosphere dialed in", done: false, owner: "Collin", notes: "" },
-    { id: "oc40", category: "Brand & Hospitality", item: "Wayfinding signage in place", done: false, owner: "Madeline", notes: "" },
-    { id: "oc41", category: "Brand & Hospitality", item: "Customer experience walkthrough done", done: false, owner: "Collin", notes: "" },
-    { id: "oc42", category: "Safety & Readiness", item: "Final safety inspection passed", done: false, owner: "Collin", notes: "" },
-    { id: "oc43", category: "Safety & Readiness", item: "Emergency drills completed", done: false, owner: "Collin", notes: "" },
-    { id: "oc44", category: "Safety & Readiness", item: "ADA/accessibility checked", done: false, owner: "Collin", notes: "" },
-    { id: "oc45", category: "Safety & Readiness", item: "Insurance & liability verified", done: false, owner: "Collin", notes: "" },
-    { id: "oc46", category: "Safety & Readiness", item: "Mock operating day completed", done: false, owner: "Collin", notes: "" },
+    // ── Legal & Permits ──
+    { id: "lp1", category: "Legal & Permits", item: "Business entity formed (LLC or Corp)", done: false, owner: "Collin", notes: "" },
+    { id: "lp2", category: "Legal & Permits", item: "EIN obtained from IRS", done: false, owner: "Collin", notes: "" },
+    { id: "lp3", category: "Legal & Permits", item: "Business license obtained", done: false, owner: "Collin", notes: "" },
+    { id: "lp4", category: "Legal & Permits", item: "Certificate of Occupancy received", done: false, owner: "Collin", notes: "" },
+    { id: "lp5", category: "Legal & Permits", item: "Building permits closed out", done: false, owner: "Collin", notes: "" },
+    { id: "lp6", category: "Legal & Permits", item: "Fire marshal inspection passed", done: false, owner: "Collin", notes: "" },
+    { id: "lp7", category: "Legal & Permits", item: "Health department clearance (if applicable)", done: false, owner: "Collin", notes: "" },
+    { id: "lp8", category: "Legal & Permits", item: "Signage permits approved", done: false, owner: "Collin", notes: "" },
+    { id: "lp9", category: "Legal & Permits", item: "Music licensing (ASCAP/BMI) obtained", done: false, owner: "Collin", notes: "" },
+    { id: "lp10", category: "Legal & Permits", item: "Liability waiver reviewed by attorney", done: false, owner: "Collin", notes: "" },
+    { id: "lp11", category: "Legal & Permits", item: "Privacy policy published", done: false, owner: "Collin", notes: "" },
+    { id: "lp12", category: "Legal & Permits", item: "Terms of service published", done: false, owner: "Collin", notes: "" },
+    // ── Insurance ──
+    { id: "in1", category: "Insurance", item: "General liability insurance active", done: false, owner: "Collin", notes: "" },
+    { id: "in2", category: "Insurance", item: "Property insurance active", done: false, owner: "Collin", notes: "" },
+    { id: "in3", category: "Insurance", item: "Workers compensation policy active", done: false, owner: "Collin", notes: "" },
+    { id: "in4", category: "Insurance", item: "Equipment/contents insurance active", done: false, owner: "Collin", notes: "" },
+    { id: "in5", category: "Insurance", item: "Umbrella policy reviewed", done: false, owner: "Collin", notes: "" },
+    // ── Construction & Build ──
+    { id: "cb1", category: "Construction & Build", item: "All construction complete", done: false, owner: "Collin", notes: "" },
+    { id: "cb2", category: "Construction & Build", item: "Electrical and lighting complete", done: false, owner: "Collin", notes: "" },
+    { id: "cb3", category: "Construction & Build", item: "Plumbing complete and tested", done: false, owner: "Collin", notes: "" },
+    { id: "cb4", category: "Construction & Build", item: "HVAC and ventilation tested", done: false, owner: "Collin", notes: "" },
+    { id: "cb5", category: "Construction & Build", item: "Bathrooms complete and stocked", done: false, owner: "Collin", notes: "" },
+    { id: "cb6", category: "Construction & Build", item: "Final painting and touch-ups done", done: false, owner: "Collin", notes: "" },
+    { id: "cb7", category: "Construction & Build", item: "Flooring complete throughout", done: false, owner: "Collin", notes: "" },
+    { id: "cb8", category: "Construction & Build", item: "Exterior signage installed", done: false, owner: "Collin", notes: "" },
+    { id: "cb9", category: "Construction & Build", item: "Interior signage installed", done: false, owner: "Collin", notes: "" },
+    { id: "cb10", category: "Construction & Build", item: "Entry door and access system working", done: false, owner: "Collin", notes: "" },
+    { id: "cb11", category: "Construction & Build", item: "Final contractor walkthrough done", done: false, owner: "Collin", notes: "" },
+    { id: "cb12", category: "Construction & Build", item: "Punch list items resolved", done: false, owner: "Collin", notes: "" },
+    // ── Climbing Infrastructure ──
+    { id: "ci1", category: "Climbing Infrastructure", item: "Wall structure engineer-certified", done: false, owner: "Collin", notes: "" },
+    { id: "ci2", category: "Climbing Infrastructure", item: "All T-nuts installed and checked", done: false, owner: "Collin", notes: "" },
+    { id: "ci3", category: "Climbing Infrastructure", item: "Crash pads installed and aligned", done: false, owner: "Collin", notes: "" },
+    { id: "ci4", category: "Climbing Infrastructure", item: "Pad gaps and seams inspected", done: false, owner: "Collin", notes: "" },
+    { id: "ci5", category: "Climbing Infrastructure", item: "Holds washed, dried, and sorted", done: false, owner: "Caleb", notes: "" },
+    { id: "ci6", category: "Climbing Infrastructure", item: "Initial routes set across all grades", done: false, owner: "Caleb", notes: "" },
+    { id: "ci7", category: "Climbing Infrastructure", item: "Beginner climbs clearly marked", done: false, owner: "Caleb", notes: "" },
+    { id: "ci8", category: "Climbing Infrastructure", item: "Routes quality-tested by staff", done: false, owner: "Caleb", notes: "" },
+    { id: "ci9", category: "Climbing Infrastructure", item: "Route grades reviewed for accuracy", done: false, owner: "Caleb", notes: "" },
+    { id: "ci10", category: "Climbing Infrastructure", item: "Moon board / training board set up", done: false, owner: "Caleb", notes: "" },
+    { id: "ci11", category: "Climbing Infrastructure", item: "Spray wall set up (if applicable)", done: false, owner: "Caleb", notes: "" },
+    { id: "ci12", category: "Climbing Infrastructure", item: "Chalk buckets and brushes stocked", done: false, owner: "Caleb", notes: "" },
+    { id: "ci13", category: "Climbing Infrastructure", item: "Volume placements checked", done: false, owner: "Caleb", notes: "" },
+    // ── Safety & Emergency ──
+    { id: "se1", category: "Safety & Emergency", item: "First aid kits stocked at multiple locations", done: false, owner: "Collin", notes: "" },
+    { id: "se2", category: "Safety & Emergency", item: "AED (defibrillator) installed and registered", done: false, owner: "Collin", notes: "" },
+    { id: "se3", category: "Safety & Emergency", item: "Fire extinguishers installed and tagged", done: false, owner: "Collin", notes: "" },
+    { id: "se4", category: "Safety & Emergency", item: "Emergency exit routes marked", done: false, owner: "Collin", notes: "" },
+    { id: "se5", category: "Safety & Emergency", item: "Emergency procedures posted at desk", done: false, owner: "Collin", notes: "" },
+    { id: "se6", category: "Safety & Emergency", item: "Staff trained on emergency protocols", done: false, owner: "Collin", notes: "" },
+    { id: "se7", category: "Safety & Emergency", item: "Incident report forms ready", done: false, owner: "Collin", notes: "" },
+    { id: "se8", category: "Safety & Emergency", item: "ADA accessibility verified", done: false, owner: "Collin", notes: "" },
+    { id: "se9", category: "Safety & Emergency", item: "Safety rules posted throughout gym", done: false, owner: "Collin", notes: "" },
+    { id: "se10", category: "Safety & Emergency", item: "Mock emergency drill completed", done: false, owner: "Collin", notes: "" },
+    // ── Technology & Systems ──
+    { id: "ts1", category: "Technology & Systems", item: "POS system installed and tested", done: false, owner: "Collin", notes: "" },
+    { id: "ts2", category: "Technology & Systems", item: "Beta (gym management software) fully set up", done: false, owner: "Collin", notes: "" },
+    { id: "ts3", category: "Technology & Systems", item: "Waivers integrated into Beta", done: false, owner: "Collin", notes: "" },
+    { id: "ts4", category: "Technology & Systems", item: "Membership tiers set up in Beta", done: false, owner: "Collin", notes: "" },
+    { id: "ts5", category: "Technology & Systems", item: "Payment processing tested end-to-end", done: false, owner: "Collin", notes: "" },
+    { id: "ts6", category: "Technology & Systems", item: "Security cameras installed and recording", done: false, owner: "Collin", notes: "" },
+    { id: "ts7", category: "Technology & Systems", item: "Wi-Fi working throughout entire space", done: false, owner: "Collin", notes: "" },
+    { id: "ts8", category: "Technology & Systems", item: "Music system installed and tested", done: false, owner: "Caleb", notes: "" },
+    { id: "ts9", category: "Technology & Systems", item: "Speakers balanced throughout space", done: false, owner: "Caleb", notes: "" },
+    { id: "ts10", category: "Technology & Systems", item: "TV/display screens set up (if any)", done: false, owner: "Collin", notes: "" },
+    { id: "ts11", category: "Technology & Systems", item: "Ops app (this app) live and working", done: true, owner: "Collin", notes: "" },
+    // ── Front Desk & Retail ──
+    { id: "fd1", category: "Front Desk & Retail", item: "Front desk area fully built out", done: false, owner: "Collin", notes: "" },
+    { id: "fd2", category: "Front Desk & Retail", item: "Shoe and bag cubbies installed", done: false, owner: "Collin", notes: "" },
+    { id: "fd3", category: "Front Desk & Retail", item: "Rental shoes cleaned and sized", done: false, owner: "Madeline", notes: "" },
+    { id: "fd4", category: "Front Desk & Retail", item: "Retail area organized (chalk, brushes, etc.)", done: false, owner: "Madeline", notes: "" },
+    { id: "fd5", category: "Front Desk & Retail", item: "Merchandise priced and tagged", done: false, owner: "Madeline", notes: "" },
+    { id: "fd6", category: "Front Desk & Retail", item: "Member check-in process tested", done: false, owner: "Collin", notes: "" },
+    { id: "fd7", category: "Front Desk & Retail", item: "Day pass and punch pass workflow tested", done: false, owner: "Collin", notes: "" },
+    { id: "fd8", category: "Front Desk & Retail", item: "Waiver signing flow tested on multiple devices", done: false, owner: "Collin", notes: "" },
+    { id: "fd9", category: "Front Desk & Retail", item: "Cash drawer set up with starting float", done: false, owner: "Collin", notes: "" },
+    // ── Staffing & Training ──
+    { id: "st1", category: "Staffing & Training", item: "All staff hired", done: false, owner: "Collin", notes: "" },
+    { id: "st2", category: "Staffing & Training", item: "Staff contracts signed", done: false, owner: "Collin", notes: "" },
+    { id: "st3", category: "Staffing & Training", item: "Payroll system set up", done: false, owner: "Collin", notes: "" },
+    { id: "st4", category: "Staffing & Training", item: "Staff handbook distributed", done: false, owner: "Collin", notes: "" },
+    { id: "st5", category: "Staffing & Training", item: "Front desk training complete", done: false, owner: "Collin", notes: "" },
+    { id: "st6", category: "Staffing & Training", item: "POS and Beta training complete", done: false, owner: "Collin", notes: "" },
+    { id: "st7", category: "Staffing & Training", item: "Membership conversation training done", done: false, owner: "Collin", notes: "" },
+    { id: "st8", category: "Staffing & Training", item: "Safety and emergency training done", done: false, owner: "Collin", notes: "" },
+    { id: "st9", category: "Staffing & Training", item: "Opening and closing procedures practiced", done: false, owner: "Collin", notes: "" },
+    { id: "st10", category: "Staffing & Training", item: "Full mock operating day completed", done: false, owner: "Collin", notes: "" },
+    // ── Brand & Hospitality ──
+    { id: "bh1", category: "Brand & Hospitality", item: "Plants and greenery in place", done: false, owner: "Madeline", notes: "" },
+    { id: "bh2", category: "Brand & Hospitality", item: "Lounge seating area set up", done: false, owner: "Madeline", notes: "" },
+    { id: "bh3", category: "Brand & Hospitality", item: "Lighting atmosphere dialed in", done: false, owner: "Collin", notes: "" },
+    { id: "bh4", category: "Brand & Hospitality", item: "Wayfinding signage throughout space", done: false, owner: "Madeline", notes: "" },
+    { id: "bh5", category: "Brand & Hospitality", item: "Bathrooms stocked and styled", done: false, owner: "Madeline", notes: "" },
+    { id: "bh6", category: "Brand & Hospitality", item: "Scent/ambiance considered", done: false, owner: "Madeline", notes: "" },
+    { id: "bh7", category: "Brand & Hospitality", item: "Customer experience walkthrough done", done: false, owner: "Collin", notes: "" },
+    { id: "bh8", category: "Brand & Hospitality", item: "Welcome script practiced by all staff", done: false, owner: "Collin", notes: "" },
+    // ── Marketing & Launch ──
+    { id: "ml1", category: "Marketing & Launch", item: "Website live and up to date", done: false, owner: "Collin", notes: "" },
+    { id: "ml2", category: "Marketing & Launch", item: "Google Business profile claimed and complete", done: false, owner: "Collin", notes: "" },
+    { id: "ml3", category: "Marketing & Launch", item: "Instagram active and posting", done: false, owner: "Caleb", notes: "" },
+    { id: "ml4", category: "Marketing & Launch", item: "Email list ready for launch announcement", done: false, owner: "Collin", notes: "" },
+    { id: "ml5", category: "Marketing & Launch", item: "Founding member campaign complete", done: false, owner: "Collin", notes: "" },
+    { id: "ml6", category: "Marketing & Launch", item: "Soft opening planned and staffed", done: false, owner: "Collin", notes: "" },
+    { id: "ml7", category: "Marketing & Launch", item: "Grand opening event planned", done: false, owner: "Collin", notes: "" },
+    { id: "ml8", category: "Marketing & Launch", item: "Press/media outreach done", done: false, owner: "Collin", notes: "" },
+    { id: "ml9", category: "Marketing & Launch", item: "Community partnerships confirmed", done: false, owner: "Collin", notes: "" },
+    { id: "ml10", category: "Marketing & Launch", item: "Referral program live", done: false, owner: "Collin", notes: "" },
+    { id: "ml11", category: "Marketing & Launch", item: "Opening day photographer booked", done: false, owner: "Collin", notes: "" },
+    // ── Finance & Admin ──
+    { id: "fa1", category: "Finance & Admin", item: "Business bank account open", done: false, owner: "Collin", notes: "" },
+    { id: "fa2", category: "Finance & Admin", item: "Accounting software set up", done: false, owner: "Collin", notes: "" },
+    { id: "fa3", category: "Finance & Admin", item: "Opening budget finalized", done: false, owner: "Collin", notes: "" },
+    { id: "fa4", category: "Finance & Admin", item: "Vendor accounts set up (chalk, holds, etc.)", done: false, owner: "Collin", notes: "" },
+    { id: "fa5", category: "Finance & Admin", item: "Initial inventory ordered and received", done: false, owner: "Collin", notes: "" },
+    { id: "fa6", category: "Finance & Admin", item: "Lease fully executed and filed", done: false, owner: "Collin", notes: "" },
   ],
 
   contributions: {},
@@ -479,44 +551,48 @@ export default function App() {
     }
   };
   const [loading, setLoading] = useState(true);
+  const [saveStatus, setSaveStatus] = useState("saved");
   const saveTimer = useRef(null);
 
   useEffect(() => {
-    // Set default nav based on view mode after load
-    if (!loading) {
-      setNav(data.viewMode === "staff" ? "ops" : "home");
-    }
-  }, [loading]);
+    if (loading) return;
+    setSaveStatus("saving");
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      try {
+        await supabase.from("app_data").upsert({ id: 1, payload: data });
+        setSaveStatus("saved");
+      } catch (e) {
+        setSaveStatus("error");
+        console.warn("Ripple: save failed");
+      }
+    }, 800);
+    return () => clearTimeout(saveTimer.current);
+  }, [data, loading]);
+
 
   useEffect(() => {
+    // Always unlock after 6 seconds no matter what — iPad Safari safety net
+    const fallback = setTimeout(() => setLoading(false), 6000);
     async function load() {
       try {
         const { data: rows } = await supabase.from("app_data").select("*").eq("id", 1).single();
         if (rows?.payload) setData({ ...INITIAL_DATA, ...rows.payload });
-      } catch {}
+      } catch (e) {
+        console.warn("Ripple: using defaults");
+      }
+      clearTimeout(fallback);
       setLoading(false);
     }
     load();
     const channel = supabase.channel("app_data_changes")
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "app_data", filter: "id=eq.1" }, (payload) => {
-        if (payload.new?.payload) setData(cur => {
-          const inc = JSON.stringify(payload.new.payload);
-          return inc !== JSON.stringify(cur) ? { ...INITIAL_DATA, ...payload.new.payload } : cur;
-        });
+        if (payload.new?.payload) setData({ ...INITIAL_DATA, ...payload.new.payload });
       }).subscribe();
-    return () => supabase.removeChannel(channel);
+    return () => { clearTimeout(fallback); supabase.removeChannel(channel); };
   }, []);
 
-  useEffect(() => {
-    if (loading) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      await supabase.from("app_data").upsert({ id: 1, payload: data });
-    }, 800);
-    return () => clearTimeout(saveTimer.current);
-  }, [data, loading]);
 
-  const isOwner = data.viewMode === "owner";
   const TEAM = data.team || ["Caleb", "Madeline", "Collin"];
 
   const updateGoal = (id, f, v) => setData(d => ({ ...d, goals: d.goals.map(g => g.id === id ? { ...g, [f]: v } : g) }));
@@ -577,13 +653,17 @@ export default function App() {
   }, [isOwner]);
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117", colorScheme: "light" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { -webkit-tap-highlight-color: transparent; background: #F2F4F7; color-scheme: light; }
-        body { background: #F2F4F7 !important; color: #0D1117; }
-        @media (prefers-color-scheme: dark) { html, body { background: #F2F4F7 !important; color: #0D1117 !important; } }
+        html { -webkit-tap-highlight-color: transparent; background: #F2F4F7 !important; color-scheme: light only; }
+        body { background: #F2F4F7 !important; color: #0D1117 !important; }
+        @media (prefers-color-scheme: dark) {
+          html, body { background: #F2F4F7 !important; color: #0D1117 !important; }
+          * { color-scheme: light !important; }
+        }
+        hr.divider { border: none; border-top: 1px solid #EEF4F7; margin: 16px 0; }
 
         .lora { font-family: 'Lora', Georgia, serif; }
         .inter { font-family: 'Inter', system-ui, sans-serif; }
@@ -684,7 +764,7 @@ export default function App() {
           margin-bottom: 10px;
         }
 
-        hr.divider { border: none; border-top: 1px solid rgba(0,0,0,0.07); margin: 16px 0; }
+
         .avatar { display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-family: 'Inter', sans-serif; font-weight: 800; color: #fff; }
 
         /* Task rows */
@@ -812,14 +892,18 @@ export default function App() {
         main > * { animation: fadeSlideIn 0.2s ease; }
 
         /* Responsive */
-        @media(max-width:680px) {
+        @media(max-width:900px) {
           .g2 { grid-template-columns: 1fr !important; }
           .g3 { grid-template-columns: 1fr 1fr !important; }
           .hide-sm { display: none !important; }
           .card { padding: 16px; border-radius: 18px; }
           .hero-card { padding: 20px 18px; border-radius: 20px; }
         }
-        @media(min-width:681px) { .show-sm-only { display: none !important; } }
+        @media(min-width:901px) { .show-sm-only { display: none !important; } }
+        /* iPad specific */
+        @media(min-width:768px) and (max-width:1024px) {
+          main { padding-left: 24px !important; padding-right: 24px !important; }
+        }
 
         :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
       `}</style>
@@ -870,6 +954,10 @@ export default function App() {
             <span className="inter" style={{ fontSize: 10, color: "#1A5F6A", background: "rgba(26,95,106,0.1)", padding: "2px 10px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.08em" }}>
               {isOwner ? "OWNER" : "STAFF"}
             </span>
+            {/* Save indicator */}
+            <span className="inter" style={{ fontSize: 10, fontWeight: 700, color: saveStatus === "saved" ? "#2E7D32" : saveStatus === "saving" ? "#B36B00" : "#C62828", transition: "color 0.3s" }}>
+              {saveStatus === "saved" ? "✓ Saved" : saveStatus === "saving" ? "Saving…" : "⚠ Save failed"}
+            </span>
           </div>
           {/* Desktop nav */}
           <nav style={{ display: "flex", alignItems: "center", gap: 0 }} className="hide-sm">
@@ -910,7 +998,7 @@ export default function App() {
       </header>
 
       {/* Main */}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
+      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 20px 80px", minHeight: "calc(100vh - 72px)" }}>
         {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
@@ -2582,23 +2670,18 @@ function MembershipGuidePage() {
   const fees = [
     { name: "Sign Up Fee", amount: "$30", doSay: "It's a one-time fee to get your account and profile set up — you're all set after that.", avoid: "Avoid: 'You have to pay to join.' Frame it as setup, not a tax." },
     { name: "Hold Fee", amount: "$5/month", doSay: "If you ever need to pause — travel, injury, busy stretch — you can hold it for just $5 a month and keep your rate locked in.", avoid: "Avoid: 'You still have to pay even if you're not climbing.'" },
-
   ];
 
   const faqs = [
-    { q: "Do I need climbing shoes?", a: "Yes — climbing shoes are required to climb at Ripple Boulder. Street shoes aren't allowed on the walls. If you don't have your own, we rent them for $6." },
-    { q: "Can I rent shoes here?", a: "Yes! Shoe rentals are $6. Just ask at the front desk when you check in." },
-    { q: "Do you sell climbing shoes?", a: "We don't sell shoes — we want to keep Ripple lean and focused on climbing. We always recommend REI — great selection and knowledgeable staff. You can also shop online at REI.com or Backcountry." },
-    { q: "What should I wear?", a: "Comfortable athletic clothes you can move in. Layers are great since you'll warm up fast." },
     { q: "Can I pause my membership?", a: "Yes — we offer a hold for $5/month. You keep your rate and can reactivate anytime. Great for travel, injury, or busy seasons." },
-    { q: "How do I cancel?", a: "You can cancel anytime — no fee. Just let us know and we'll take care of it." },
-    { q: "Do you have guest passes?", a: "Yes! Members can bring guests — ask at the front desk for current details." },
-    { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Just ask and we'll show you around on day one." },
-    { q: "Can my kids climb here?", a: "Yes! Kids of all ages are welcome. We have family memberships and kid-friendly areas." },
-    { q: "What's the best membership for a family?", a: "The Duo Monthly at $110 — covers two people and additional members are just $35/month each." },
-    { q: "Is the annual worth it?", a: "If you climb consistently, yes. Standard annual is $800 — about $67/month vs $75 monthly. You save ~$100." },
-    { q: "I'm visiting from out of town — what should I get?", a: "A Day Pass at $19 is perfect. We want you to feel welcome however long you're here." },
-    { q: "Do I need a reservation?", a: "No reservation needed — just walk in anytime during open hours." },
+    { q: "How do I cancel?", a: "You can cancel anytime — no cancellation fee. Just let us know and we'll take care of it. We'd love to help you find a pause option first if life is just busy for a bit." },
+    { q: "Do you have guest passes?", a: "Yes! Members can bring guests — ask at the front desk for current guest pass details." },
+    { q: "Do I need to rent shoes?", a: "You don't have to, but climbing shoes make a real difference. Rentals are $6 and we carry a great selection for purchase too." },
+    { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Our walls are designed so anyone can find something approachable on day one. We'd love to show you around." },
+    { q: "Can my kids climb here?", a: "Yes! Kids of all ages are welcome. We have family memberships and kid-friendly areas. Staff can help orient young climbers." },
+    { q: "What's the best membership for a family?", a: "The Duo Monthly at $110 is the most popular — it covers two people and any additional members are just $35/month each." },
+    { q: "Is the annual worth it?", a: "If you plan to climb consistently, absolutely. Standard annual is $800 — that's about $67/month vs $75 for monthly. You save ~$100 and never have to think about it." },
+    { q: "I'm visiting from out of town — what should I get?", a: "A Day Pass at $19 is perfect. If you're here for a week or more, ask about our week options. We want you to feel welcome for however long you're here." },
   ];
 
   const conversations = [
@@ -2919,67 +3002,121 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
 }
 
 function SettingsPage({ data, setData }) {
-  const team = data.team || TEAM;
-  const updateName = (idx, val) => { const next = [...team]; next[idx] = val; setData(d => ({ ...d, team: next })); };
-  const addPerson = () => setData(d => ({ ...d, team: [...(d.team||TEAM), "New person"] }));
-  const removePerson = (idx) => setData(d => ({ ...d, team: (d.team||TEAM).filter((_, i) => i !== idx) }));
+  const team = data.team || ["Caleb", "Madeline", "Collin"];
+  const [confirmReset, setConfirmReset] = useState(false);
 
-  const inputStyle = {
-    flex: 1,
-    fontWeight: 500,
-    fontSize: 14,
-    color: "#0D1117",
-    background: "#E5EBF1",
-    border: "1px solid #E0DDD6",
-    borderRadius: 9,
-    padding: "10px 14px",
-    fontFamily: "Inter, sans-serif",
-    outline: "none",
-    WebkitTextFillColor: "#0D1117",
-    WebkitBoxShadow: "0 0 0px 1000px #F8F7F4 inset",
-    transition: "border-color 0.12s",
+  const updateName = (idx, val) => {
+    const next = [...team]; next[idx] = val;
+    setData(d => ({ ...d, team: next }));
+  };
+  const addPerson = () => setData(d => ({ ...d, team: [...(d.team || team), "New person"] }));
+  const removePerson = (idx) => setData(d => ({ ...d, team: (d.team || team).filter((_, i) => i !== idx) }));
+
+  const exportData = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `ripple-backup-${new Date().toISOString().split("T")[0]}.json`;
+    a.click(); URL.revokeObjectURL(url);
   };
 
   return (
     <div>
-      <div style={{ marginBottom: 28 }}>
+      <div style={{ marginBottom: 24 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Settings</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Manage your team and preferences.</p>
+        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Manage your team, opening date, and app preferences.</p>
       </div>
 
-      <div className="card" style={{ maxWidth: 480, marginBottom: 16 }}>
-        <div className="sec-label">Your name</div>
-        <SmoothInput
-          value={data.currentUser}
-          onCommit={v => setData(d => ({ ...d, currentUser: v }))}
-          autoComplete="off"
-          style={{ ...inputStyle, marginBottom: 4 }}
-        />
-        <p className="inter" style={{ fontSize: 11, color: "#222", marginTop: 6 }}>Shown in greetings and the staff view.</p>
-      </div>
-
-      <div className="card" style={{ maxWidth: 480 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div className="sec-label" style={{ marginBottom: 0 }}>Team members</div>
-          <button className="btn btn-teal" onClick={addPerson} style={{ padding: "6px 14px", fontSize: 12 }}>+ Add</button>
+      {/* App info */}
+      <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", borderRadius: 16, padding: "18px 20px", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div className="lora" style={{ fontSize: 18, color: "#fff", fontStyle: "italic" }}>Ripple Boulder Ops</div>
+          <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>v1.0 · Built for Ripple Boulder, Indianapolis</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ textAlign: "right" }}>
+          <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Owner PIN</div>
+          <div className="lora" style={{ fontSize: 22, color: "#7DD3B8" }}>5255</div>
+        </div>
+      </div>
+
+      {/* Team */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div className="sec-label" style={{ marginBottom: 0 }}>Team Members</div>
+          <button className="btn btn-teal" onClick={addPerson} style={{ fontSize: 12, padding: "6px 14px" }}>+ Add</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {team.map((name, idx) => (
             <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <Avatar name={name} size={36} />
-              <SmoothInput
-                value={name}
-                onCommit={v => updateName(idx, v)}
-                autoComplete="off"
-                style={inputStyle}
-              />
-              <button onClick={() => removePerson(idx)}
-                style={{ background: "#FFF0F0", border: "1px solid #FFCDD2", borderRadius: 8, padding: "8px 13px", cursor: "pointer", fontSize: 13, color: "#C62828", fontFamily: "Inter, sans-serif", fontWeight: 500, flexShrink: 0 }}>
-                Remove
-              </button>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: avatarColor(name), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <span className="inter" style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{initials(name)}</span>
+              </div>
+              <SmoothInput value={name} onCommit={v => updateName(idx, v)}
+                style={{ flex: 1, fontSize: 14, fontWeight: 500, color: "#0D1117", WebkitTextFillColor: "#0D1117" }} />
+              {team.length > 1 && (
+                <button onClick={() => removePerson(idx)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 16, padding: "4px 8px" }}>✕</button>
+              )}
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Opening date */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="sec-label">Opening Date</div>
+        <input type="date" value={data.openingDate || ""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
+          style={{ fontSize: 16, fontWeight: 700, color: "#1A5F6A", WebkitTextFillColor: "#1A5F6A" }} />
+        <p className="inter" style={{ fontSize: 12, color: "#555", marginTop: 8 }}>This drives the countdown on the Home and Opening pages.</p>
+      </div>
+
+      {/* Data management */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div className="sec-label" style={{ marginBottom: 14 }}>Data Management</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <button onClick={exportData} className="btn"
+            style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", fontSize: 14, padding: "12px 0" }}>
+            <span>⬇️</span> Download data backup (.json)
+          </button>
+          <p className="inter" style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+            Download a backup of all your app data anytime. Store it somewhere safe. If anything ever goes wrong, share it with your developer to restore.
+          </p>
+          <hr className="divider" />
+          {!confirmReset ? (
+            <button onClick={() => setConfirmReset(true)}
+              style={{ background: "none", border: "1px solid #FFCDD2", borderRadius: 10, padding: "11px 0", cursor: "pointer", fontSize: 13, color: "#C62828", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>
+              Reset app data to defaults…
+            </button>
+          ) : (
+            <div style={{ background: "#FFF0F0", borderRadius: 10, padding: "14px 16px" }}>
+              <p className="inter" style={{ fontSize: 13, color: "#C62828", marginBottom: 12, fontWeight: 600 }}>⚠️ This will erase all saved data. Are you sure?</p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => setConfirmReset(false)} className="btn" style={{ flex: 1 }}>Cancel</button>
+                <button onClick={() => { setData(INITIAL_DATA); setConfirmReset(false); }}
+                  style={{ flex: 1, background: "#C62828", color: "#fff", border: "none", borderRadius: 10, padding: "10px 0", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+                  Yes, reset everything
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Supabase info */}
+      <div style={{ background: "#F6F9FB", borderRadius: 14, padding: "16px 18px", marginBottom: 16 }}>
+        <div className="sec-label" style={{ marginBottom: 8 }}>How Your Data is Saved</div>
+        <p className="inter" style={{ fontSize: 13, color: "#333", lineHeight: 1.65 }}>
+          All data saves automatically to Supabase every time you make a change. You'll see "✓ Saved" in the header. If you see "⚠ Save failed", check your internet connection — your changes are safe in the app until you reconnect.
+        </p>
+        <p className="inter" style={{ fontSize: 12, color: "#888", marginTop: 8, lineHeight: 1.6 }}>
+          Real-time sync means any device logged in will see updates within seconds. Open it on your phone, tablet, and computer at the same time.
+        </p>
+      </div>
+
+      {/* Footer */}
+      <div style={{ textAlign: "center", padding: "20px 0 10px" }}>
+        <p className="inter" style={{ fontSize: 12, color: "#888" }}>Ripple Boulder Ops · Built with 🌊 for the team</p>
+        <p className="inter" style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>ripple-boulder.vercel.app</p>
       </div>
     </div>
   );
