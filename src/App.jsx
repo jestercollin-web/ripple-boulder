@@ -737,11 +737,14 @@ export default function App() {
           border-radius: 16px;
           border: none;
           background: #fff;
-          transition: all 0.15s;
+          transition: background 0.15s;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
           min-height: 64px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+          user-select: none;
+          -webkit-user-select: none;
         }
         .task-row:active { transform: scale(0.98); background: #fff; }
         .task-row.done { background: rgba(26,160,80,0.06); box-shadow: 0 2px 10px rgba(26,160,80,0.1); }
@@ -1186,7 +1189,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
             return (
               <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#CCD5DE"}`, borderRadius: 12, overflow: "hidden", transition: "all 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
-                  <button onClick={() => isDone ? uncompleteOps(t.id) : setPicker(isOpen ? null : t.id)}
+                  <button onPointerDown={(e) => { e.preventDefault(); isDone ? uncompleteOps(t.id) : setPicker(isOpen ? null : t.id); }}
                     style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${isDone ? "#5CC87A" : isOpen ? "#1A5F6A" : "#555"}`, background: isDone ? "#5CC87A" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
                     {isDone
                       ? <svg width="14" height="11" fill="none" viewBox="0 0 14 11"><path d="M1.5 5.5L5.5 9.5L12.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1211,8 +1214,8 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
                 {isOpen && (
                   <div style={{ padding: "0 16px 14px", borderTop: "1px solid #E8F2F4", paddingTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {TEAM.map(person => (
-                      <button key={person} onClick={() => completeOps(t.id, person)}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 99, border: "1.5px solid #1A5F6A", background: "#E5EBF1", cursor: "pointer" }}>
+                      <button key={person} onPointerDown={(e) => { e.preventDefault(); completeOps(t.id, person); setPicker(null); }}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 99, border: "1.5px solid #1A5F6A", background: "#E5EBF1", cursor: "pointer", touchAction: "manipulation" }}>
                         <Avatar name={person} size={24} />
                         <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1A5F6A" }}>{person}</span>
                       </button>
