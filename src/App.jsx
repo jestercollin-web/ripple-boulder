@@ -581,12 +581,17 @@ export default function App() {
   }, [isOwner]);
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117", colorScheme: "light" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { -webkit-tap-highlight-color: transparent; }
-        body { background: #F2F4F7; }
+        html { -webkit-tap-highlight-color: transparent; background: #F2F4F7 !important; color-scheme: light only; }
+        body { background: #F2F4F7 !important; color: #0D1117 !important; }
+        @media (prefers-color-scheme: dark) {
+          html, body { background: #F2F4F7 !important; color: #0D1117 !important; }
+          * { color-scheme: light !important; }
+        }
+        hr.divider { border: none; border-top: 1px solid #EEF4F7; margin: 16px 0; }
 
         .lora { font-family: 'Lora', Georgia, serif; }
         .inter { font-family: 'Inter', system-ui, sans-serif; }
@@ -687,7 +692,7 @@ export default function App() {
           margin-bottom: 10px;
         }
 
-        hr.divider { border: none; border-top: 1px solid rgba(0,0,0,0.07); margin: 16px 0; }
+
         .avatar { display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; font-family: 'Inter', sans-serif; font-weight: 800; color: #fff; }
 
         /* Task rows */
