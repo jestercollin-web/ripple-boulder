@@ -581,8 +581,9 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { -webkit-tap-highlight-color: transparent; }
-        body { background: #F2F4F7; }
+        html { -webkit-tap-highlight-color: transparent; background: #F2F4F7; color-scheme: light; }
+        body { background: #F2F4F7 !important; color: #0D1117; }
+        @media (prefers-color-scheme: dark) { html, body { background: #F2F4F7 !important; color: #0D1117 !important; } }
 
         .lora { font-family: 'Lora', Georgia, serif; }
         .inter { font-family: 'Inter', system-ui, sans-serif; }
@@ -2581,12 +2582,12 @@ function MembershipGuidePage() {
   const fees = [
     { name: "Sign Up Fee", amount: "$30", doSay: "It's a one-time fee to get your account and profile set up — you're all set after that.", avoid: "Avoid: 'You have to pay to join.' Frame it as setup, not a tax." },
     { name: "Hold Fee", amount: "$5/month", doSay: "If you ever need to pause — travel, injury, busy stretch — you can hold it for just $5 a month and keep your rate locked in.", avoid: "Avoid: 'You still have to pay even if you're not climbing.'" },
-    { name: "Cancellation Fee", amount: "$15", doSay: "If you ever need to cancel, there's a small $15 processing fee — but we hope you'll hold it instead and come back.", avoid: "Avoid leading with the fee. Always mention the hold option first." },
+
   ];
 
   const faqs = [
     { q: "Can I pause my membership?", a: "Yes — we offer a hold for $5/month. You keep your rate and can reactivate anytime. Great for travel, injury, or busy seasons." },
-    { q: "How do I cancel?", a: "You can cancel anytime with a $15 fee. We'd love to help you find a pause option first — let us know what's going on." },
+    { q: "How do I cancel?", a: "You can cancel anytime — no cancellation fee. Just let us know and we'll take care of it." },
     { q: "Do you have guest passes?", a: "Yes! Members can bring guests — ask at the front desk for current guest pass details." },
     { q: "Do I need to rent shoes?", a: "You don't have to, but climbing shoes make a real difference. Rentals are $6 and we carry a great selection for purchase too." },
     { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Our walls are designed so anyone can find something approachable on day one. We'd love to show you around." },
