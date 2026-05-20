@@ -2586,15 +2586,19 @@ function MembershipGuidePage() {
   ];
 
   const faqs = [
+    { q: "Do I need climbing shoes?", a: "Yes — climbing shoes are required to climb at Ripple Boulder. Street shoes aren't allowed on the walls. If you don't have your own, we rent them for $6." },
+    { q: "Can I rent shoes here?", a: "Yes! Shoe rentals are $6. Just ask at the front desk when you check in." },
+    { q: "Do you sell climbing shoes?", a: "We don't sell shoes — we want to keep Ripple lean and focused on climbing. We always recommend REI — great selection and knowledgeable staff. You can also shop online at REI.com or Backcountry." },
+    { q: "What should I wear?", a: "Comfortable athletic clothes you can move in. Layers are great since you'll warm up fast." },
     { q: "Can I pause my membership?", a: "Yes — we offer a hold for $5/month. You keep your rate and can reactivate anytime. Great for travel, injury, or busy seasons." },
-    { q: "How do I cancel?", a: "You can cancel anytime — no cancellation fee. Just let us know and we'll take care of it." },
-    { q: "Do you have guest passes?", a: "Yes! Members can bring guests — ask at the front desk for current guest pass details." },
-    { q: "Do I need to rent shoes?", a: "You don't have to, but climbing shoes make a real difference. Rentals are $6 and we carry a great selection for purchase too." },
-    { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Our walls are designed so anyone can find something approachable on day one. We'd love to show you around." },
-    { q: "Can my kids climb here?", a: "Yes! Kids of all ages are welcome. We have family memberships and kid-friendly areas. Staff can help orient young climbers." },
-    { q: "What's the best membership for a family?", a: "The Duo Monthly at $110 is the most popular — it covers two people and any additional members are just $35/month each." },
-    { q: "Is the annual worth it?", a: "If you plan to climb consistently, absolutely. Standard annual is $800 — that's about $67/month vs $75 for monthly. You save ~$100 and never have to think about it." },
-    { q: "I'm visiting from out of town — what should I get?", a: "A Day Pass at $19 is perfect. If you're here for a week or more, ask about our week options. We want you to feel welcome for however long you're here." },
+    { q: "How do I cancel?", a: "You can cancel anytime — no fee. Just let us know and we'll take care of it." },
+    { q: "Do you have guest passes?", a: "Yes! Members can bring guests — ask at the front desk for current details." },
+    { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Just ask and we'll show you around on day one." },
+    { q: "Can my kids climb here?", a: "Yes! Kids of all ages are welcome. We have family memberships and kid-friendly areas." },
+    { q: "What's the best membership for a family?", a: "The Duo Monthly at $110 — covers two people and additional members are just $35/month each." },
+    { q: "Is the annual worth it?", a: "If you climb consistently, yes. Standard annual is $800 — about $67/month vs $75 monthly. You save ~$100." },
+    { q: "I'm visiting from out of town — what should I get?", a: "A Day Pass at $19 is perfect. We want you to feel welcome however long you're here." },
+    { q: "Do I need a reservation?", a: "No reservation needed — just walk in anytime during open hours." },
   ];
 
   const conversations = [
