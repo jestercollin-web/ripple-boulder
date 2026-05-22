@@ -600,12 +600,14 @@ export default function App() {
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
     { key: "guide",      label: "📋 Guide" },
+    { key: "ai",         label: "🤖 AI" },
     { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
     { key: "ops",        label: "My Shift" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "guide",      label: "📋 Guide" },
+    { key: "ai",         label: "🤖 AI" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
 
@@ -962,6 +964,7 @@ export default function App() {
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "guide"      && <MembershipGuidePage />}
+        {nav === "ai"         && <AIAssistantPage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
