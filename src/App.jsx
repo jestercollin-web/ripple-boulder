@@ -3152,7 +3152,7 @@ function FloatingAI() {
       apiMsgs.push({ role: "user", content: userMsg });
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": "sk-ant-api03-placeholder", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
         body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 800, system: SYSTEM, messages: apiMsgs })
       });
       const data = await res.json();
@@ -3201,13 +3201,23 @@ function FloatingAI() {
           </div>
 
           {/* Quick prompts */}
-          <div style={{ padding: "6px 12px", borderTop: "1px solid #F0F4F7", display: "flex", gap: 5, overflowX: "auto", scrollbarWidth: "none" }}>
-            {["Membership options", "Shoe policy", "Sales tips", "Handle complaint"].map(p => (
-              <button key={p} onClick={() => { setInput(p); }}
-                style={{ padding: "4px 10px", border: "1px solid #DDE8EE", borderRadius: 99, background: "#fff", color: "#555", fontSize: 11, cursor: "pointer", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
-                {p}
+          <div style={{ padding: "8px 14px", borderTop: "1px solid #F0F4F7", background: "#F8FBFC" }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: "#888", fontFamily: "Inter, sans-serif", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Quick questions</div>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 2 }}>
+            {[
+                { label: "Membership pricing", q: "Walk me through all membership options and pricing." },
+                { label: "Shoe rentals", q: "What do I tell someone about climbing shoes and rentals?" },
+                { label: "Convert to member", q: "How do I naturally convert a regular visitor into a member?" },
+                { label: "Handle complaint", q: "How do I handle an unhappy member gracefully?" },
+                { label: "Family plans", q: "Explain the family membership options." },
+                { label: "Discounts", q: "Who qualifies for discounted memberships?" },
+              ].map((p, i) => (
+              <button key={i} onPointerDown={() => { setInput(p.q); }}
+                style={{ padding: "7px 14px", border: "1.5px solid #1A5F6A", borderRadius: 99, background: "#E8F4F6", color: "#1A5F6A", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
+                {p.label}
               </button>
             ))}
+          </div>
           </div>
 
           {/* Input */}
