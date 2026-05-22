@@ -1167,7 +1167,7 @@ Be concise and practical — staff are often mid-shift. Use bullet points for li
       const apiMsgs = newMsgs.slice(-12).map(m => ({ role: m.role, content: m.text }));
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": "sk-ant-api03-AfrfVnjBAmxXb1z_3dKZnfV5d2eLqbAh3D3YHDZ6qFQj8ux0H27vwt_u1GrIEW4Eu3DRVNLApgTwovAkT_ROrg-MCiABQAA", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
         body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: SYSTEM, messages: apiMsgs })
       });
       const data = await res.json();
