@@ -606,7 +606,6 @@ export default function App() {
     { key: "ops",        label: "My Shift" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "guide",      label: "📋 Guide" },
-    { key: "ai",         label: "🤖 AI" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
 
@@ -956,7 +955,7 @@ export default function App() {
 
       {/* Main */}
       <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
-        {nav === "home"       && (!isOwner ? <StaffChatHome data={data} TEAM={TEAM} /> : <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} />)}
+        {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
