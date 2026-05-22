@@ -3152,7 +3152,7 @@ function FloatingAI() {
       apiMsgs.push({ role: "user", content: userMsg });
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": "sk-ant-api03-placeholder", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        headers: { "Content-Type": "application/json", "x-api-key": "sk-ant-api03-AfrfVnjBAmxXb1z_3dKZnfV5d2eLqbAh3D3YHDZ6qFQj8ux0H27vwt_u1GrIEW4Eu3DRVNLApgTwovAkT_ROrg-MCiABQAA", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
         body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 800, system: SYSTEM, messages: apiMsgs })
       });
       const data = await res.json();
