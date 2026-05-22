@@ -968,6 +968,7 @@ export default function App() {
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
+      <FloatingAI />
       <footer style={{ borderTop: "none", padding: "20px 16px", textAlign: "center" }}>
         <p className="inter" style={{ fontSize: 11, color: "#555" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
       </footer>
@@ -2961,6 +2962,110 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+
+function FloatingAI() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{ role: "assistant", text: "Hey! Ask me anything about Ripple Boulder — memberships, policies, sales tips, or how to handle any situation." }]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef(null);
+
+  const SYSTEM = `You are the Ripple Boulder Staff Assistant. Warm, concise, hospitality-driven. MEMBERSHIPS: Day Pass $19, Shoe Rental $6, 5-Punch $90, 10-Punch $180, Standard Monthly $75, Discounted Monthly $65 (teachers/military/first responders/refugees), Annual $800 (~$67/mo), Annual Discounted $700, Duo Monthly $110, Kids Duo $98, Add. Family $35/mo, Sign Up Fee $30, Hold $5/mo, no cancellation fee. SHOES: Required on walls, rentals $6, don't sell shoes — recommend REI. SALES: Hospitality first, 2+/month nudge to membership. BRAND: Welcoming, community, boutique, playful. Be concise — staff are mid-shift.`;
+
+  useEffect(() => { if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, open]);
+
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input.trim();
+    setInput("");
+    setMessages(m => [...m, { role: "user", text: userMsg }]);
+    setLoading(true);
+    try {
+      const apiMsgs = messages.slice(-8).map(m => ({ role: m.role, content: m.text }));
+      apiMsgs.push({ role: "user", content: userMsg });
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 800, system: SYSTEM, messages: apiMsgs })
+      });
+      const data = await res.json();
+      setMessages(m => [...m, { role: "assistant", text: data.content?.[0]?.text || "Try again!" }]);
+    } catch(e) {
+      setMessages(m => [...m, { role: "assistant", text: "Connection issue — try again." }]);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 9999 }}>
+      {open && (
+        <div style={{ position: "absolute", bottom: 64, right: 0, width: 340, background: "#fff", borderRadius: 18, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+          {/* Header */}
+          <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 18 }}>🌊</span>
+              <div>
+                <div className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Ripple AI</div>
+                <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Staff assistant</div>
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 99, width: 26, height: 26, cursor: "pointer", color: "#fff", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+          </div>
+
+          {/* Messages */}
+          <div style={{ flex: 1, padding: 12, overflowY: "auto", maxHeight: 320, display: "flex", flexDirection: "column", gap: 8 }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: m.role === "assistant" ? "#1A5F6A" : "#F6F9FB", border: "1px solid #DDE8EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12 }}>
+                  {m.role === "assistant" ? "🌊" : <span style={{ color: "#555", fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 10 }}>Me</span>}
+                </div>
+                <div style={{ maxWidth: "80%", padding: "8px 12px", borderRadius: m.role === "assistant" ? "4px 12px 12px 12px" : "12px 4px 12px 12px", background: m.role === "assistant" ? "#F6F9FB" : "#1A5F6A", color: m.role === "assistant" ? "#0D1117" : "#fff", fontSize: 13, lineHeight: 1.6, fontFamily: "Inter, sans-serif", whiteSpace: "pre-wrap" }}>
+                  {m.text}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#1A5F6A", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>🌊</div>
+                <div style={{ padding: "8px 12px", background: "#F6F9FB", borderRadius: "4px 12px 12px 12px", fontSize: 12, color: "#888", fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>Thinking...</div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Quick prompts */}
+          <div style={{ padding: "6px 12px", borderTop: "1px solid #F0F4F7", display: "flex", gap: 5, overflowX: "auto", scrollbarWidth: "none" }}>
+            {["Membership options", "Shoe policy", "Sales tips", "Handle complaint"].map(p => (
+              <button key={p} onClick={() => { setInput(p); }}
+                style={{ padding: "4px 10px", border: "1px solid #DDE8EE", borderRadius: 99, background: "#fff", color: "#555", fontSize: 11, cursor: "pointer", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
+                {p}
+              </button>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div style={{ display: "flex", gap: 6, padding: "8px 12px", borderTop: "1px solid #F0F4F7" }}>
+            <input value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && send()}
+              placeholder="Ask anything..."
+              style={{ flex: 1, fontSize: 13, padding: "8px 12px", border: "1px solid #DDE8EE", borderRadius: 8, fontFamily: "Inter, sans-serif", outline: "none", color: "#0D1117", background: "#fff", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
+            <button onClick={send} disabled={loading || !input.trim()}
+              style={{ background: !input.trim() || loading ? "#ccc" : "#1A5F6A", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+              ↑
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating button */}
+      <button onClick={() => setOpen(o => !o)}
+        style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(26,95,106,0.4)", fontSize: 22, transition: "transform 0.2s" }}>
+        {open ? "✕" : "🌊"}
+      </button>
     </div>
   );
 }
