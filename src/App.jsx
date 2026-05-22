@@ -3167,13 +3167,13 @@ function FloatingAI() {
   return (
     <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 9999 }}>
       {open && (
-        <div style={{ position: "absolute", bottom: 64, right: 0, width: 340, background: "#fff", borderRadius: 18, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "absolute", bottom: 64, right: 0, width: 420, background: "#fff", borderRadius: 20, boxShadow: "0 12px 60px rgba(0,0,0,0.22)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
           {/* Header */}
-          <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 18 }}>🌊</span>
               <div>
-                <div className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>Ripple AI</div>
+                <div className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Ripple AI</div>
                 <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Staff assistant</div>
               </div>
             </div>
@@ -3187,7 +3187,7 @@ function FloatingAI() {
                 <div style={{ width: 26, height: 26, borderRadius: "50%", background: m.role === "assistant" ? "#1A5F6A" : "#F6F9FB", border: "1px solid #DDE8EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12 }}>
                   {m.role === "assistant" ? "🌊" : <span style={{ color: "#555", fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 10 }}>Me</span>}
                 </div>
-                <div style={{ maxWidth: "80%", padding: "8px 12px", borderRadius: m.role === "assistant" ? "4px 12px 12px 12px" : "12px 4px 12px 12px", background: m.role === "assistant" ? "#F6F9FB" : "#1A5F6A", color: m.role === "assistant" ? "#0D1117" : "#fff", fontSize: 13, lineHeight: 1.6, fontFamily: "Inter, sans-serif", whiteSpace: "pre-wrap" }}>
+                <div style={{ maxWidth: "80%", padding: "8px 12px", borderRadius: m.role === "assistant" ? "4px 12px 12px 12px" : "12px 4px 12px 12px", background: m.role === "assistant" ? "#F6F9FB" : "#1A5F6A", color: m.role === "assistant" ? "#0D1117" : "#fff", fontSize: 14, lineHeight: 1.7, fontFamily: "Inter, sans-serif", whiteSpace: "pre-wrap" }}>
                   {m.text}
                 </div>
               </div>
@@ -3216,7 +3216,7 @@ function FloatingAI() {
             <input value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && send()}
               placeholder="Ask anything..."
-              style={{ flex: 1, fontSize: 13, padding: "8px 12px", border: "1px solid #DDE8EE", borderRadius: 8, fontFamily: "Inter, sans-serif", outline: "none", color: "#0D1117", background: "#fff", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
+              style={{ flex: 1, fontSize: 14, padding: "10px 14px", border: "1px solid #DDE8EE", borderRadius: 10, fontFamily: "Inter, sans-serif", outline: "none", color: "#0D1117", background: "#fff", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
             <button onClick={send} disabled={loading || !input.trim()}
               style={{ background: !input.trim() || loading ? "#ccc" : "#1A5F6A", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
               ↑
@@ -3227,7 +3227,7 @@ function FloatingAI() {
 
       {/* Floating button */}
       <button onClick={() => setOpen(o => !o)}
-        style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 20px rgba(26,95,106,0.4)", fontSize: 22, transition: "transform 0.2s" }}>
+        style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(26,95,106,0.5)", fontSize: 26, transition: "transform 0.2s" }}>
         {open ? "✕" : "🌊"}
       </button>
     </div>
