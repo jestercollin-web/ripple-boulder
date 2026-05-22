@@ -600,7 +600,6 @@ export default function App() {
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
     { key: "guide",      label: "📋 Guide" },
-    { key: "ai",         label: "🤖 AI" },
     { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
@@ -957,15 +956,14 @@ export default function App() {
 
       {/* Main */}
       <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
-        {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
+        {nav === "home"       && (!isOwner ? <StaffChatHome data={data} TEAM={TEAM} /> : <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "guide"      && <MembershipGuidePage />}
-        {nav === "ai"         && <AIAssistantPage />}
-        {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
+{nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
       <FloatingAI />
@@ -1123,6 +1121,172 @@ function OwnerHome({ data, setData, setMemberCount, TEAM, setNav }) {
   );
 }
 // ── Staff Home ────────────────────────────────────────────────────────────────
+
+// ── Staff Chat Home ───────────────────────────────────────────────────────────
+function StaffChatHome({ data, TEAM }) {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [started, setStarted] = useState(false);
+  const bottomRef = useRef(null);
+
+  const SYSTEM = `You are the Ripple Boulder Staff Assistant — an internal AI for employees at Ripple Boulder, a boutique bouldering gym in Broad Ripple, Indianapolis. You are warm, concise, confident, and hospitality-driven. You match Ripple Boulder's brand: welcoming, community-focused, boutique, and playful.
+
+MEMBERSHIPS: Day Pass $19 | Shoe Rental $6 | 5-Punch $90 | 10-Punch $180 | Standard Monthly $75/mo | Discounted Monthly $65/mo (teachers, military, first responders, refugees) | One Month Non-Recurring $85 | Annual Standard $800/yr (~$67/mo) | Annual Discounted $700/yr | Duo Monthly $110/mo | Kids Duo (14&under) $98/mo | Additional Family Member $35/mo | Duo Annual $1,210 | Additional Member Annual $385 | Sign Up Fee $30 (one-time) | Hold Fee $5/mo | No cancellation fee — cancel anytime.
+
+SHOES: Climbing shoes REQUIRED on all walls. No street shoes. Rentals $6. We do NOT sell shoes — keep it lean. Recommend REI (great selection, knowledgeable staff) or online at REI.com or Backcountry.
+
+RECOMMENDATION GUIDE: 1x/month → Day Pass | 2-4x/month → Punch Pass | 2x+/week → Monthly Membership | Full year → Annual (saves ~$100). If someone comes 2+ times/month, nudge them toward membership naturally.
+
+SALES APPROACH: Hospitality first — help people feel at home, not sold to. Ask "how often do you think you'd realistically come in?" If you see same face 3+ times: "You're becoming a regular — the membership would actually save you money." Punch pass users burning through: "You're in a lot — the monthly might be cheaper for you."
+
+BRAND VOICE: Welcoming, community, boutique, playful. Vision: "A rare space for abundance and collective exploration." Think Michelin-level hospitality on a bouldering wall. Make people feel like they belong before they've even joined.
+
+SAFETY: Waivers required for all. First aid kits throughout. AED on site. Emergency procedures at front desk. All staff trained on protocols.
+
+POLICIES: Memberships can be held for $5/mo (keeps rate locked). Cancel anytime, no fee. Kids of all ages welcome. Guest passes available. Climbing shoes required.
+
+HOSPITALITY: Learn names. Welcome nervous first-timers. Introduce members to each other. The Ripple Effect: notice the extra thing and do it anyway. Every visit should feel like coming home.
+
+Be concise and practical — staff are often mid-shift. Use bullet points for lists. Be direct, warm, and friendly. If unsure, say so and suggest checking with Collin.`;
+
+  useEffect(() => {
+    if (messages.length > 0) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const send = async (text) => {
+    const msg = text || input.trim();
+    if (!msg || loading) return;
+    setInput("");
+    setStarted(true);
+    const newMsgs = [...messages, { role: "user", text: msg }];
+    setMessages(newMsgs);
+    setLoading(true);
+    try {
+      const apiMsgs = newMsgs.slice(-12).map(m => ({ role: m.role, content: m.text }));
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: SYSTEM, messages: apiMsgs })
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || "Something went wrong — try again!";
+      setMessages(m => [...m, { role: "assistant", text: reply }]);
+    } catch(e) {
+      setMessages(m => [...m, { role: "assistant", text: "Connection issue — check your internet and try again." }]);
+    }
+    setLoading(false);
+  };
+
+  const quickActions = [
+    { label: "Membership options", emoji: "💳", q: "Walk me through all membership options and pricing." },
+    { label: "Shoe policy", emoji: "👟", q: "What do I tell someone about climbing shoes and rentals?" },
+    { label: "Convert to member", emoji: "⬆️", q: "How do I naturally convert a regular visitor into a member?" },
+    { label: "Family membership", emoji: "👨‍👩‍👧", q: "Explain the family membership options." },
+    { label: "Handle a complaint", emoji: "🤝", q: "How do I handle an unhappy member gracefully?" },
+    { label: "Brand voice", emoji: "🌊", q: "Remind me of the Ripple Boulder brand voice and hospitality expectations." },
+    { label: "Safety protocols", emoji: "🛡️", q: "What are the key safety protocols I need to know?" },
+    { label: "Discounts", emoji: "🎓", q: "Who qualifies for discounted memberships?" },
+  ];
+
+  const teamName = TEAM?.[0] || "there";
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 72px)", maxWidth: 760, margin: "0 auto" }}>
+
+      {!started ? (
+        /* Welcome screen */
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "20px 0 0" }}>
+          {/* Hero */}
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 4px 20px rgba(26,95,106,0.3)", fontSize: 28 }}>
+              🌊
+            </div>
+            <div className="lora" style={{ fontSize: 28, fontStyle: "italic", color: "#0D1117", marginBottom: 6 }}>
+              {greeting}.
+            </div>
+            <p className="inter" style={{ fontSize: 15, color: "#555", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
+              Your Ripple Boulder assistant is ready. Ask anything about memberships, policies, sales, or how to handle any situation.
+            </p>
+          </div>
+
+          {/* Quick actions */}
+          <div style={{ marginBottom: 24 }}>
+            <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, textAlign: "center" }}>Quick questions</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {quickActions.map((a, i) => (
+                <button key={i} onClick={() => send(a.q)}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#fff", border: "none", borderRadius: 14, cursor: "pointer", textAlign: "left", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", transition: "transform 0.15s, box-shadow 0.15s", fontFamily: "Inter, sans-serif" }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)"; }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>{a.emoji}</span>
+                  <span className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#0D1117" }}>{a.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Chat messages */
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px 0 12px", display: "flex", flexDirection: "column", gap: 16 }}>
+          {messages.map((m, i) => (
+            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: m.role === "assistant" ? "linear-gradient(135deg, #1A5F6A, #0A3540)" : "#F6F9FB", border: "1px solid #DDE8EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: m.role === "assistant" ? 16 : 12, fontFamily: "Inter, sans-serif", fontWeight: 700, color: "#555" }}>
+                {m.role === "assistant" ? "🌊" : "Me"}
+              </div>
+              <div style={{ maxWidth: "78%", padding: "12px 16px", borderRadius: m.role === "assistant" ? "4px 18px 18px 18px" : "18px 4px 18px 18px", background: m.role === "assistant" ? "#fff" : "#1A5F6A", color: m.role === "assistant" ? "#0D1117" : "#fff", fontSize: 14, lineHeight: 1.75, fontFamily: "Inter, sans-serif", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", whiteSpace: "pre-wrap" }}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🌊</div>
+              <div style={{ padding: "12px 16px", background: "#fff", borderRadius: "4px 18px 18px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#1A5F6A", opacity: 0.4, animation: `pulse 1.2s ${i*0.2}s infinite` }} />)}
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+      )}
+
+      {/* Input area — always visible */}
+      <div style={{ padding: "12px 0 16px", borderTop: started ? "1px solid #F0F4F7" : "none" }}>
+        {/* Quick action chips when chatting */}
+        {started && (
+          <div style={{ display: "flex", gap: 6, marginBottom: 10, overflowX: "auto", paddingBottom: 2, scrollbarWidth: "none" }}>
+            {quickActions.slice(0, 5).map((a, i) => (
+              <button key={i} onClick={() => send(a.q)}
+                style={{ padding: "5px 12px", border: "1px solid #DDE8EE", borderRadius: 99, background: "#fff", color: "#555", fontSize: 12, cursor: "pointer", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
+                {a.emoji} {a.label}
+              </button>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 8, background: "#fff", borderRadius: 16, padding: "8px 8px 8px 16px", boxShadow: "0 2px 20px rgba(0,0,0,0.1)" }}>
+          <input value={input} onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && send()}
+            placeholder="Ask anything about Ripple Boulder..."
+            style={{ flex: 1, fontSize: 15, border: "none", outline: "none", fontFamily: "Inter, sans-serif", background: "transparent", color: "#0D1117", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
+          <button onClick={() => send()}
+            disabled={loading || !input.trim()}
+            style={{ width: 40, height: 40, borderRadius: 12, background: !input.trim() || loading ? "#E8F2F4" : "linear-gradient(135deg, #1A5F6A, #0A3540)", border: "none", cursor: !input.trim() || loading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, transition: "all 0.15s", flexShrink: 0 }}>
+            <span style={{ color: !input.trim() || loading ? "#aaa" : "#fff", fontSize: 16 }}>↑</span>
+          </button>
+        </div>
+        <div className="inter" style={{ fontSize: 11, color: "#aaa", textAlign: "center", marginTop: 8 }}>Powered by Ripple Boulder AI · Ask anything, anytime</div>
+      </div>
+
+      <style>{`@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }`}</style>
+    </div>
+  );
+}
+
 function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
   const today = todayKey();
   const now = new Date();
