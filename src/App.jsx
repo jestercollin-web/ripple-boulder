@@ -483,7 +483,9 @@ const pc = {
 
 // ── App Shell ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [data, setData] = useState(INITIAL_DATA);
+  const [data, setData] = useState(() => {
+    try { return INITIAL_DATA; } catch(e) { return {}; }
+  });
   const [nav, setNav] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -620,6 +622,14 @@ export default function App() {
       setNav(isOwner ? "home" : "ops");
     }
   }, [isOwner]);
+
+  if (error) return (
+    <div style={{ padding: 24, fontFamily: "Inter, sans-serif", background: "#F2F4F7", minHeight: "100vh" }}>
+      <h2 style={{ color: "#C62828", marginBottom: 12 }}>App Error</h2>
+      <pre style={{ fontSize: 12, color: "#333", whiteSpace: "pre-wrap", background: "#fff", padding: 16, borderRadius: 8 }}>{error}</pre>
+      <button onClick={() => setError(null)} style={{ marginTop: 12, padding: "8px 16px", background: "#1A5F6A", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>Retry</button>
+    </div>
+  );
 
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
