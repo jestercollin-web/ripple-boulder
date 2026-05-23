@@ -965,7 +965,6 @@ export default function App() {
 {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
-      <FloatingAI />
       <footer style={{ borderTop: "none", padding: "20px 16px", textAlign: "center" }}>
         <p className="inter" style={{ fontSize: 11, color: "#555" }}>Ripple Boulder · Broad Ripple, Indianapolis · built for the team 🌊</p>
       </footer>
