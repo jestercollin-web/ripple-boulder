@@ -519,7 +519,7 @@ export default function App() {
       setPinInput("");
     }
   };
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const saveTimer = useRef(null);
 
   useEffect(() => {
