@@ -245,93 +245,52 @@ const INITIAL_DATA = {
   ],
 
   openingChecklist: [
-    { id: "lp1", category: "Legal & Permits", item: "Business entity formed (LLC or Corp)", done: false, owner: "Collin", notes: "" },
-    { id: "lp2", category: "Legal & Permits", item: "EIN obtained from IRS", done: false, owner: "Collin", notes: "" },
-    { id: "lp3", category: "Legal & Permits", item: "Business license obtained", done: false, owner: "Collin", notes: "" },
-    { id: "lp4", category: "Legal & Permits", item: "Certificate of Occupancy received", done: false, owner: "Collin", notes: "" },
-    { id: "lp5", category: "Legal & Permits", item: "Building permits closed out", done: false, owner: "Collin", notes: "" },
-    { id: "lp6", category: "Legal & Permits", item: "Fire marshal inspection passed", done: false, owner: "Collin", notes: "" },
-    { id: "lp7", category: "Legal & Permits", item: "Signage permits approved", done: false, owner: "Collin", notes: "" },
-    { id: "lp8", category: "Legal & Permits", item: "Music licensing obtained (ASCAP/BMI)", done: false, owner: "Collin", notes: "" },
-    { id: "lp9", category: "Legal & Permits", item: "Liability waiver reviewed by attorney", done: false, owner: "Collin", notes: "" },
-    { id: "lp10", category: "Legal & Permits", item: "Privacy policy and terms published", done: false, owner: "Collin", notes: "" },
-    { id: "in1", category: "Insurance", item: "General liability insurance active", done: false, owner: "Collin", notes: "" },
-    { id: "in2", category: "Insurance", item: "Property insurance active", done: false, owner: "Collin", notes: "" },
-    { id: "in3", category: "Insurance", item: "Workers compensation policy active", done: false, owner: "Collin", notes: "" },
-    { id: "in4", category: "Insurance", item: "Equipment and contents insurance active", done: false, owner: "Collin", notes: "" },
-    { id: "cb1", category: "Construction & Build", item: "All construction complete", done: false, owner: "Collin", notes: "" },
-    { id: "cb2", category: "Construction & Build", item: "Electrical and lighting complete", done: false, owner: "Collin", notes: "" },
-    { id: "cb3", category: "Construction & Build", item: "Plumbing complete and tested", done: false, owner: "Collin", notes: "" },
-    { id: "cb4", category: "Construction & Build", item: "HVAC and ventilation tested", done: false, owner: "Collin", notes: "" },
-    { id: "cb5", category: "Construction & Build", item: "Bathrooms complete and stocked", done: false, owner: "Collin", notes: "" },
-    { id: "cb6", category: "Construction & Build", item: "Final painting and touch-ups done", done: false, owner: "Collin", notes: "" },
-    { id: "cb7", category: "Construction & Build", item: "Flooring complete throughout", done: false, owner: "Collin", notes: "" },
-    { id: "cb8", category: "Construction & Build", item: "Exterior and interior signage installed", done: false, owner: "Collin", notes: "" },
-    { id: "cb9", category: "Construction & Build", item: "Entry door and access system working", done: false, owner: "Collin", notes: "" },
-    { id: "cb10", category: "Construction & Build", item: "Final contractor walkthrough done", done: false, owner: "Collin", notes: "" },
-    { id: "ci1", category: "Climbing Infrastructure", item: "Wall structure engineer-certified", done: false, owner: "Collin", notes: "" },
-    { id: "ci2", category: "Climbing Infrastructure", item: "All T-nuts installed and checked", done: false, owner: "Collin", notes: "" },
-    { id: "ci3", category: "Climbing Infrastructure", item: "Crash pads installed and aligned", done: false, owner: "Collin", notes: "" },
-    { id: "ci4", category: "Climbing Infrastructure", item: "Pad gaps and seams inspected", done: false, owner: "Collin", notes: "" },
-    { id: "ci5", category: "Climbing Infrastructure", item: "Holds washed, dried, and sorted", done: false, owner: "Caleb", notes: "" },
-    { id: "ci6", category: "Climbing Infrastructure", item: "Initial routes set across all grades", done: false, owner: "Caleb", notes: "" },
-    { id: "ci7", category: "Climbing Infrastructure", item: "Beginner climbs clearly marked", done: false, owner: "Caleb", notes: "" },
-    { id: "ci8", category: "Climbing Infrastructure", item: "Routes quality-tested by staff", done: false, owner: "Caleb", notes: "" },
-    { id: "ci9", category: "Climbing Infrastructure", item: "Training board set up and tested", done: false, owner: "Caleb", notes: "" },
-    { id: "ci10", category: "Climbing Infrastructure", item: "Chalk buckets and brushes stocked", done: false, owner: "Caleb", notes: "" },
-    { id: "se1", category: "Safety & Emergency", item: "First aid kits stocked throughout", done: false, owner: "Collin", notes: "" },
-    { id: "se2", category: "Safety & Emergency", item: "AED installed and registered", done: false, owner: "Collin", notes: "" },
-    { id: "se3", category: "Safety & Emergency", item: "Fire extinguishers installed and tagged", done: false, owner: "Collin", notes: "" },
-    { id: "se4", category: "Safety & Emergency", item: "Emergency exit routes marked", done: false, owner: "Collin", notes: "" },
-    { id: "se5", category: "Safety & Emergency", item: "Emergency procedures posted at desk", done: false, owner: "Collin", notes: "" },
-    { id: "se6", category: "Safety & Emergency", item: "Staff trained on emergency protocols", done: false, owner: "Collin", notes: "" },
-    { id: "se7", category: "Safety & Emergency", item: "Incident report forms ready", done: false, owner: "Collin", notes: "" },
-    { id: "se8", category: "Safety & Emergency", item: "ADA accessibility verified", done: false, owner: "Collin", notes: "" },
-    { id: "se9", category: "Safety & Emergency", item: "Safety rules posted throughout gym", done: false, owner: "Collin", notes: "" },
-    { id: "se10", category: "Safety & Emergency", item: "Mock emergency drill completed", done: false, owner: "Collin", notes: "" },
-    { id: "ts1", category: "Technology & Systems", item: "POS system installed and tested", done: false, owner: "Collin", notes: "" },
-    { id: "ts2", category: "Technology & Systems", item: "Beta gym software fully set up", done: false, owner: "Collin", notes: "" },
-    { id: "ts3", category: "Technology & Systems", item: "Waivers integrated and tested", done: false, owner: "Collin", notes: "" },
-    { id: "ts4", category: "Technology & Systems", item: "Payment processing tested end-to-end", done: false, owner: "Collin", notes: "" },
-    { id: "ts5", category: "Technology & Systems", item: "Security cameras installed and recording", done: false, owner: "Collin", notes: "" },
-    { id: "ts6", category: "Technology & Systems", item: "Wi-Fi working throughout entire space", done: false, owner: "Collin", notes: "" },
-    { id: "ts7", category: "Technology & Systems", item: "Music system installed and balanced", done: false, owner: "Caleb", notes: "" },
-    { id: "ts8", category: "Technology & Systems", item: "Ops app live and working", done: true, owner: "Collin", notes: "" },
-    { id: "fd1", category: "Front Desk & Retail", item: "Front desk area fully built out", done: false, owner: "Collin", notes: "" },
-    { id: "fd2", category: "Front Desk & Retail", item: "Shoe and bag cubbies installed", done: false, owner: "Collin", notes: "" },
-    { id: "fd3", category: "Front Desk & Retail", item: "Rental shoes cleaned and sized", done: false, owner: "Madeline", notes: "" },
-    { id: "fd4", category: "Front Desk & Retail", item: "Retail area organized and stocked", done: false, owner: "Madeline", notes: "" },
-    { id: "fd5", category: "Front Desk & Retail", item: "Member check-in process tested", done: false, owner: "Collin", notes: "" },
-    { id: "fd6", category: "Front Desk & Retail", item: "Cash drawer set up with starting float", done: false, owner: "Collin", notes: "" },
-    { id: "st1", category: "Staffing & Training", item: "All staff hired and contracts signed", done: false, owner: "Collin", notes: "" },
-    { id: "st2", category: "Staffing & Training", item: "Payroll system set up", done: false, owner: "Collin", notes: "" },
-    { id: "st3", category: "Staffing & Training", item: "Staff handbook distributed", done: false, owner: "Collin", notes: "" },
-    { id: "st4", category: "Staffing & Training", item: "Front desk and POS training complete", done: false, owner: "Collin", notes: "" },
-    { id: "st5", category: "Staffing & Training", item: "Membership conversation training done", done: false, owner: "Collin", notes: "" },
-    { id: "st6", category: "Staffing & Training", item: "Opening and closing procedures practiced", done: false, owner: "Collin", notes: "" },
-    { id: "st7", category: "Staffing & Training", item: "Full mock operating day completed", done: false, owner: "Collin", notes: "" },
-    { id: "bh1", category: "Brand & Hospitality", item: "Plants and greenery in place", done: false, owner: "Madeline", notes: "" },
-    { id: "bh2", category: "Brand & Hospitality", item: "Lounge seating area set up", done: false, owner: "Madeline", notes: "" },
-    { id: "bh3", category: "Brand & Hospitality", item: "Lighting atmosphere dialed in", done: false, owner: "Collin", notes: "" },
-    { id: "bh4", category: "Brand & Hospitality", item: "Wayfinding signage throughout space", done: false, owner: "Madeline", notes: "" },
-    { id: "bh5", category: "Brand & Hospitality", item: "Bathrooms stocked and styled", done: false, owner: "Madeline", notes: "" },
-    { id: "bh6", category: "Brand & Hospitality", item: "Customer experience walkthrough done", done: false, owner: "Collin", notes: "" },
-    { id: "bh7", category: "Brand & Hospitality", item: "Welcome script practiced by all staff", done: false, owner: "Collin", notes: "" },
-    { id: "ml1", category: "Marketing & Launch", item: "Website live and up to date", done: false, owner: "Collin", notes: "" },
-    { id: "ml2", category: "Marketing & Launch", item: "Google Business profile complete", done: false, owner: "Collin", notes: "" },
-    { id: "ml3", category: "Marketing & Launch", item: "Instagram active and posting", done: false, owner: "Caleb", notes: "" },
-    { id: "ml4", category: "Marketing & Launch", item: "Email list ready for launch announcement", done: false, owner: "Collin", notes: "" },
-    { id: "ml5", category: "Marketing & Launch", item: "Founding member campaign complete", done: false, owner: "Collin", notes: "" },
-    { id: "ml6", category: "Marketing & Launch", item: "Soft opening planned and staffed", done: false, owner: "Collin", notes: "" },
-    { id: "ml7", category: "Marketing & Launch", item: "Grand opening event planned", done: false, owner: "Collin", notes: "" },
-    { id: "ml8", category: "Marketing & Launch", item: "Community partnerships confirmed", done: false, owner: "Collin", notes: "" },
-    { id: "ml9", category: "Marketing & Launch", item: "Opening day photographer booked", done: false, owner: "Collin", notes: "" },
-    { id: "fa1", category: "Finance & Admin", item: "Business bank account open", done: false, owner: "Collin", notes: "" },
-    { id: "fa2", category: "Finance & Admin", item: "Accounting software set up", done: false, owner: "Collin", notes: "" },
-    { id: "fa3", category: "Finance & Admin", item: "Opening budget finalized", done: false, owner: "Collin", notes: "" },
-    { id: "fa4", category: "Finance & Admin", item: "Vendor accounts set up", done: false, owner: "Collin", notes: "" },
-    { id: "fa5", category: "Finance & Admin", item: "Initial inventory ordered and received", done: false, owner: "Collin", notes: "" },
-    { id: "fa6", category: "Finance & Admin", item: "Lease fully executed and filed", done: false, owner: "Collin", notes: "" },
+    { id: "oc1", category: "Construction & Build", item: "Finish remaining construction", done: false, owner: "Collin", notes: "" },
+    { id: "oc2", category: "Construction & Build", item: "Electrical and lighting complete", done: false, owner: "Collin", notes: "" },
+    { id: "oc3", category: "Construction & Build", item: "Final painting and touch-ups", done: false, owner: "Collin", notes: "" },
+    { id: "oc4", category: "Construction & Build", item: "HVAC and air filtration checked", done: false, owner: "Collin", notes: "" },
+    { id: "oc5", category: "Construction & Build", item: "Bathroom completion", done: false, owner: "Collin", notes: "" },
+    { id: "oc6", category: "Construction & Build", item: "Final contractor walkthrough", done: false, owner: "Collin", notes: "" },
+    { id: "oc7", category: "Construction & Build", item: "Signage installed", done: false, owner: "Collin", notes: "" },
+    { id: "oc8", category: "Construction & Build", item: "Door & access system tested", done: false, owner: "Collin", notes: "" },
+    { id: "oc9", category: "Climbing Infrastructure", item: "Wall inspection complete", done: false, owner: "Collin", notes: "" },
+    { id: "oc10", category: "Climbing Infrastructure", item: "Holds inspected and organized", done: false, owner: "Caleb", notes: "" },
+    { id: "oc11", category: "Climbing Infrastructure", item: "Hold washing & prep done", done: false, owner: "Caleb", notes: "" },
+    { id: "oc12", category: "Climbing Infrastructure", item: "Route setting complete", done: false, owner: "Caleb", notes: "" },
+    { id: "oc13", category: "Climbing Infrastructure", item: "Routes quality tested", done: false, owner: "Caleb", notes: "" },
+    { id: "oc14", category: "Climbing Infrastructure", item: "Beginner climbs ready", done: false, owner: "Caleb", notes: "" },
+    { id: "oc15", category: "Climbing Infrastructure", item: "Pad alignment & safety checks", done: false, owner: "Collin", notes: "" },
+    { id: "oc16", category: "Climbing Infrastructure", item: "TB2/Tension board setup tested", done: false, owner: "Caleb", notes: "" },
+    { id: "oc17", category: "Front Desk & Retail", item: "Front desk construction done", done: false, owner: "Collin", notes: "" },
+    { id: "oc18", category: "Front Desk & Retail", item: "Shoe & bag cubbies installed", done: false, owner: "Collin", notes: "" },
+    { id: "oc19", category: "Front Desk & Retail", item: "Retail organized and stocked", done: false, owner: "Madeline", notes: "" },
+    { id: "oc20", category: "Front Desk & Retail", item: "POS system set up and tested", done: false, owner: "Collin", notes: "" },
+    { id: "oc21", category: "Front Desk & Retail", item: "Beta integration tested end-to-end", done: false, owner: "Collin", notes: "" },
+    { id: "oc22", category: "Front Desk & Retail", item: "Rental systems set up", done: false, owner: "Madeline", notes: "" },
+    { id: "oc23", category: "Operations & Systems", item: "Staff handbook complete", done: false, owner: "Collin", notes: "" },
+    { id: "oc24", category: "Operations & Systems", item: "Staff trained", done: false, owner: "Collin", notes: "" },
+    { id: "oc25", category: "Operations & Systems", item: "SOPs created", done: false, owner: "Collin", notes: "" },
+    { id: "oc26", category: "Operations & Systems", item: "Emergency procedures reviewed", done: false, owner: "Collin", notes: "" },
+    { id: "oc27", category: "Operations & Systems", item: "Security cameras set up", done: false, owner: "Collin", notes: "" },
+    { id: "oc28", category: "Operations & Systems", item: "Music & audio tested", done: false, owner: "Caleb", notes: "" },
+    { id: "oc29", category: "Operations & Systems", item: "Wifi tested throughout space", done: false, owner: "Collin", notes: "" },
+    { id: "oc30", category: "Operations & Systems", item: "Waiver & privacy policy complete", done: false, owner: "Collin", notes: "" },
+    { id: "oc31", category: "Membership & Launch", item: "Founding member push underway", done: false, owner: "Collin", notes: "" },
+    { id: "oc32", category: "Membership & Launch", item: "Referral campaign live", done: false, owner: "Collin", notes: "" },
+    { id: "oc33", category: "Membership & Launch", item: "Social media rollout planned", done: false, owner: "Caleb", notes: "" },
+    { id: "oc34", category: "Membership & Launch", item: "Soft opening planned", done: false, owner: "Collin", notes: "" },
+    { id: "oc35", category: "Membership & Launch", item: "Grand opening planned", done: false, owner: "Collin", notes: "" },
+    { id: "oc36", category: "Membership & Launch", item: "Community partnerships confirmed", done: false, owner: "Collin", notes: "" },
+    { id: "oc37", category: "Brand & Hospitality", item: "Plants and aesthetics in place", done: false, owner: "Madeline", notes: "" },
+    { id: "oc38", category: "Brand & Hospitality", item: "Lounge setup complete", done: false, owner: "Madeline", notes: "" },
+    { id: "oc39", category: "Brand & Hospitality", item: "Lighting atmosphere dialed in", done: false, owner: "Collin", notes: "" },
+    { id: "oc40", category: "Brand & Hospitality", item: "Wayfinding signage in place", done: false, owner: "Madeline", notes: "" },
+    { id: "oc41", category: "Brand & Hospitality", item: "Customer experience walkthrough done", done: false, owner: "Collin", notes: "" },
+    { id: "oc42", category: "Safety & Readiness", item: "Final safety inspection passed", done: false, owner: "Collin", notes: "" },
+    { id: "oc43", category: "Safety & Readiness", item: "Emergency drills completed", done: false, owner: "Collin", notes: "" },
+    { id: "oc44", category: "Safety & Readiness", item: "ADA/accessibility checked", done: false, owner: "Collin", notes: "" },
+    { id: "oc45", category: "Safety & Readiness", item: "Insurance & liability verified", done: false, owner: "Collin", notes: "" },
+    { id: "oc46", category: "Safety & Readiness", item: "Mock operating day completed", done: false, owner: "Collin", notes: "" },
   ],
 
   contributions: {},
@@ -737,14 +696,11 @@ export default function App() {
           border-radius: 16px;
           border: none;
           background: #fff;
-          transition: background 0.15s;
+          transition: all 0.15s;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
           min-height: 64px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-          user-select: none;
-          -webkit-user-select: none;
         }
         .task-row:active { transform: scale(0.98); background: #fff; }
         .task-row.done { background: rgba(26,160,80,0.06); box-shadow: 0 2px 10px rgba(26,160,80,0.1); }
@@ -962,7 +918,7 @@ export default function App() {
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "guide"      && <MembershipGuidePage />}
-{nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
+        {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
 
       <footer style={{ borderTop: "none", padding: "20px 16px", textAlign: "center" }}>
@@ -1119,172 +1075,6 @@ function OwnerHome({ data, setData, setMemberCount, TEAM, setNav }) {
   );
 }
 // ── Staff Home ────────────────────────────────────────────────────────────────
-
-// ── Staff Chat Home ───────────────────────────────────────────────────────────
-function StaffChatHome({ data, TEAM }) {
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [started, setStarted] = useState(false);
-  const bottomRef = useRef(null);
-
-  const SYSTEM = `You are the Ripple Boulder Staff Assistant — an internal AI for employees at Ripple Boulder, a boutique bouldering gym in Broad Ripple, Indianapolis. You are warm, concise, confident, and hospitality-driven. You match Ripple Boulder's brand: welcoming, community-focused, boutique, and playful.
-
-MEMBERSHIPS: Day Pass $19 | Shoe Rental $6 | 5-Punch $90 | 10-Punch $180 | Standard Monthly $75/mo | Discounted Monthly $65/mo (teachers, military, first responders, refugees) | One Month Non-Recurring $85 | Annual Standard $800/yr (~$67/mo) | Annual Discounted $700/yr | Duo Monthly $110/mo | Kids Duo (14&under) $98/mo | Additional Family Member $35/mo | Duo Annual $1,210 | Additional Member Annual $385 | Sign Up Fee $30 (one-time) | Hold Fee $5/mo | No cancellation fee — cancel anytime.
-
-SHOES: Climbing shoes REQUIRED on all walls. No street shoes. Rentals $6. We do NOT sell shoes — keep it lean. Recommend REI (great selection, knowledgeable staff) or online at REI.com or Backcountry.
-
-RECOMMENDATION GUIDE: 1x/month → Day Pass | 2-4x/month → Punch Pass | 2x+/week → Monthly Membership | Full year → Annual (saves ~$100). If someone comes 2+ times/month, nudge them toward membership naturally.
-
-SALES APPROACH: Hospitality first — help people feel at home, not sold to. Ask "how often do you think you'd realistically come in?" If you see same face 3+ times: "You're becoming a regular — the membership would actually save you money." Punch pass users burning through: "You're in a lot — the monthly might be cheaper for you."
-
-BRAND VOICE: Welcoming, community, boutique, playful. Vision: "A rare space for abundance and collective exploration." Think Michelin-level hospitality on a bouldering wall. Make people feel like they belong before they've even joined.
-
-SAFETY: Waivers required for all. First aid kits throughout. AED on site. Emergency procedures at front desk. All staff trained on protocols.
-
-POLICIES: Memberships can be held for $5/mo (keeps rate locked). Cancel anytime, no fee. Kids of all ages welcome. Guest passes available. Climbing shoes required.
-
-HOSPITALITY: Learn names. Welcome nervous first-timers. Introduce members to each other. The Ripple Effect: notice the extra thing and do it anyway. Every visit should feel like coming home.
-
-Be concise and practical — staff are often mid-shift. Use bullet points for lists. Be direct, warm, and friendly. If unsure, say so and suggest checking with Collin.`;
-
-  useEffect(() => {
-    if (messages.length > 0) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const send = async (text) => {
-    const msg = text || input.trim();
-    if (!msg || loading) return;
-    setInput("");
-    setStarted(true);
-    const newMsgs = [...messages, { role: "user", text: msg }];
-    setMessages(newMsgs);
-    setLoading(true);
-    try {
-      const apiMsgs = newMsgs.slice(-12).map(m => ({ role: m.role, content: m.text }));
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": "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", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: SYSTEM, messages: apiMsgs })
-      });
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || "Something went wrong — try again!";
-      setMessages(m => [...m, { role: "assistant", text: reply }]);
-    } catch(e) {
-      setMessages(m => [...m, { role: "assistant", text: "Connection issue — check your internet and try again." }]);
-    }
-    setLoading(false);
-  };
-
-  const quickActions = [
-    { label: "Membership options", emoji: "💳", q: "Walk me through all membership options and pricing." },
-    { label: "Shoe policy", emoji: "👟", q: "What do I tell someone about climbing shoes and rentals?" },
-    { label: "Convert to member", emoji: "⬆️", q: "How do I naturally convert a regular visitor into a member?" },
-    { label: "Family membership", emoji: "👨‍👩‍👧", q: "Explain the family membership options." },
-    { label: "Handle a complaint", emoji: "🤝", q: "How do I handle an unhappy member gracefully?" },
-    { label: "Brand voice", emoji: "🌊", q: "Remind me of the Ripple Boulder brand voice and hospitality expectations." },
-    { label: "Safety protocols", emoji: "🛡️", q: "What are the key safety protocols I need to know?" },
-    { label: "Discounts", emoji: "🎓", q: "Who qualifies for discounted memberships?" },
-  ];
-
-  const teamName = TEAM?.[0] || "there";
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 72px)", maxWidth: 760, margin: "0 auto" }}>
-
-      {!started ? (
-        /* Welcome screen */
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "20px 0 0" }}>
-          {/* Hero */}
-          <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", boxShadow: "0 4px 20px rgba(26,95,106,0.3)", fontSize: 28 }}>
-              🌊
-            </div>
-            <div className="lora" style={{ fontSize: 28, fontStyle: "italic", color: "#0D1117", marginBottom: 6 }}>
-              {greeting}.
-            </div>
-            <p className="inter" style={{ fontSize: 15, color: "#555", lineHeight: 1.6, maxWidth: 400, margin: "0 auto" }}>
-              Your Ripple Boulder assistant is ready. Ask anything about memberships, policies, sales, or how to handle any situation.
-            </p>
-          </div>
-
-          {/* Quick actions */}
-          <div style={{ marginBottom: 24 }}>
-            <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, textAlign: "center" }}>Quick questions</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {quickActions.map((a, i) => (
-                <button key={i} onClick={() => send(a.q)}
-                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#fff", border: "none", borderRadius: 14, cursor: "pointer", textAlign: "left", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", transition: "transform 0.15s, box-shadow 0.15s", fontFamily: "Inter, sans-serif" }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)"; }}>
-                  <span style={{ fontSize: 20, flexShrink: 0 }}>{a.emoji}</span>
-                  <span className="inter" style={{ fontSize: 13, fontWeight: 500, color: "#0D1117" }}>{a.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Chat messages */
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 0 12px", display: "flex", flexDirection: "column", gap: 16 }}>
-          {messages.map((m, i) => (
-            <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: m.role === "assistant" ? "linear-gradient(135deg, #1A5F6A, #0A3540)" : "#F6F9FB", border: "1px solid #DDE8EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: m.role === "assistant" ? 16 : 12, fontFamily: "Inter, sans-serif", fontWeight: 700, color: "#555" }}>
-                {m.role === "assistant" ? "🌊" : "Me"}
-              </div>
-              <div style={{ maxWidth: "78%", padding: "12px 16px", borderRadius: m.role === "assistant" ? "4px 18px 18px 18px" : "18px 4px 18px 18px", background: m.role === "assistant" ? "#fff" : "#1A5F6A", color: m.role === "assistant" ? "#0D1117" : "#fff", fontSize: 14, lineHeight: 1.75, fontFamily: "Inter, sans-serif", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", whiteSpace: "pre-wrap" }}>
-                {m.text}
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🌊</div>
-              <div style={{ padding: "12px 16px", background: "#fff", borderRadius: "4px 18px 18px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                  {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#1A5F6A", opacity: 0.4, animation: `pulse 1.2s ${i*0.2}s infinite` }} />)}
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
-      )}
-
-      {/* Input area — always visible */}
-      <div style={{ padding: "12px 0 16px", borderTop: started ? "1px solid #F0F4F7" : "none" }}>
-        {/* Quick action chips when chatting */}
-        {started && (
-          <div style={{ display: "flex", gap: 6, marginBottom: 10, overflowX: "auto", paddingBottom: 2, scrollbarWidth: "none" }}>
-            {quickActions.slice(0, 5).map((a, i) => (
-              <button key={i} onClick={() => send(a.q)}
-                style={{ padding: "5px 12px", border: "1px solid #DDE8EE", borderRadius: 99, background: "#fff", color: "#555", fontSize: 12, cursor: "pointer", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
-                {a.emoji} {a.label}
-              </button>
-            ))}
-          </div>
-        )}
-        <div style={{ display: "flex", gap: 8, background: "#fff", borderRadius: 16, padding: "8px 8px 8px 16px", boxShadow: "0 2px 20px rgba(0,0,0,0.1)" }}>
-          <input value={input} onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && send()}
-            placeholder="Ask anything about Ripple Boulder..."
-            style={{ flex: 1, fontSize: 15, border: "none", outline: "none", fontFamily: "Inter, sans-serif", background: "transparent", color: "#0D1117", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
-          <button onClick={() => send()}
-            disabled={loading || !input.trim()}
-            style={{ width: 40, height: 40, borderRadius: 12, background: !input.trim() || loading ? "#E8F2F4" : "linear-gradient(135deg, #1A5F6A, #0A3540)", border: "none", cursor: !input.trim() || loading ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, transition: "all 0.15s", flexShrink: 0 }}>
-            <span style={{ color: !input.trim() || loading ? "#aaa" : "#fff", fontSize: 16 }}>↑</span>
-          </button>
-        </div>
-        <div className="inter" style={{ fontSize: 11, color: "#aaa", textAlign: "center", marginTop: 8 }}>Powered by Ripple Boulder AI · Ask anything, anytime</div>
-      </div>
-
-      <style>{`@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }`}</style>
-    </div>
-  );
-}
-
 function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
   const today = todayKey();
   const now = new Date();
@@ -1355,7 +1145,7 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
             return (
               <div key={t.id} style={{ background: isDone ? "#F0FBF0" : "#fff", border: `1.5px solid ${isOpen ? "#1A5F6A" : isDone ? "#C8E6C9" : "#CCD5DE"}`, borderRadius: 12, overflow: "hidden", transition: "all 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px" }}>
-                  <button onPointerDown={(e) => { e.preventDefault(); isDone ? uncompleteOps(t.id) : setPicker(isOpen ? null : t.id); }}
+                  <button onClick={() => isDone ? uncompleteOps(t.id) : setPicker(isOpen ? null : t.id)}
                     style={{ width: 34, height: 34, borderRadius: "50%", border: `2px solid ${isDone ? "#5CC87A" : isOpen ? "#1A5F6A" : "#555"}`, background: isDone ? "#5CC87A" : isOpen ? "#E8F2F4" : "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s" }}>
                     {isDone
                       ? <svg width="14" height="11" fill="none" viewBox="0 0 14 11"><path d="M1.5 5.5L5.5 9.5L12.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -1380,8 +1170,8 @@ function StaffHome({ data, setData, updateLog, updateTask, TEAM }) {
                 {isOpen && (
                   <div style={{ padding: "0 16px 14px", borderTop: "1px solid #E8F2F4", paddingTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {TEAM.map(person => (
-                      <button key={person} onPointerDown={(e) => { e.preventDefault(); completeOps(t.id, person); setPicker(null); }}
-                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 99, border: "1.5px solid #1A5F6A", background: "#E5EBF1", cursor: "pointer", touchAction: "manipulation" }}>
+                      <button key={person} onClick={() => completeOps(t.id, person)}
+                        style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 99, border: "1.5px solid #1A5F6A", background: "#E5EBF1", cursor: "pointer" }}>
                         <Avatar name={person} size={24} />
                         <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#1A5F6A" }}>{person}</span>
                       </button>
@@ -3124,120 +2914,6 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-
-function FloatingAI() {
-  const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([{ role: "assistant", text: "Hey! Ask me anything about Ripple Boulder — memberships, policies, sales tips, or how to handle any situation." }]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
-
-  const SYSTEM = `You are the Ripple Boulder Staff Assistant. Warm, concise, hospitality-driven. MEMBERSHIPS: Day Pass $19, Shoe Rental $6, 5-Punch $90, 10-Punch $180, Standard Monthly $75, Discounted Monthly $65 (teachers/military/first responders/refugees), Annual $800 (~$67/mo), Annual Discounted $700, Duo Monthly $110, Kids Duo $98, Add. Family $35/mo, Sign Up Fee $30, Hold $5/mo, no cancellation fee. SHOES: Required on walls, rentals $6, don't sell shoes — recommend REI. SALES: Hospitality first, 2+/month nudge to membership. BRAND: Welcoming, community, boutique, playful. Be concise — staff are mid-shift.`;
-
-  useEffect(() => { if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, open]);
-
-  const send = async () => {
-    if (!input.trim() || loading) return;
-    const userMsg = input.trim();
-    setInput("");
-    setMessages(m => [...m, { role: "user", text: userMsg }]);
-    setLoading(true);
-    try {
-      const apiMsgs = messages.slice(-8).map(m => ({ role: m.role, content: m.text }));
-      apiMsgs.push({ role: "user", content: userMsg });
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": "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", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 800, system: SYSTEM, messages: apiMsgs })
-      });
-      const data = await res.json();
-      setMessages(m => [...m, { role: "assistant", text: data.content?.[0]?.text || "Try again!" }]);
-    } catch(e) {
-      setMessages(m => [...m, { role: "assistant", text: "Connection issue — try again." }]);
-    }
-    setLoading(false);
-  };
-
-  return (
-    <div style={{ position: "fixed", bottom: 20, right: 20, zIndex: 9999 }}>
-      {open && (
-        <div style={{ position: "absolute", bottom: 64, right: 0, width: 420, background: "#fff", borderRadius: 20, boxShadow: "0 12px 60px rgba(0,0,0,0.22)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-          {/* Header */}
-          <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", padding: "18px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 18 }}>🌊</span>
-              <div>
-                <div className="inter" style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Ripple AI</div>
-                <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Staff assistant</div>
-              </div>
-            </div>
-            <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 99, width: 26, height: 26, cursor: "pointer", color: "#fff", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-          </div>
-
-          {/* Messages */}
-          <div style={{ flex: 1, padding: 12, overflowY: "auto", maxHeight: 320, display: "flex", flexDirection: "column", gap: 8 }}>
-            {messages.map((m, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
-                <div style={{ width: 26, height: 26, borderRadius: "50%", background: m.role === "assistant" ? "#1A5F6A" : "#F6F9FB", border: "1px solid #DDE8EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12 }}>
-                  {m.role === "assistant" ? "🌊" : <span style={{ color: "#555", fontFamily: "Inter, sans-serif", fontWeight: 700, fontSize: 10 }}>Me</span>}
-                </div>
-                <div style={{ maxWidth: "80%", padding: "8px 12px", borderRadius: m.role === "assistant" ? "4px 12px 12px 12px" : "12px 4px 12px 12px", background: m.role === "assistant" ? "#F6F9FB" : "#1A5F6A", color: m.role === "assistant" ? "#0D1117" : "#fff", fontSize: 14, lineHeight: 1.7, fontFamily: "Inter, sans-serif", whiteSpace: "pre-wrap" }}>
-                  {m.text}
-                </div>
-              </div>
-            ))}
-            {loading && (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#1A5F6A", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>🌊</div>
-                <div style={{ padding: "8px 12px", background: "#F6F9FB", borderRadius: "4px 12px 12px 12px", fontSize: 12, color: "#888", fontStyle: "italic", fontFamily: "Inter, sans-serif" }}>Thinking...</div>
-              </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
-
-          {/* Quick prompts */}
-          <div style={{ padding: "8px 14px", borderTop: "1px solid #F0F4F7", background: "#F8FBFC" }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: "#888", fontFamily: "Inter, sans-serif", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Quick questions</div>
-          <div style={{ display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 2 }}>
-            {[
-                { label: "Membership pricing", q: "Walk me through all membership options and pricing." },
-                { label: "Shoe rentals", q: "What do I tell someone about climbing shoes and rentals?" },
-                { label: "Convert to member", q: "How do I naturally convert a regular visitor into a member?" },
-                { label: "Handle complaint", q: "How do I handle an unhappy member gracefully?" },
-                { label: "Family plans", q: "Explain the family membership options." },
-                { label: "Discounts", q: "Who qualifies for discounted memberships?" },
-              ].map((p, i) => (
-              <button key={i} onPointerDown={() => { setInput(p.q); }}
-                style={{ padding: "7px 14px", border: "1.5px solid #1A5F6A", borderRadius: 99, background: "#E8F4F6", color: "#1A5F6A", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", flexShrink: 0 }}>
-                {p.label}
-              </button>
-            ))}
-          </div>
-          </div>
-
-          {/* Input */}
-          <div style={{ display: "flex", gap: 6, padding: "8px 12px", borderTop: "1px solid #F0F4F7" }}>
-            <input value={input} onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && send()}
-              placeholder="Ask anything..."
-              style={{ flex: 1, fontSize: 14, padding: "10px 14px", border: "1px solid #DDE8EE", borderRadius: 10, fontFamily: "Inter, sans-serif", outline: "none", color: "#0D1117", background: "#fff", WebkitTextFillColor: "#0D1117", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
-            <button onClick={send} disabled={loading || !input.trim()}
-              style={{ background: !input.trim() || loading ? "#ccc" : "#1A5F6A", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 13, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
-              ↑
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Floating button */}
-      <button onClick={() => setOpen(o => !o)}
-        style={{ width: 60, height: 60, borderRadius: "50%", background: "linear-gradient(135deg, #1A5F6A, #0A3540)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 24px rgba(26,95,106,0.5)", fontSize: 26, transition: "transform 0.2s" }}>
-        {open ? "✕" : "🌊"}
-      </button>
     </div>
   );
 }
