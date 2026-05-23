@@ -530,6 +530,8 @@ export default function App() {
   }, [loading]);
 
   useEffect(() => {
+    // Always unlock after 5 seconds — iPad Safari safety net
+    const fallback = setTimeout(() => setLoading(false), 5000);
     async function load() {
       try {
         const { data: rows } = await supabase.from("app_data").select("*").eq("id", 1).single();
