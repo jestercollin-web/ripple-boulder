@@ -599,6 +599,7 @@ export default function App() {
     { key: "goals",      label: "Goals" },
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
+    { key: "incidents",  label: "📋 Incidents" },
     { key: "guide",      label: "📋 Guide" },
     { key: "settings",   label: "Settings" },
   ];
@@ -961,6 +962,7 @@ export default function App() {
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} />}
         {nav === "guide"      && <MembershipGuidePage />}
 {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
@@ -2523,6 +2525,229 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+
+// ── Incident Report Page ──────────────────────────────────────────────────────
+function IncidentPage({ data, setData, TEAM }) {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({
+    date: new Date().toISOString().split("T")[0],
+    time: new Date().toTimeString().slice(0,5),
+    type: "injury",
+    severity: "minor",
+    person: "",
+    staff: TEAM[0],
+    location: "",
+    description: "",
+    action: "",
+    followUp: false,
+  });
+
+  const incidents = data.incidents || [];
+
+  const typeColors = {
+    injury: { bg: "#FFEBEE", text: "#C62828", dot: "#EF5350" },
+    equipment: { bg: "#FFF3E0", text: "#E65100", dot: "#FF9800" },
+    behavior: { bg: "#F3E5F5", text: "#6A1B9A", dot: "#AB47BC" },
+    property: { bg: "#E3F2FD", text: "#1565C0", dot: "#42A5F5" },
+    other: { bg: "#F1F8E9", text: "#33691E", dot: "#8BC34A" },
+  };
+
+  const typeLabels = { injury: "Injury", equipment: "Equipment Issue", behavior: "Behavior/Conduct", property: "Property Damage", other: "Other" };
+  const severityColors = { minor: "#4CAF50", moderate: "#FF9800", serious: "#F44336" };
+
+  const submit = () => {
+    if (!form.description.trim()) return;
+    const newIncident = { ...form, id: `inc_${Date.now()}`, createdAt: new Date().toISOString() };
+    setData(d => ({ ...d, incidents: [newIncident, ...(d.incidents || [])] }));
+    setForm({ date: new Date().toISOString().split("T")[0], time: new Date().toTimeString().slice(0,5), type: "injury", severity: "minor", person: "", staff: TEAM[0], location: "", description: "", action: "", followUp: false });
+    setShowForm(false);
+  };
+
+  const deleteIncident = (id) => {
+    if (window.confirm("Delete this incident report?"))
+      setData(d => ({ ...d, incidents: d.incidents.filter(i => i.id !== id) }));
+  };
+
+  const needsFollowUp = incidents.filter(i => i.followUp);
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Incident Reports</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Log accidents, injuries, equipment issues, and conduct concerns.</p>
+        </div>
+        <button className="btn btn-teal" onClick={() => setShowForm(true)} style={{ fontSize: 13, padding: "9px 18px" }}>+ New Report</button>
+      </div>
+
+      {/* Follow-up banner */}
+      {needsFollowUp.length > 0 && (
+        <div style={{ background: "#FFF3E0", border: "1px solid #FFB74D", borderRadius: 14, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 20 }}>⚠️</span>
+          <div>
+            <div className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#E65100" }}>{needsFollowUp.length} incident{needsFollowUp.length > 1 ? "s" : ""} need follow-up</div>
+            <div className="inter" style={{ fontSize: 12, color: "#BF360C", marginTop: 2 }}>{needsFollowUp.map(i => i.date).join(", ")}</div>
+          </div>
+        </div>
+      )}
+
+      {/* New incident form modal */}
+      {showForm && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          onClick={e => e.target === e.currentTarget && setShowForm(false)}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: "24px 22px", width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#0D1117" }}>New Incident Report</div>
+              <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#888" }}>✕</button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {/* Date + Time */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Date</div>
+                  <input type="date" value={form.date} onChange={e => setForm(f => ({...f, date: e.target.value}))} style={{ width: "100%", fontSize: 14 }} />
+                </div>
+                <div>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Time</div>
+                  <input type="time" value={form.time} onChange={e => setForm(f => ({...f, time: e.target.value}))} style={{ width: "100%", fontSize: 14 }} />
+                </div>
+              </div>
+
+              {/* Type + Severity */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Type</div>
+                  <select value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value}))} style={{ width: "100%", fontSize: 14 }}>
+                    {Object.entries(typeLabels).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Severity</div>
+                  <select value={form.severity} onChange={e => setForm(f => ({...f, severity: e.target.value}))} style={{ width: "100%", fontSize: 14 }}>
+                    <option value="minor">Minor</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="serious">Serious</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Person + Staff */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Person Involved</div>
+                  <input type="text" value={form.person} onChange={e => setForm(f => ({...f, person: e.target.value}))} placeholder="Name or description" style={{ width: "100%", fontSize: 14 }} />
+                </div>
+                <div>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Staff on Duty</div>
+                  <select value={form.staff} onChange={e => setForm(f => ({...f, staff: e.target.value}))} style={{ width: "100%", fontSize: 14 }}>
+                    {TEAM.map(t => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div>
+                <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Location in Gym</div>
+                <input type="text" value={form.location} onChange={e => setForm(f => ({...f, location: e.target.value}))} placeholder="e.g. Main wall, front desk, bathroom" style={{ width: "100%", fontSize: 14 }} />
+              </div>
+
+              {/* Description */}
+              <div>
+                <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>What Happened *</div>
+                <textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))}
+                  placeholder="Describe what happened in detail..."
+                  rows={4} style={{ width: "100%", fontSize: 14, fontFamily: "Inter, sans-serif", padding: "10px 12px", border: "1px solid #DDE8EE", borderRadius: 10, resize: "vertical", outline: "none" }} />
+              </div>
+
+              {/* Action taken */}
+              <div>
+                <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Action Taken</div>
+                <textarea value={form.action} onChange={e => setForm(f => ({...f, action: e.target.value}))}
+                  placeholder="What did staff do in response?"
+                  rows={3} style={{ width: "100%", fontSize: 14, fontFamily: "Inter, sans-serif", padding: "10px 12px", border: "1px solid #DDE8EE", borderRadius: 10, resize: "vertical", outline: "none" }} />
+              </div>
+
+              {/* Follow up */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#FFF8EC", borderRadius: 10, border: "1px solid #FFD599" }}>
+                <input type="checkbox" id="followUp" checked={form.followUp} onChange={e => setForm(f => ({...f, followUp: e.target.checked}))} style={{ width: 18, height: 18, accentColor: "#E65100" }} />
+                <label htmlFor="followUp" className="inter" style={{ fontSize: 13, color: "#7A4100", fontWeight: 600, cursor: "pointer" }}>⚠️ Needs follow-up from Collin</label>
+              </div>
+
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                <button onClick={() => setShowForm(false)} className="btn" style={{ flex: 1, padding: "12px 0" }}>Cancel</button>
+                <button onClick={submit} className="btn btn-teal" style={{ flex: 2, padding: "12px 0", fontSize: 15 }}>Submit Report</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }} className="g3">
+        {[
+          { label: "Total reports", value: incidents.length, color: "#1A5F6A" },
+          { label: "This month", value: incidents.filter(i => i.date?.startsWith(new Date().toISOString().slice(0,7))).length, color: "#1A5F6A" },
+          { label: "Need follow-up", value: needsFollowUp.length, color: needsFollowUp.length > 0 ? "#E65100" : "#1A5F6A" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: "14px 16px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <div className="sec-label">{s.label}</div>
+            <div className="lora" style={{ fontSize: 28, color: s.color, marginTop: 4 }}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Incident list */}
+      {incidents.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 0" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+          <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#555" }}>No incidents reported</div>
+          <p className="inter" style={{ fontSize: 13, color: "#888", marginTop: 6 }}>Keep it that way!</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {incidents.map(inc => {
+            const tc = typeColors[inc.type] || typeColors.other;
+            return (
+              <div key={inc.id} style={{ background: "#fff", borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <div style={{ padding: "14px 18px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ background: tc.bg, color: tc.text, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>
+                        <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: tc.dot, marginRight: 5, verticalAlign: "middle" }} />
+                        {typeLabels[inc.type]}
+                      </span>
+                      <span style={{ background: inc.severity === "serious" ? "#FFEBEE" : inc.severity === "moderate" ? "#FFF3E0" : "#F1F8E9", color: severityColors[inc.severity], padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>
+                        {inc.severity.charAt(0).toUpperCase() + inc.severity.slice(1)}
+                      </span>
+                      {inc.followUp && <span style={{ background: "#FFF3E0", color: "#E65100", padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>⚠️ Follow-up needed</span>}
+                    </div>
+                    <button onClick={() => deleteIncident(inc.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 16, flexShrink: 0 }}>✕</button>
+                  </div>
+                  <div className="inter" style={{ fontSize: 14, color: "#0D1117", lineHeight: 1.6, marginBottom: 8 }}>{inc.description}</div>
+                  {inc.action && <div className="inter" style={{ fontSize: 13, color: "#555", lineHeight: 1.5, marginBottom: 8, padding: "8px 12px", background: "#F6F9FB", borderRadius: 8 }}>
+                    <strong>Action taken:</strong> {inc.action}
+                  </div>}
+                  <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                    {[
+                      inc.date && inc.time ? `📅 ${inc.date} at ${inc.time}` : null,
+                      inc.person ? `👤 ${inc.person}` : null,
+                      inc.location ? `📍 ${inc.location}` : null,
+                      inc.staff ? `👷 ${inc.staff}` : null,
+                    ].filter(Boolean).map((t, i) => (
+                      <span key={i} className="inter" style={{ fontSize: 12, color: "#888" }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
