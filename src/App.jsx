@@ -858,14 +858,25 @@ export default function App() {
         main > * { animation: fadeSlideIn 0.2s ease; }
 
         /* Responsive */
-        @media(max-width:680px) {
+        /* Phone */
+        @media(max-width:600px) {
           .g2 { grid-template-columns: 1fr !important; }
           .g3 { grid-template-columns: 1fr 1fr !important; }
           .hide-sm { display: none !important; }
-          .card { padding: 16px; border-radius: 18px; }
-          .hero-card { padding: 20px 18px; border-radius: 20px; }
+          .card { padding: 14px; border-radius: 16px; }
         }
-        @media(min-width:681px) { .show-sm-only { display: none !important; } }
+        /* iPad portrait */
+        @media(min-width:601px) and (max-width:900px) {
+          .hide-sm { display: none !important; }
+          .g2 { grid-template-columns: 1fr 1fr !important; }
+          .g3 { grid-template-columns: 1fr 1fr 1fr !important; }
+          .card { padding: 18px; }
+          main { padding-left: 28px !important; padding-right: 28px !important; }
+        }
+        /* Desktop */
+        @media(min-width:901px) {
+          .show-sm-only { display: none !important; }
+        }
 
         :root { --safe-bottom: env(safe-area-inset-bottom, 0px); }
       `}</style>
