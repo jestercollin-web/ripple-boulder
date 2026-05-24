@@ -497,14 +497,7 @@ export default function App() {
       setLoading(false);
     }
     load();
-    const channel = supabase.channel("app_data_changes")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "app_data", filter: "id=eq.1" }, (payload) => {
-        if (payload.new?.payload) setData(cur => {
-          const inc = JSON.stringify(payload.new.payload);
-          return inc !== JSON.stringify(cur) ? { ...INITIAL_DATA, ...payload.new.payload } : cur;
-        });
-      }).subscribe();
-    return () => supabase.removeChannel(channel);
+    return () => {};
   }, []);
 
   useEffect(() => {
