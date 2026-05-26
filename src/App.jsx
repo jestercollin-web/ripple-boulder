@@ -2552,7 +2552,8 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
         })
       });
     } catch(e) {
-      console.warn("Email failed:", e);
+      console.error("Email failed:", e);
+      alert("Email error: " + e.message);
     }
   };
 
