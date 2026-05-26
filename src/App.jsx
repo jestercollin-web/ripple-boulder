@@ -557,6 +557,7 @@ export default function App() {
   const staffNav = [
     { key: "ops",        label: "My Shift" },
     { key: "scoreboard", label: "Scoreboard" },
+    { key: "incidents",  label: "⚠️ Report" },
     { key: "guide",      label: "📋 Guide" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
@@ -910,6 +911,7 @@ export default function App() {
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "guide"      && <MembershipGuidePage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
@@ -2487,6 +2489,270 @@ function MembersPage({ data, setData }) {
 }
 
 // ── Membership Guide Page ─────────────────────────────────────────────────────
+
+// ── Incident Report Page ──────────────────────────────────────────────────────
+function IncidentPage({ data, setData, TEAM, isOwner }) {
+  const [showForm, setShowForm] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [form, setForm] = useState({
+    date: new Date().toISOString().split("T")[0],
+    time: new Date().toTimeString().slice(0,5),
+    type: "injury",
+    severity: "minor",
+    person: "",
+    staff: TEAM[0] || "Staff",
+    location: "",
+    description: "",
+    action: "",
+    followUp: false,
+  });
+
+  const typeColors = {
+    injury:    { bg: "#FFEBEE", text: "#C62828", dot: "#EF5350" },
+    equipment: { bg: "#FFF3E0", text: "#E65100", dot: "#FF9800" },
+    behavior:  { bg: "#F3E5F5", text: "#6A1B9A", dot: "#AB47BC" },
+    property:  { bg: "#E3F2FD", text: "#1565C0", dot: "#42A5F5" },
+    other:     { bg: "#F1F8E9", text: "#33691E", dot: "#8BC34A" },
+  };
+  const typeLabels = { injury: "Injury", equipment: "Equipment Issue", behavior: "Behavior/Conduct", property: "Property Damage", other: "Other" };
+  const severityColors = { minor: "#4CAF50", moderate: "#FF9800", serious: "#F44336" };
+
+  const incidents = data.incidents || [];
+  const needsFollowUp = incidents.filter(i => i.followUp);
+
+  const sendEmail = async (incident) => {
+    // EmailJS integration — add your credentials here
+    const SERVICE_ID = "YOUR_SERVICE_ID";
+    const TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+    const PUBLIC_KEY = "YOUR_PUBLIC_KEY";
+
+    if (SERVICE_ID === "YOUR_SERVICE_ID") return; // Skip if not configured
+
+    try {
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: SERVICE_ID,
+          template_id: TEMPLATE_ID,
+          user_id: PUBLIC_KEY,
+          template_params: {
+            date: incident.date,
+            time: incident.time,
+            incident_type: typeLabels[incident.type],
+            severity: incident.severity,
+            person: incident.person || "Not specified",
+            staff: incident.staff,
+            location: incident.location || "Not specified",
+            description: incident.description,
+            action: incident.action || "None taken yet",
+            follow_up: incident.followUp ? "YES - needs follow-up" : "No",
+          }
+        })
+      });
+    } catch(e) {
+      console.warn("Email failed:", e);
+    }
+  };
+
+  const submit = async () => {
+    if (!form.description.trim() || !form.staff) return;
+    setSending(true);
+    const newIncident = { ...form, id: `inc_${Date.now()}`, createdAt: new Date().toISOString() };
+    setData(d => ({ ...d, incidents: [newIncident, ...(d.incidents || [])] }));
+    await sendEmail(newIncident);
+    setSending(false);
+    setSubmitted(true);
+    setTimeout(() => {
+      setSubmitted(false);
+      setShowForm(false);
+      setForm({ date: new Date().toISOString().split("T")[0], time: new Date().toTimeString().slice(0,5), type: "injury", severity: "minor", person: "", staff: TEAM[0] || "Staff", location: "", description: "", action: "", followUp: false });
+    }, 3000);
+  };
+
+  const deleteIncident = (id) => {
+    if (window.confirm("Delete this report?"))
+      setData(d => ({ ...d, incidents: d.incidents.filter(i => i.id !== id) }));
+  };
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Incident Reports</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Log accidents, injuries, equipment issues, and conduct concerns.</p>
+        </div>
+        <button className="btn btn-teal" onClick={() => setShowForm(true)} style={{ fontSize: 13, padding: "9px 18px" }}>+ New Report</button>
+      </div>
+
+      {/* Follow-up banner */}
+      {needsFollowUp.length > 0 && isOwner && (
+        <div style={{ background: "#FFF3E0", border: "1px solid #FFB74D", borderRadius: 14, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 20 }}>⚠️</span>
+          <div>
+            <div className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#E65100" }}>{needsFollowUp.length} incident{needsFollowUp.length !== 1 ? "s" : ""} need follow-up</div>
+            <div className="inter" style={{ fontSize: 12, color: "#BF360C", marginTop: 2 }}>{needsFollowUp.map(i => i.date).join(", ")}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Form modal */}
+      {showForm && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          onClick={e => e.target === e.currentTarget && setShowForm(false)}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: "24px 22px", width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+
+            {submitted ? (
+              <div style={{ textAlign: "center", padding: "40px 20px" }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+                <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#1A5F6A", marginBottom: 8 }}>Report Submitted</div>
+                <p className="inter" style={{ fontSize: 14, color: "#555", lineHeight: 1.6 }}>Your incident report has been saved and Collin has been notified.</p>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                  <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#0D1117" }}>New Incident Report</div>
+                  <button onClick={() => setShowForm(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#888" }}>✕</button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div>
+                      <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Date</div>
+                      <input type="date" value={form.date} onChange={e => setForm(f => ({...f, date: e.target.value}))} style={{ width: "100%", fontSize: 14 }} />
+                    </div>
+                    <div>
+                      <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Time</div>
+                      <input type="time" value={form.time} onChange={e => setForm(f => ({...f, time: e.target.value}))} style={{ width: "100%", fontSize: 14 }} />
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div>
+                      <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Type</div>
+                      <select value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value}))} style={{ width: "100%", fontSize: 14 }}>
+                        {Object.entries(typeLabels).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Severity</div>
+                      <select value={form.severity} onChange={e => setForm(f => ({...f, severity: e.target.value}))} style={{ width: "100%", fontSize: 14 }}>
+                        <option value="minor">Minor</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="serious">Serious</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div>
+                      <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Person Involved</div>
+                      <input type="text" value={form.person} onChange={e => setForm(f => ({...f, person: e.target.value}))} placeholder="Name or description" style={{ width: "100%", fontSize: 14 }} />
+                    </div>
+                    <div>
+                      <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Staff on Duty</div>
+                      <select value={form.staff} onChange={e => setForm(f => ({...f, staff: e.target.value}))} style={{ width: "100%", fontSize: 14 }}>
+                        {TEAM.map(t => <option key={t}>{t}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Location in Gym</div>
+                    <input type="text" value={form.location} onChange={e => setForm(f => ({...f, location: e.target.value}))} placeholder="e.g. Main wall, front desk" style={{ width: "100%", fontSize: 14 }} />
+                  </div>
+
+                  <div>
+                    <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>What Happened *</div>
+                    <textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))}
+                      placeholder="Describe what happened in detail..."
+                      rows={4} style={{ width: "100%", fontSize: 14, fontFamily: "Inter, sans-serif", padding: "10px 12px", border: "1px solid #DDE8EE", borderRadius: 10, resize: "vertical", outline: "none", color: "#0D1117", WebkitTextFillColor: "#0D1117" }} />
+                  </div>
+
+                  <div>
+                    <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#555", marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>Action Taken</div>
+                    <textarea value={form.action} onChange={e => setForm(f => ({...f, action: e.target.value}))}
+                      placeholder="What did staff do in response?"
+                      rows={3} style={{ width: "100%", fontSize: 14, fontFamily: "Inter, sans-serif", padding: "10px 12px", border: "1px solid #DDE8EE", borderRadius: 10, resize: "vertical", outline: "none", color: "#0D1117", WebkitTextFillColor: "#0D1117" }} />
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#FFF8EC", borderRadius: 10, border: "1px solid #FFD599" }}>
+                    <input type="checkbox" id="followUp" checked={form.followUp} onChange={e => setForm(f => ({...f, followUp: e.target.checked}))} style={{ width: 18, height: 18, accentColor: "#E65100" }} />
+                    <label htmlFor="followUp" className="inter" style={{ fontSize: 13, color: "#7A4100", fontWeight: 600, cursor: "pointer" }}>⚠️ This needs follow-up from Collin</label>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button onClick={() => setShowForm(false)} className="btn" style={{ flex: 1, padding: "12px 0" }}>Cancel</button>
+                    <button onClick={submit} disabled={sending || !form.description.trim()}
+                      className="btn btn-teal" style={{ flex: 2, padding: "12px 0", fontSize: 15, opacity: sending ? 0.7 : 1 }}>
+                      {sending ? "Submitting..." : "Submit Report"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }} className="g3">
+        {[
+          { label: "Total reports", value: incidents.length, color: "#1A5F6A" },
+          { label: "This month", value: incidents.filter(i => i.date?.startsWith(new Date().toISOString().slice(0,7))).length, color: "#1A5F6A" },
+          { label: "Need follow-up", value: needsFollowUp.length, color: needsFollowUp.length > 0 ? "#E65100" : "#1A5F6A" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: "14px 16px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <div className="sec-label">{s.label}</div>
+            <div className="lora" style={{ fontSize: 28, color: s.color, marginTop: 4 }}>{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* List */}
+      {incidents.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 0" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+          <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#555" }}>No incidents reported</div>
+          <p className="inter" style={{ fontSize: 13, color: "#888", marginTop: 6 }}>Keep it that way!</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {incidents.map(inc => {
+            const tc = typeColors[inc.type] || typeColors.other;
+            return (
+              <div key={inc.id} style={{ background: "#fff", borderRadius: 16, padding: "14px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ background: tc.bg, color: tc.text, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>
+                      <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: tc.dot, marginRight: 5, verticalAlign: "middle" }} />
+                      {typeLabels[inc.type]}
+                    </span>
+                    <span style={{ background: inc.severity === "serious" ? "#FFEBEE" : inc.severity === "moderate" ? "#FFF3E0" : "#F1F8E9", color: severityColors[inc.severity], padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>
+                      {inc.severity.charAt(0).toUpperCase() + inc.severity.slice(1)}
+                    </span>
+                    {inc.followUp && <span style={{ background: "#FFF3E0", color: "#E65100", padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>⚠️ Follow-up</span>}
+                  </div>
+                  {isOwner && <button onClick={() => deleteIncident(inc.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 16, flexShrink: 0 }}>✕</button>}
+                </div>
+                <p className="inter" style={{ fontSize: 14, color: "#0D1117", lineHeight: 1.6, marginBottom: 8 }}>{inc.description}</p>
+                {inc.action && <div className="inter" style={{ fontSize: 13, color: "#555", padding: "8px 12px", background: "#F6F9FB", borderRadius: 8, marginBottom: 8 }}><strong>Action:</strong> {inc.action}</div>}
+                <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                  {[inc.date && inc.time ? `📅 ${inc.date} at ${inc.time}` : null, inc.person ? `👤 ${inc.person}` : null, inc.location ? `📍 ${inc.location}` : null, inc.staff ? `👷 ${inc.staff}` : null].filter(Boolean).map((t,i) => (
+                    <span key={i} className="inter" style={{ fontSize: 12, color: "#888" }}>{t}</span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MembershipGuidePage() {
   const [search, setSearch] = useState("");
   const [openSection, setOpenSection] = useState(null);
