@@ -2523,9 +2523,9 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 
   const sendEmail = async (incident) => {
     // EmailJS integration — add your credentials here
-    const SERVICE_ID = "YOUR_SERVICE_ID";
-    const TEMPLATE_ID = "YOUR_TEMPLATE_ID";
-    const PUBLIC_KEY = "YOUR_PUBLIC_KEY";
+    const SERVICE_ID = "service_tvz35ft";
+    const TEMPLATE_ID = "template_hq3ayk9";
+    const PUBLIC_KEY = "XeZl4GfbukgEJmdMZ";
 
     if (SERVICE_ID === "YOUR_SERVICE_ID") return; // Skip if not configured
 
