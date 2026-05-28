@@ -2523,7 +2523,8 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 
   const sendEmail = async (incident) => {
     try {
-      await fetch("https://formspree.io/f/meednoqo", {
+      alert("Sending email...");
+      const response = await fetch("https://formspree.io/f/meednoqo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2540,8 +2541,10 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
           follow_up: incident.followUp ? "YES - needs follow-up" : "No",
         })
       });
+      const result = await response.json();
+      alert("Email result: " + JSON.stringify(result));
     } catch(e) {
-      console.warn("Email failed:", e);
+      alert("Email error: " + e.message);
     }
   };
 
