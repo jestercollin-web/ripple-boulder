@@ -2678,8 +2678,8 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 
                   <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={() => setShowForm(false)} className="btn" style={{ flex: 1, padding: "12px 0" }}>Cancel</button>
-                    <button onClick={submit} disabled={sending || !form.description.trim()}
-                      className="btn btn-teal" style={{ flex: 2, padding: "12px 0", fontSize: 15, opacity: sending ? 0.7 : 1 }}>
+                    <button onPointerDown={submit}
+                      className="btn btn-teal" style={{ flex: 2, padding: "12px 0", fontSize: 15 }}>
                       {sending ? "Submitting..." : "Submit Report"}
                     </button>
                   </div>
