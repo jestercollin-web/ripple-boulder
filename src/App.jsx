@@ -2524,7 +2524,7 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
   const sendEmail = async (incident) => {
     try {
       alert("Sending email...");
-      const response = await fetch("https://formspree.io/f/meednoqo", {
+      const response = await fetch("/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
