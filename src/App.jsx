@@ -497,22 +497,7 @@ export default function App() {
       setLoading(false);
     }
     load();
-    // Real-time sync across devices
-    const channel = supabase
-      .channel("app_sync")
-      .on("postgres_changes", {
-        event: "UPDATE",
-        schema: "public",
-        table: "app_data",
-        filter: "id=eq.1"
-      }, (payload) => {
-        if (payload.new?.payload) {
-          setData(d => ({ ...d, ...payload.new.payload }));
-        }
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    return () => {};
   }, []);
 
   useEffect(() => {
@@ -873,9 +858,9 @@ export default function App() {
 
       {/* Header */}
       <header style={{ background: "rgba(242,244,247,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "none", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 64, padding: "0 12px", gap: 8, flexWrap: "nowrap" }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72, padding: "0 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 48, width: "auto", maxHeight: "48px" }} />
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, width: "auto" }} />
             <span className="inter" style={{ fontSize: 10, color: "#1A5F6A", background: "rgba(26,95,106,0.1)", padding: "2px 10px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.08em" }}>
               {isOwner ? "OWNER" : "STAFF"}
             </span>
@@ -889,7 +874,7 @@ export default function App() {
             ))}
             <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.1)", margin: "0 8px" }} />
             <button onClick={switchView}
-              style={{ background: isOwner ? "rgba(26,95,106,0.08)" : "rgba(26,95,106,0.12)", border: "1px solid rgba(26,95,106,0.25)", borderRadius: 99, cursor: "pointer", fontSize: 11, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700, padding: "4px 10px", whiteSpace: "nowrap" }}>
+              style={{ background: isOwner ? "rgba(26,95,106,0.08)" : "rgba(26,95,106,0.12)", border: "1px solid rgba(26,95,106,0.25)", borderRadius: 99, cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700, padding: "5px 14px" }}>
               {isOwner ? "👤 Staff view" : "🔑 Owner view"}
             </button>
           </nav>
