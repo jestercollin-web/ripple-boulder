@@ -2523,7 +2523,6 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 
   const sendEmail = async (incident) => {
     try {
-      alert("Sending email...");
       const response = await fetch("/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2541,15 +2540,13 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
           follow_up: incident.followUp ? "YES - needs follow-up" : "No",
         })
       });
-      const result = await response.json();
-      alert("Email result: " + JSON.stringify(result));
+      await response.json();
     } catch(e) {
-      alert("Email error: " + e.message);
+      console.warn("Email failed:", e);
     }
   };
 
   const submit = async () => {
-    alert("Submit clicked! Description: " + form.description);
     if (!form.description.trim() || !form.staff) return;
     setSending(true);
     const newIncident = { ...form, id: `inc_${Date.now()}`, createdAt: new Date().toISOString() };
