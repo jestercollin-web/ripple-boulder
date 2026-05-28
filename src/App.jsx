@@ -2522,38 +2522,26 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
   const needsFollowUp = incidents.filter(i => i.followUp);
 
   const sendEmail = async (incident) => {
-    // EmailJS integration — add your credentials here
-    const SERVICE_ID = "service_tvz35ft";
-    const TEMPLATE_ID = "template_hq3ayk9";
-    const PUBLIC_KEY = "XeZl4GfbukgEJmdMZ";
-
-    if (SERVICE_ID === "YOUR_SERVICE_ID") return; // Skip if not configured
-
     try {
-      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      await fetch("https://formspree.io/f/meednoqo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          service_id: SERVICE_ID,
-          template_id: TEMPLATE_ID,
-          user_id: PUBLIC_KEY,
-          template_params: {
-            date: incident.date,
-            time: incident.time,
-            incident_type: typeLabels[incident.type],
-            severity: incident.severity,
-            person: incident.person || "Not specified",
-            staff: incident.staff,
-            location: incident.location || "Not specified",
-            description: incident.description,
-            action: incident.action || "None taken yet",
-            follow_up: incident.followUp ? "YES - needs follow-up" : "No",
-          }
+          subject: "🚨 Incident Report - " + typeLabels[incident.type] + " - " + incident.date,
+          date: incident.date,
+          time: incident.time,
+          type: typeLabels[incident.type],
+          severity: incident.severity,
+          person: incident.person || "Not specified",
+          staff: incident.staff,
+          location: incident.location || "Not specified",
+          description: incident.description,
+          action: incident.action || "None taken yet",
+          follow_up: incident.followUp ? "YES - needs follow-up" : "No",
         })
       });
     } catch(e) {
-      console.error("Email failed:", e);
-      alert("Email error: " + e.message);
+      console.warn("Email failed:", e);
     }
   };
 
