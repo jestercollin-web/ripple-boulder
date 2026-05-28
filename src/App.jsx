@@ -2549,6 +2549,7 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
   };
 
   const submit = async () => {
+    alert("Submit clicked! Description: " + form.description);
     if (!form.description.trim() || !form.staff) return;
     setSending(true);
     const newIncident = { ...form, id: `inc_${Date.now()}`, createdAt: new Date().toISOString() };
