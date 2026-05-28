@@ -2725,7 +2725,7 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
                     </span>
                     {inc.followUp && <span style={{ background: "#FFF3E0", color: "#E65100", padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 700, fontFamily: "Inter, sans-serif" }}>⚠️ Follow-up</span>}
                   </div>
-                  {isOwner && <button onClick={() => deleteIncident(inc.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 16, flexShrink: 0 }}>✕</button>}
+                  <button onClick={() => deleteIncident(inc.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 18, flexShrink: 0, padding: "4px 8px" }}>✕</button>
                 </div>
                 <p className="inter" style={{ fontSize: 14, color: "#0D1117", lineHeight: 1.6, marginBottom: 8 }}>{inc.description}</p>
                 {inc.action && <div className="inter" style={{ fontSize: 13, color: "#555", padding: "8px 12px", background: "#F6F9FB", borderRadius: 8, marginBottom: 8 }}><strong>Action:</strong> {inc.action}</div>}
