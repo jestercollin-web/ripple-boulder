@@ -2500,7 +2500,7 @@ function GamePlanPage({ data, setData }) {
   const pctToGoal = Math.min(100, Math.round((memberCount / goal) * 100));
   const remaining = Math.max(0, goal - memberCount);
 
-  const toggleTask = (section, idx) => {
+  const toggle = (section, idx) => {
     setData(d => ({
       ...d,
       gamePlanTasks: {
@@ -2513,179 +2513,171 @@ function GamePlanPage({ data, setData }) {
     }));
   };
 
-  const isChecked = (section, idx) => !!(data.gamePlanTasks?.[section]?.[idx]);
+  const done = (section, idx) => !!(data.gamePlanTasks?.[section]?.[idx]);
 
-  const Section = ({ id, emoji, title, owner, color, tasks }) => {
-    const done = tasks.filter((_, i) => isChecked(id, i)).length;
-    const pct = Math.round((done / tasks.length) * 100);
-    return (
-      <div style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 16 }}>
-        <div style={{ background: color, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 22 }}>{emoji}</span>
-            <div>
-              <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#fff" }}>{title}</div>
-              <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 1 }}>Owner: {owner}</div>
-            </div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div className="lora" style={{ fontSize: 22, color: "#fff" }}>{done}/{tasks.length}</div>
-            <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>complete</div>
-          </div>
-        </div>
-        <div style={{ height: 4, background: "rgba(0,0,0,0.08)" }}>
-          <div style={{ width: `${pct}%`, height: "100%", background: "#fff", opacity: 0.6, transition: "width 0.4s" }} />
-        </div>
-        <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-          {tasks.map((task, i) => (
-            <div key={i} onPointerDown={() => toggleTask(id, i)}
-              style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px", background: isChecked(id, i) ? "#F0FBF5" : "#F6F9FB", borderRadius: 10, cursor: "pointer", border: `1px solid ${isChecked(id, i) ? "#C8E6C9" : "#EEF4F7"}`, transition: "all 0.15s" }}>
-              <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${isChecked(id, i) ? "#4CAF50" : "#DDE8EE"}`, background: isChecked(id, i) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                {isChecked(id, i) && <span style={{ color: "#fff", fontSize: 12, fontWeight: 800 }}>✓</span>}
-              </div>
-              <span className="inter" style={{ fontSize: 14, color: isChecked(id, i) ? "#888" : "#0D1117", textDecoration: isChecked(id, i) ? "line-through" : "none", lineHeight: 1.5, fontWeight: isChecked(id, i) ? 400 : 500 }}>{task}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  const dueColors = {
+    "Today": "#C62828", "Monday": "#E65100", "Tuesday": "#E65100",
+    "ASAP": "#C62828", "This week": "#1565C0", "Daily": "#2E7D32",
+    "Final week": "#6A1B9A", "Ongoing": "#555", "Before opening": "#2E7D32",
+    "Before soft open": "#2E7D32", "Before grand opening": "#2E7D32", "Opening day": "#1A5F6A",
   };
+
+  const sections = [
+    { id: "presales", emoji: "💳", title: "Presales — Hit 200 Members", owner: "Collin", deadline: "Complete by Monday", color: "#1A5F6A",
+      tasks: [
+        { text: "Text every founding member — 'We're almost open. Bring one friend.'", due: "Today" },
+        { text: "Send email blast to full list — short, exciting, link to sign up", due: "Monday" },
+        { text: "Announce hard close date for founding pricing publicly", due: "Monday" },
+        { text: "Post member count — '154 members and counting. Founding spots closing soon.'", due: "Today" },
+        { text: "Add discounted opening week day pass presale online ($15)", due: "This week" },
+        { text: "DM everyone who liked or commented on our posts", due: "This week" },
+        { text: "Ask every founding member for one referral before opening", due: "Ongoing" },
+        { text: "Reach out to local companies about corporate memberships", due: "This week" },
+      ]
+    },
+    { id: "social", emoji: "📱", title: "Social Media", owner: "Caleb", deadline: "Posts start today", color: "#7B5EA7",
+      tasks: [
+        { text: "Post 24/7 teaser — 'Something we've been working on is almost ready. 🌊'", due: "Today" },
+        { text: "Post 24/7 announcement — 'Open 24 hrs, 7 days a week. Your schedule, your terms.'", due: "Tuesday" },
+        { text: "Film cinematic walkthrough of the finished gym", due: "This week" },
+        { text: "Post member count update — '154 founding members and counting'", due: "Today" },
+        { text: "Introduce each team member — one post each (Collin, Caleb, Madeline)", due: "This week" },
+        { text: "Feature a founding member spotlight — real person, real quote", due: "This week" },
+        { text: "Post daily stories — countdown, polls, behind the scenes", due: "Daily" },
+        { text: "Grand opening event announcement post with date and details", due: "Final week" },
+        { text: "'Last chance founding pricing' post with hard deadline", due: "Final week" },
+        { text: "Opening day Reel — film everything, post same day", due: "Opening day" },
+      ]
+    },
+    { id: "merch", emoji: "👕", title: "Merch", owner: "Collin", deadline: "Order by Tuesday", color: "#2E7D8C",
+      tasks: [
+        { text: "Finalize Classic Tee design — wordmark on chest, wave on sleeve", due: "Monday" },
+        { text: "Finalize Sticker Pack — logo, wave mark, 'Broad Ripple Climbs'", due: "Monday" },
+        { text: "Select print vendor and confirm lead time (must arrive before opening)", due: "Monday" },
+        { text: "Place order for tees and stickers", due: "Tuesday" },
+        { text: "Price merch for front desk display", due: "Before opening" },
+        { text: "Announce merch on social before opening day", due: "Final week" },
+        { text: "Give sticker pack free to all founding members opening week", due: "Opening day" },
+      ]
+    },
+    { id: "access247", emoji: "🔑", title: "24/7 Access Launch", owner: "Collin", deadline: "Ready before soft open", color: "#0A3540",
+      tasks: [
+        { text: "Confirm 24/7 access system installed and fully tested", due: "This week" },
+        { text: "Test member key fob or app access end-to-end", due: "This week" },
+        { text: "Write and approve the 24/7 announcement post copy", due: "Monday" },
+        { text: "Add 24/7 info to website and Google Business profile", due: "This week" },
+        { text: "Train all staff on 24/7 access protocols and emergency procedures", due: "Before opening" },
+        { text: "Test overnight access scenario before opening", due: "Before soft open" },
+      ]
+    },
+    { id: "ops", emoji: "🏋️", title: "Operations", owner: "All", deadline: "Done before soft open", color: "#33691E",
+      tasks: [
+        { text: "Certificate of Occupancy confirmed", due: "ASAP" },
+        { text: "Fire marshal inspection passed", due: "ASAP" },
+        { text: "All routes set and quality-tested across all grades", due: "This week" },
+        { text: "POS and Beta tested end-to-end with real transactions", due: "This week" },
+        { text: "Full mock operating day completed with all staff", due: "This week" },
+        { text: "Rental shoes cleaned, sized, and ready at front desk", due: "Before soft open" },
+        { text: "AED, first aid kits, fire extinguishers checked", due: "Before soft open" },
+        { text: "Staff schedule for opening week locked", due: "This week" },
+        { text: "Photographer booked for opening day", due: "This week" },
+        { text: "Music, lighting, and atmosphere dialed in", due: "Before soft open" },
+        { text: "Soft opening for founding members planned and staffed", due: "Before grand opening" },
+        { text: "Grand opening event confirmed with date and details", due: "This week" },
+      ]
+    },
+  ];
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
-
-      {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Opening Game Plan 🎯</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Everything we need to do to hit 200 members by opening day.</p>
+        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Everything we need to do to hit 200 members by opening day. Tap any task to check it off.</p>
       </div>
 
-      {/* 200 member WIG */}
       <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 20, padding: "24px 24px 20px", marginBottom: 24, boxShadow: "0 6px 24px rgba(26,95,106,0.25)" }}>
         <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 6 }}>⭐ The Goal</div>
         <div className="lora" style={{ fontSize: 24, fontStyle: "italic", color: "#fff", marginBottom: 4 }}>200 Members by Opening Day</div>
-        <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 18 }}>We have {memberCount} members. We need {remaining} more. Every action below moves us toward this number.</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
+        <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 16 }}>We have {memberCount} members. We need {remaining} more. Every action below moves us toward this number.</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           <div style={{ flex: 1, height: 12, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden" }}>
-            <div style={{ width: `${pctToGoal}%`, height: "100%", background: "linear-gradient(90deg, #7DD3B8, #4DB896)", borderRadius: 99, transition: "width 0.8s" }} />
+            <div style={{ width: `${pctToGoal}%`, height: "100%", background: "linear-gradient(90deg, #7DD3B8, #4DB896)", borderRadius: 99 }} />
           </div>
           <span className="lora" style={{ fontSize: 28, color: "#7DD3B8", flexShrink: 0 }}>{pctToGoal}%</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 16 }}>
-          {[
-            { label: "Current members", value: memberCount, emoji: "👥" },
-            { label: "Need to open", value: remaining, emoji: "🎯" },
-            { label: "Goal", value: 200, emoji: "🏆" },
-          ].map(s => (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+          {[{ label: "Current", value: memberCount, emoji: "👥" }, { label: "Need", value: remaining, emoji: "🎯" }, { label: "Goal", value: 200, emoji: "🏆" }].map(s => (
             <div key={s.label} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 12, padding: "12px", textAlign: "center" }}>
               <div style={{ fontSize: 18, marginBottom: 4 }}>{s.emoji}</div>
-              <div className="lora" style={{ fontSize: 22, color: "#fff", lineHeight: 1 }}>{s.value}</div>
-              <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 4 }}>{s.label}</div>
+              <div className="lora" style={{ fontSize: 22, color: "#fff" }}>{s.value}</div>
+              <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>{s.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Monday meeting agenda */}
       <div style={{ background: "linear-gradient(135deg, #FFF8EC, #FFF3E0)", border: "1px solid #FFD599", borderRadius: 16, padding: "18px 20px", marginBottom: 24 }}>
         <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 12 }}>
           <span style={{ fontSize: 20 }}>📅</span>
-          <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#7A4100" }}>Monday Meeting Agenda</div>
+          <div>
+            <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#7A4100" }}>Monday Meeting Agenda</div>
+            <div className="inter" style={{ fontSize: 11, color: "#B36B00", fontWeight: 600 }}>Come with answers — under 45 minutes</div>
+          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {[
-            "Review checklist — what's done, what's blocked",
-            "Social calendar — who posts what and when",
-            "24/7 access announcement — approve post copy",
-            "Merch — final design decisions and vendor",
-            "Opening event — date, format, members-first night",
-          ].map((item, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
-              <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5 }}>{item}</span>
-            </div>
-          ))}
-        </div>
+        {["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"].map((item, i) => (
+          <div key={i} style={{ display: "flex", gap: 10, padding: "7px 0", borderBottom: i < 4 ? "1px solid rgba(255,180,60,0.2)" : "none" }}>
+            <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
+            <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5 }}>{item}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Sections */}
-      <Section id="presales" emoji="💳" title="Presales — Hit 200" owner="Collin" color="linear-gradient(135deg, #1A5F6A, #0F3D45)"
-        tasks={[
-          "Text every founding member personally — 'We're almost open. Bring one friend.'",
-          "Send email blast to full list this week — short, exciting, link to sign up",
-          "Set hard close date for founding pricing — announce it publicly",
-          "Post member count — '154 members and counting. Founding spots closing soon.'",
-          "Add day pass presale — discounted opening week passes online",
-          "Ask every founding member for one referral before opening",
-          "DM everyone who has liked or commented on our posts",
-          "Contact local companies about corporate memberships",
-        ]}
-      />
+      {sections.map(sec => {
+        const doneTasks = sec.tasks.filter((_, i) => done(sec.id, i)).length;
+        const secPct = Math.round((doneTasks / sec.tasks.length) * 100);
+        return (
+          <div key={sec.id} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 16 }}>
+            <div style={{ background: `linear-gradient(135deg, ${sec.color}EE, ${sec.color}AA)`, padding: "16px 20px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 22 }}>{sec.emoji}</span>
+                  <div>
+                    <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#fff" }}>{sec.title}</div>
+                    <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 1 }}>{sec.owner} · <strong>{sec.deadline}</strong></div>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div className="lora" style={{ fontSize: 22, color: "#fff" }}>{doneTasks}/{sec.tasks.length}</div>
+                  <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>done</div>
+                </div>
+              </div>
+              <div style={{ height: 5, background: "rgba(255,255,255,0.2)", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: `${secPct}%`, height: "100%", background: "rgba(255,255,255,0.8)", borderRadius: 99, transition: "width 0.4s" }} />
+              </div>
+            </div>
+            <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {sec.tasks.map((task, i) => (
+                <div key={i} onPointerDown={() => toggle(sec.id, i)}
+                  style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px", background: done(sec.id, i) ? "#F0FBF5" : "#F6F9FB", borderRadius: 10, cursor: "pointer", border: `1px solid ${done(sec.id, i) ? "#C8E6C9" : "#EEF4F7"}`, transition: "all 0.15s", userSelect: "none", WebkitUserSelect: "none" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${done(sec.id, i) ? "#4CAF50" : "#DDE8EE"}`, background: done(sec.id, i) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, transition: "all 0.15s" }}>
+                    {done(sec.id, i) && <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div className="inter" style={{ fontSize: 13, color: done(sec.id, i) ? "#888" : "#0D1117", textDecoration: done(sec.id, i) ? "line-through" : "none", lineHeight: 1.5, fontWeight: done(sec.id, i) ? 400 : 500 }}>{task.text}</div>
+                    <span style={{ display: "inline-block", marginTop: 4, padding: "2px 8px", borderRadius: 99, fontSize: 10, fontWeight: 700, fontFamily: "Inter, sans-serif", background: `${dueColors[task.due] || "#555"}18`, color: dueColors[task.due] || "#555" }}>⏰ {task.due}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
 
-      <Section id="social" emoji="📱" title="Social Media" owner="Caleb" color="linear-gradient(135deg, #7B5EA7, #4A3780)"
-        tasks={[
-          "Post 24/7 teaser — 'Something we've been working on is almost ready. 🌊'",
-          "Post 24/7 announcement — 'Open 24 hours, 7 days a week. Your schedule, your terms.'",
-          "Film cinematic walkthrough of the finished gym — best content piece",
-          "Post member count update — '154 founding members and counting'",
-          "Introduce each team member — one post each (Collin, Caleb, Madeline)",
-          "Feature a founding member spotlight — real person, real quote",
-          "Post daily stories — countdown, polls, behind the scenes",
-          "Grand opening event announcement post with date and details",
-          "Last chance founding pricing post — urgency, clear deadline",
-          "Opening day Reel — film everything, post same day",
-        ]}
-      />
-
-      <Section id="merch" emoji="👕" title="Merch" owner="Collin" color="linear-gradient(135deg, #2E7D8C, #1A5F6A)"
-        tasks={[
-          "Finalize Classic Tee design — wordmark on chest, wave logo on back",
-          "Finalize Sticker Pack — logo sticker, wave mark, 'Broad Ripple Climbs'",
-          "Select print vendor and confirm lead time (need by opening)",
-          "Order samples for quality check",
-          "Price merch for front desk display",
-          "Announce merch on social before opening day",
-          "Give sticker pack free to all founding members on opening week",
-        ]}
-      />
-
-      <Section id="twentyfour" emoji="🔑" title="24/7 Access Launch" owner="Collin" color="linear-gradient(135deg, #0A3540, #1A5F6A)"
-        tasks={[
-          "Confirm 24/7 access system is installed and tested",
-          "Test member key fob or app access end-to-end",
-          "Write and approve the 24/7 announcement post copy",
-          "Schedule the announcement post date",
-          "Create follow-up content — early morning and late night posts",
-          "Add 24/7 info to website and Google Business profile",
-          "Train all staff on 24/7 access protocols and emergency procedures",
-        ]}
-      />
-
-      <Section id="operations" emoji="🏋️" title="Operations — Get Ready" owner="All" color="linear-gradient(135deg, #33691E, #2E7D32)"
-        tasks={[
-          "Certificate of Occupancy confirmed",
-          "Fire marshal inspection passed",
-          "All routes set and quality-tested across all grades",
-          "POS and Beta tested end-to-end with real transactions",
-          "Full mock operating day completed",
-          "Rental shoes cleaned, sized, and ready at front desk",
-          "AED, first aid kits, and fire extinguishers checked",
-          "Staff schedule for opening week locked",
-          "Photographer booked for opening day",
-          "Music, lighting, and atmosphere dialed in",
-          "Soft opening for founding members planned",
-          "Grand opening event confirmed",
-        ]}
-      />
-
-      {/* Bottom motivator */}
-      <div style={{ textAlign: "center", padding: "24px 16px", marginTop: 8 }}>
+      <div style={{ textAlign: "center", padding: "24px 16px" }}>
         <div className="lora" style={{ fontSize: 20, fontStyle: "italic", color: "#1A5F6A", marginBottom: 6 }}>
-          {remaining <= 0 ? "🎉 200 members reached. Let's open!" : `${remaining} more members to go.`}
+          {remaining <= 0 ? "🎉 200 members! Let's open!" : `${remaining} more members to go. Let's get them.`}
         </div>
-        <p className="inter" style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>
-          Every task above moves us toward 200. Check them off as you go — this is how we open strong.
-        </p>
+        <p className="inter" style={{ fontSize: 13, color: "#555", lineHeight: 1.6 }}>Every task above moves us toward 200. Check them off as you go.</p>
       </div>
     </div>
   );
