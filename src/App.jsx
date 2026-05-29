@@ -2310,6 +2310,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
       const extraTasks = savedSec.extraTasks || [];
       return {
         ...sec,
+        title: savedSec.title || sec.title,
         owner: savedSec.owner || sec.owner,
         tasks: [...tasks, ...extraTasks],
         isExtra: (i) => i >= sec.tasks.length,
@@ -2478,7 +2479,9 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 20 }}>{sec.emoji}</span>
                       <div>
-                        <div className="lora" style={{ fontSize: 16, fontStyle: "italic", color: "#fff" }}>{sec.title}</div>
+                        <SmoothInput value={(data.gamePlanSections?.[sec.id]?.title) || sec.title}
+                          onCommit={v => setData(d => ({ ...d, gamePlanSections: { ...(d.gamePlanSections || {}), [sec.id]: { ...(d.gamePlanSections?.[sec.id] || {}), title: v } } }))}
+                          style={{ border: "none", padding: 0, fontSize: 16, fontStyle: "italic", color: "#fff", background: "transparent", fontFamily: "Lora, Georgia, serif", fontWeight: 400, WebkitTextFillColor: "#fff", width: "100%", outline: "none" }} />
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                           <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 6, padding: "3px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", position: "relative", display: "inline-block" }}>
                             <select value={sec.owner} onChange={e => updateOwner(sec.id, e.target.value)}
