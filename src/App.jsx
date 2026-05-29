@@ -2373,9 +2373,9 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: "#fff", borderRadius: 14, padding: 6, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
         {[{ key: "gameplan", label: "🎯 Game Plan" }, { key: "checklist", label: "✅ Checklist" }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            style={{ flex: 1, padding: "10px 0", border: "none", borderRadius: 10, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 700, transition: "all 0.15s",
+            style={{ flex: 1, padding: "11px 0", border: "none", borderRadius: 10, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 700, transition: "all 0.2s",
               background: tab === t.key ? "linear-gradient(135deg, #1A5F6A, #0A3540)" : "transparent",
-              color: tab === t.key ? "#fff" : "#555" }}>
+              color: tab === t.key ? "#fff" : "#999", letterSpacing: "0.01em" }}>
             {t.label}
           </button>
         ))}
@@ -2421,11 +2421,11 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                 <input value={item} onChange={e => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next[i] = e.target.value; setData(d => ({ ...d, mondayAgenda: next })); }}
                   style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, color: "#5C3000", fontFamily: "Inter, sans-serif", outline: "none", padding: 0, WebkitTextFillColor: "#5C3000", WebkitBoxShadow: "0 0 0px 1000px transparent inset" }} />
                 <button onPointerDown={() => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next.splice(i, 1); setData(d => ({ ...d, mondayAgenda: next })); }}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "#FFB74D", fontSize: 14, flexShrink: 0 }}>✕</button>
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#FFCC80", fontSize: 14, flexShrink: 0, padding: "2px 6px", borderRadius: 6 }}>✕</button>
               </div>
             ))}
             <button onPointerDown={() => setData(d => ({ ...d, mondayAgenda: [...(d.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]), "New agenda item"] }))}
-              style={{ marginTop: 8, width: "100%", background: "none", border: "1.5px dashed rgba(255,180,60,0.4)", borderRadius: 8, padding: "7px", cursor: "pointer", fontSize: 12, color: "#B36B00", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add item</button>
+              style={{ marginTop: 10, width: "100%", background: "rgba(255,180,60,0.06)", border: "1.5px dashed rgba(255,180,60,0.35)", borderRadius: 8, padding: "8px", cursor: "pointer", fontSize: 12, color: "#C68A00", fontFamily: "Inter, sans-serif", fontWeight: 700, letterSpacing: "0.02em" }}>+ Add agenda item</button>
           </div>
 
           {/* Sections */}
@@ -2452,7 +2452,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                       <select
                         value={(data.gamePlanOwners || {})[sec.id] || sec.owner}
                         onChange={e => setData(d => ({ ...d, gamePlanOwners: { ...(d.gamePlanOwners || {}), [sec.id]: e.target.value } }))}
-                        style={{ fontSize: 11, fontWeight: 700, border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 6, padding: "2px 6px", cursor: "pointer", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#fff" }}>
+                        style={{ fontSize: 11, fontWeight: 700, border: "none", background: "rgba(255,255,255,0.12)", color: "#fff", borderRadius: 6, padding: "3px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#fff", outline: "none" }}>
                         {(data.team || ["Collin", "Caleb", "Madeline"]).map(t => <option key={t} value={t} style={{ color: "#000" }}>{t}</option>)}
                         <option value="All" style={{ color: "#000" }}>All</option>
                       </select>
@@ -2478,15 +2478,15 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                         <SmoothInput value={task.text} onCommit={v => editTask(sec.id, task.origIdx, "text", v)}
                           style={{ border: "none", padding: "0", fontSize: 14, color: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.6, fontWeight: 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", outline: "none" }} />
                         <select value={task.due} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
-                          style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: "transparent", color: dueColors[task.due] || "#999", borderRadius: 6, padding: "0", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
+                          style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: `${dueColors[task.due] || "#999"}14`, color: dueColors[task.due] || "#999", borderRadius: 99, padding: "2px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
                           {Object.keys(dueColors).map(d => <option key={d} value={d}>⏰ {d}</option>)}
                         </select>
                       </div>
-                      <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D0DAE4", fontSize: 16, flexShrink: 0, padding: "2px 6px", lineHeight: 1 }}>✕</button>
+                      <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C8D5E0", fontSize: 15, flexShrink: 0, padding: "4px 6px", lineHeight: 1, borderRadius: 6 }}>✕</button>
                     </div>
                   ))}
                   <button onPointerDown={() => addCustomTask(sec.id)}
-                    style={{ width: "100%", background: "none", border: "1.5px dashed #D0DAE4", borderRadius: 12, padding: "10px", cursor: "pointer", fontSize: 13, color: "#A0AEBF", fontFamily: "Inter, sans-serif", fontWeight: 600, marginTop: 6, letterSpacing: "0.02em" }}>
+                    style={{ width: "100%", background: "#FAFBFC", border: "1.5px dashed #D8E2EC", borderRadius: 10, padding: "10px", cursor: "pointer", fontSize: 13, color: "#9BAAB8", fontFamily: "Inter, sans-serif", fontWeight: 600, marginTop: 8, letterSpacing: "0.01em" }}>
                     + Add task
                   </button>
                 </div>
@@ -2884,11 +2884,11 @@ function GamePlanPage({ data, setData }) {
                 <input value={item} onChange={e => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next[i] = e.target.value; setData(d => ({ ...d, mondayAgenda: next })); }}
                   style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, color: "#5C3000", fontFamily: "Inter, sans-serif", outline: "none", padding: 0, WebkitTextFillColor: "#5C3000", WebkitBoxShadow: "0 0 0px 1000px transparent inset" }} />
                 <button onPointerDown={() => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next.splice(i, 1); setData(d => ({ ...d, mondayAgenda: next })); }}
-                  style={{ background: "none", border: "none", cursor: "pointer", color: "#FFB74D", fontSize: 14, flexShrink: 0 }}>✕</button>
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#FFCC80", fontSize: 14, flexShrink: 0, padding: "2px 6px", borderRadius: 6 }}>✕</button>
               </div>
             ))}
             <button onPointerDown={() => setData(d => ({ ...d, mondayAgenda: [...(d.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]), "New agenda item"] }))}
-              style={{ marginTop: 8, width: "100%", background: "none", border: "1.5px dashed rgba(255,180,60,0.4)", borderRadius: 8, padding: "7px", cursor: "pointer", fontSize: 12, color: "#B36B00", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add item</button>
+              style={{ marginTop: 10, width: "100%", background: "rgba(255,180,60,0.06)", border: "1.5px dashed rgba(255,180,60,0.35)", borderRadius: 8, padding: "8px", cursor: "pointer", fontSize: 12, color: "#C68A00", fontFamily: "Inter, sans-serif", fontWeight: 700, letterSpacing: "0.02em" }}>+ Add agenda item</button>
       </div>
 
       {sections.map(sec => {
