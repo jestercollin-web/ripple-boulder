@@ -2483,12 +2483,17 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                         {isDone(sec.id, task.origIdx) && <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>✓</span>}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <SmoothInput value={task.text} onCommit={v => editTask(sec.id, task.origIdx, "text", v)}
+                        <SmoothInput value={(data.gamePlanCustom?.[sec.id]?.[task.origIdx]?.text) || task.text} onCommit={v => editTask(sec.id, task.origIdx, "text", v)}
                           style={{ border: "none", padding: "0", fontSize: 14, color: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.6, fontWeight: 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", outline: "none" }} />
-                        <select value={task.due} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
-                          style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: `${dueColors[task.due] || "#999"}14`, color: dueColors[task.due] || "#999", borderRadius: 99, padding: "2px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
-                          {["Today", "Tomorrow", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "This week", "Next week", "Final week", "Before opening", "Before soft open", "Before grand opening", "Opening day", "Daily", "Ongoing", "ASAP"].map(d => <option key={d} value={d}>{d}</option>)}
-                        </select>
+                        {(() => {
+                          const savedDue = (data.gamePlanCustom?.[sec.id]?.[task.origIdx]?.due) || task.due;
+                          return (
+                            <select value={savedDue} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
+                              style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: `${dueColors[savedDue] || "#999"}14`, color: dueColors[savedDue] || "#999", borderRadius: 99, padding: "2px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
+                              {["Today", "Tomorrow", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "This week", "Next week", "Final week", "Before opening", "Before soft open", "Before grand opening", "Opening day", "Daily", "Ongoing", "ASAP"].map(d => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                          );
+                        })()}
                       </div>
                       <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C8D5E0", fontSize: 15, flexShrink: 0, padding: "4px 6px", lineHeight: 1, borderRadius: 6 }}>✕</button>
                     </div>
