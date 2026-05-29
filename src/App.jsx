@@ -2501,11 +2501,19 @@ function GamePlanPage({ data, setData }) {
   const remaining = Math.max(0, goal - memberCount);
 
   const toggleTask = (section, idx) => {
-    const key = `gameplan_${section}_${idx}`;
-    setData(d => ({ ...d, [key]: !d[key] }));
+    setData(d => ({
+      ...d,
+      gamePlanTasks: {
+        ...(d.gamePlanTasks || {}),
+        [section]: {
+          ...((d.gamePlanTasks || {})[section] || {}),
+          [idx]: !((d.gamePlanTasks || {})[section] || {})[idx]
+        }
+      }
+    }));
   };
 
-  const isChecked = (section, idx) => !!data[`gameplan_${section}_${idx}`];
+  const isChecked = (section, idx) => !!(data.gamePlanTasks?.[section]?.[idx]);
 
   const Section = ({ id, emoji, title, owner, color, tasks }) => {
     const done = tasks.filter((_, i) => isChecked(id, i)).length;
