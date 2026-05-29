@@ -2415,12 +2415,17 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                 <div className="inter" style={{ fontSize: 11, color: "#B36B00", fontWeight: 600 }}>Come with answers — under 45 minutes</div>
               </div>
             </div>
-            {["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"].map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", borderBottom: i < 4 ? "1px solid rgba(255,180,60,0.2)" : "none" }}>
+            {(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]).map((item, i, arr) => (
+              <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(255,180,60,0.2)" : "none", alignItems: "center" }}>
                 <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
-                <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5 }}>{item}</span>
+                <input value={item} onChange={e => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next[i] = e.target.value; setData(d => ({ ...d, mondayAgenda: next })); }}
+                  style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, color: "#5C3000", fontFamily: "Inter, sans-serif", outline: "none", padding: 0, WebkitTextFillColor: "#5C3000", WebkitBoxShadow: "0 0 0px 1000px transparent inset" }} />
+                <button onPointerDown={() => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next.splice(i, 1); setData(d => ({ ...d, mondayAgenda: next })); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#FFB74D", fontSize: 14, flexShrink: 0 }}>✕</button>
               </div>
             ))}
+            <button onPointerDown={() => setData(d => ({ ...d, mondayAgenda: [...(d.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]), "New agenda item"] }))}
+              style={{ marginTop: 8, width: "100%", background: "none", border: "1.5px dashed rgba(255,180,60,0.4)", borderRadius: 8, padding: "7px", cursor: "pointer", fontSize: 12, color: "#B36B00", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add item</button>
           </div>
 
           {/* Sections */}
@@ -2864,12 +2869,17 @@ function GamePlanPage({ data, setData }) {
             <div className="inter" style={{ fontSize: 11, color: "#B36B00", fontWeight: 600 }}>Come with answers — under 45 minutes</div>
           </div>
         </div>
-        {["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"].map((item, i) => (
-          <div key={i} style={{ display: "flex", gap: 10, padding: "7px 0", borderBottom: i < 4 ? "1px solid rgba(255,180,60,0.2)" : "none" }}>
-            <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
-            <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5 }}>{item}</span>
-          </div>
-        ))}
+            {(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]).map((item, i, arr) => (
+              <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(255,180,60,0.2)" : "none", alignItems: "center" }}>
+                <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
+                <input value={item} onChange={e => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next[i] = e.target.value; setData(d => ({ ...d, mondayAgenda: next })); }}
+                  style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, color: "#5C3000", fontFamily: "Inter, sans-serif", outline: "none", padding: 0, WebkitTextFillColor: "#5C3000", WebkitBoxShadow: "0 0 0px 1000px transparent inset" }} />
+                <button onPointerDown={() => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next.splice(i, 1); setData(d => ({ ...d, mondayAgenda: next })); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#FFB74D", fontSize: 14, flexShrink: 0 }}>✕</button>
+              </div>
+            ))}
+            <button onPointerDown={() => setData(d => ({ ...d, mondayAgenda: [...(d.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]), "New agenda item"] }))}
+              style={{ marginTop: 8, width: "100%", background: "none", border: "1.5px dashed rgba(255,180,60,0.4)", borderRadius: 8, padding: "7px", cursor: "pointer", fontSize: 12, color: "#B36B00", fontFamily: "Inter, sans-serif", fontWeight: 600 }}>+ Add item</button>
       </div>
 
       {sections.map(sec => {
