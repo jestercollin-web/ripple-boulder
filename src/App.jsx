@@ -2448,7 +2448,16 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                       <span style={{ fontSize: 20 }}>{sec.emoji}</span>
                       <div>
                         <div className="lora" style={{ fontSize: 16, fontStyle: "italic", color: "#fff" }}>{sec.title}</div>
-                        <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>{sec.owner} · <strong>{sec.deadline}</strong></div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <select
+                        value={(data.gamePlanOwners || {})[sec.id] || sec.owner}
+                        onChange={e => setData(d => ({ ...d, gamePlanOwners: { ...(d.gamePlanOwners || {}), [sec.id]: e.target.value } }))}
+                        style={{ fontSize: 11, fontWeight: 700, border: "none", background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 6, padding: "2px 6px", cursor: "pointer", fontFamily: "Inter, sans-serif", WebkitTextFillColor: "#fff" }}>
+                        {(data.team || ["Collin", "Caleb", "Madeline"]).map(t => <option key={t} value={t} style={{ color: "#000" }}>{t}</option>)}
+                        <option value="All" style={{ color: "#000" }}>All</option>
+                      </select>
+                      <span className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>· <strong>{sec.deadline}</strong></span>
+                    </div>
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
