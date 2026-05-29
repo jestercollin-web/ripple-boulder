@@ -2220,62 +2220,14 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
   const setTab = (v) => { setTabState(v); setData(d => ({ ...d, openingTab: v })); };
   const [filter, setFilter] = useState("all");
 
-  // ── Game Plan logic ──
+  const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
   const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
   const goal = 200;
   const pctToGoal = Math.min(100, Math.round((memberCount / goal) * 100));
   const remaining = Math.max(0, goal - memberCount);
 
-  const toggleTask = (section, idx) => {
-    setData(d => ({
-      ...d,
-      gamePlanTasks: {
-        ...(d.gamePlanTasks || {}),
-        [section]: {
-          ...((d.gamePlanTasks || {})[section] || {}),
-          [idx]: !((d.gamePlanTasks || {})[section] || {})[idx]
-        }
-      }
-    }));
-  };
-
-  const editTask = (section, idx, field, value) => {
-    setData(d => {
-      const custom = JSON.parse(JSON.stringify(d.gamePlanCustom || {}));
-      if (!custom[section]) custom[section] = {};
-      if (!custom[section][idx]) custom[section][idx] = {};
-      custom[section][idx][field] = value;
-      return { ...d, gamePlanCustom: custom };
-    });
-  };
-
-  const deleteTask = (section, idx) => {
-    setData(d => {
-      const deleted = JSON.parse(JSON.stringify(d.gamePlanDeleted || {}));
-      if (!deleted[section]) deleted[section] = [];
-      if (!deleted[section].includes(idx)) deleted[section].push(idx);
-      return { ...d, gamePlanDeleted: deleted };
-    });
-  };
-
-  const addCustomTask = (sectionId) => {
-    setData(d => {
-      const extra = JSON.parse(JSON.stringify(d.gamePlanExtra || {}));
-      if (!extra[sectionId]) extra[sectionId] = [];
-      extra[sectionId].push({ text: "New task", due: "This week" });
-      return { ...d, gamePlanExtra: extra };
-    });
-  };
-  const isDone = (section, idx) => !!(data.gamePlanTasks?.[section]?.[idx]);
-
-  const dueColors = {
-    "Today": "#C62828", "Monday": "#E65100", "Tuesday": "#E65100",
-    "ASAP": "#C62828", "This week": "#1565C0", "Daily": "#2E7D32",
-    "Final week": "#6A1B9A", "Ongoing": "#555", "Before opening": "#2E7D32",
-    "Before soft open": "#2E7D32", "Before grand opening": "#2E7D32", "Opening day": "#1A5F6A",
-  };
-
-  const sections = [
+  // ── Game Plan — ALL data lives in Supabase, not hardcoded ──
+  const DEFAULT_SECTIONS = [
     { id: "presales", emoji: "💳", title: "Presales — Hit 200 Members", owner: "Collin", deadline: "Complete by Monday", color: "#1A5F6A",
       tasks: [
         { text: "Text every founding member — 'We're almost open. Bring one friend.'", due: "Today" },
@@ -2292,28 +2244,28 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
       tasks: [
         { text: "🌊 Post 24/7 teaser — 'Something we've been working on is almost ready.'", due: "Today" },
         { text: "📢 Post 24/7 announcement — 'Open 24 hrs, 7 days a week. Your schedule, your terms.'", due: "Tuesday" },
-        { text: "🎥 Film cinematic walkthrough of the finished gym — no talking, great music", due: "This week" },
-        { text: "📊 Post member count — '154 founding members and counting. Spots closing soon.'", due: "Today" },
+        { text: "🎥 Film cinematic walkthrough of the finished gym", due: "This week" },
+        { text: "📊 Post member count — '154 founding members and counting.'", due: "Today" },
         { text: "👤 Introduce Collin — founder story post", due: "This week" },
         { text: "👤 Introduce Caleb — staff spotlight post", due: "This week" },
         { text: "👤 Introduce Madeline — staff spotlight post", due: "This week" },
         { text: "🌟 Feature a founding member spotlight — real person, real quote", due: "This week" },
         { text: "📱 Post daily stories — countdown, polls, behind the scenes", due: "Daily" },
-        { text: "🎉 Grand opening event announcement post with date and details", due: "Final week" },
+        { text: "🎉 Grand opening event announcement post", due: "Final week" },
         { text: "⏰ 'Last chance founding pricing' post — urgency, clear deadline", due: "Final week" },
         { text: "🎬 Opening day Reel — film everything, edit same night, post", due: "Opening day" },
       ]
     },
     { id: "merch", emoji: "👕", title: "Merch", owner: "Collin", deadline: "Order by Tuesday", color: "#2E7D8C",
       tasks: [
-        { text: "✏️ Finalize Classic Tee design — Ripple Boulder wordmark chest, wave logo sleeve", due: "Monday" },
-        { text: "✏️ Finalize Sticker Pack — 3 designs: logo, wave mark, 'Broad Ripple Climbs'", due: "Monday" },
-        { text: "🏭 Select print vendor — confirm pricing and lead time (must arrive before opening)", due: "Monday" },
+        { text: "✏️ Finalize Classic Tee design — wordmark chest, wave logo sleeve", due: "Monday" },
+        { text: "✏️ Finalize Sticker Pack — logo, wave mark, 'Broad Ripple Climbs'", due: "Monday" },
+        { text: "🏭 Select print vendor — confirm pricing and lead time", due: "Monday" },
         { text: "📦 Place order for tees and stickers", due: "Tuesday" },
         { text: "🏷️ Set retail pricing for front desk display", due: "Before opening" },
         { text: "📸 Photograph merch for social content", due: "Before opening" },
-        { text: "📢 Announce merch drop on social — 'Something for the founding members'", due: "Final week" },
-        { text: "🎁 Give sticker pack free to every founding member during opening week", due: "Opening day" },
+        { text: "📢 Announce merch drop on social", due: "Final week" },
+        { text: "🎁 Give sticker pack free to every founding member opening week", due: "Opening day" },
       ]
     },
     { id: "access247", emoji: "🔑", title: "24/7 Access Launch", owner: "Collin", deadline: "Ready before soft open", color: "#0A3540",
@@ -2344,14 +2296,95 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
     },
   ];
 
+  // Get live sections — merge defaults with any saved overrides from Supabase
+  const getSections = () => {
+    const saved = data.gamePlanSections || {};
+    return DEFAULT_SECTIONS.map(sec => {
+      const savedSec = saved[sec.id] || {};
+      const savedTasks = savedSec.tasks || [];
+      const tasks = sec.tasks.map((t, i) => ({
+        ...t,
+        ...(savedTasks[i] || {}),
+      }));
+      // Append any extra custom tasks added by user
+      const extraTasks = savedSec.extraTasks || [];
+      return {
+        ...sec,
+        owner: savedSec.owner || sec.owner,
+        tasks: [...tasks, ...extraTasks],
+        isExtra: (i) => i >= sec.tasks.length,
+      };
+    });
+  };
+
+  const sections = getSections();
+
+  // Save task change directly to Supabase via setData
+  const updateTask = (secId, taskIdx, field, value) => {
+    setData(d => {
+      const sections = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
+      if (!sections[secId]) sections[secId] = {};
+      if (!sections[secId].tasks) sections[secId].tasks = [];
+      while (sections[secId].tasks.length <= taskIdx) sections[secId].tasks.push({});
+      sections[secId].tasks[taskIdx] = { ...sections[secId].tasks[taskIdx], [field]: value };
+      return { ...d, gamePlanSections: sections };
+    });
+  };
+
+  const toggleDone = (secId, taskIdx) => {
+    const sec = sections.find(s => s.id === secId);
+    const task = sec?.tasks[taskIdx];
+    const currentDone = task?.done || false;
+    updateTask(secId, taskIdx, "done", !currentDone);
+  };
+
+  const deleteTask = (secId, taskIdx) => {
+    setData(d => {
+      const secs = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
+      if (!secs[secId]) secs[secId] = {};
+      if (!secs[secId].tasks) secs[secId].tasks = [];
+      while (secs[secId].tasks.length <= taskIdx) secs[secId].tasks.push({});
+      secs[secId].tasks[taskIdx] = { ...secs[secId].tasks[taskIdx], deleted: true };
+      return { ...d, gamePlanSections: secs };
+    });
+  };
+
+  const addTask = (secId) => {
+    setData(d => {
+      const secs = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
+      if (!secs[secId]) secs[secId] = {};
+      if (!secs[secId].extraTasks) secs[secId].extraTasks = [];
+      secs[secId].extraTasks.push({ text: "New task", due: "This week", done: false });
+      return { ...d, gamePlanSections: secs };
+    });
+  };
+
+  const updateOwner = (secId, owner) => {
+    setData(d => {
+      const secs = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
+      if (!secs[secId]) secs[secId] = {};
+      secs[secId].owner = owner;
+      return { ...d, gamePlanSections: secs };
+    });
+  };
+
+  const dueColors = {
+    "Today": "#C62828", "Tomorrow": "#D84315", "Monday": "#E65100", "Tuesday": "#E65100",
+    "Wednesday": "#E65100", "Thursday": "#E65100", "Friday": "#E65100",
+    "This week": "#1565C0", "Next week": "#1976D2", "Final week": "#6A1B9A",
+    "Before opening": "#2E7D32", "Before soft open": "#388E3C", "Before grand opening": "#43A047",
+    "Opening day": "#1A5F6A", "Daily": "#00695C", "Ongoing": "#555", "ASAP": "#C62828",
+  };
+
+  const DUE_OPTIONS = ["Today", "Tomorrow", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "This week", "Next week", "Final week", "Before opening", "Before soft open", "Before grand opening", "Opening day", "Daily", "Ongoing", "ASAP"];
+
   // ── Checklist logic ──
   const items = data.openingChecklist || [];
   const filtered = filter === "all" ? items : items.filter(i => i.owner === filter);
   const cats = [...new Set(items.map(i => i.category))];
   const doneCount = items.filter(i => i.done).length;
   const pctDone = items.length ? Math.round((doneCount / items.length) * 100) : 0;
-  const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
-  const toggle = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, done: !i.done } : i) }));
+  const toggleCheck = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, done: !i.done } : i) }));
   const updateItem = (id, f, v) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, [f]: v } : i) }));
   const addItem = (cat) => setData(d => ({ ...d, openingChecklist: [...d.openingChecklist, { id: `oc${Date.now()}`, category: cat, item: "New item", done: false, owner: TEAM[0], notes: "" }] }));
   const removeItem = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.filter(x => x.id !== id) }));
@@ -2380,7 +2413,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
           <button key={t.key} onClick={() => setTab(t.key)}
             style={{ flex: 1, padding: "11px 0", border: "none", borderRadius: 10, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 700, transition: "all 0.2s",
               background: tab === t.key ? "linear-gradient(135deg, #1A5F6A, #0A3540)" : "transparent",
-              color: tab === t.key ? "#fff" : "#999", letterSpacing: "0.01em" }}>
+              color: tab === t.key ? "#fff" : "#999" }}>
             {t.label}
           </button>
         ))}
@@ -2389,7 +2422,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
       {/* ── GAME PLAN TAB ── */}
       {tab === "gameplan" && (
         <div>
-          {/* 200 member WIG */}
+          {/* WIG */}
           <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 20, padding: "22px 22px 18px", marginBottom: 20, boxShadow: "0 6px 24px rgba(26,95,106,0.25)" }}>
             <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 6 }}>⭐ The Goal</div>
             <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#fff", marginBottom: 4 }}>200 Members by Opening Day</div>
@@ -2420,31 +2453,24 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                 <div className="inter" style={{ fontSize: 11, color: "#B36B00", fontWeight: 600 }}>Come with answers — under 45 minutes</div>
               </div>
             </div>
-            {(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]).map((item, i, arr) => (
+            {(data.mondayAgenda || ["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"]).map((item, i, arr) => (
               <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", borderBottom: i < arr.length - 1 ? "1px solid rgba(255,180,60,0.2)" : "none", alignItems: "center" }}>
                 <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
-                <input value={item} onChange={e => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next[i] = e.target.value; setData(d => ({ ...d, mondayAgenda: next })); }}
+                <input value={item} onChange={e => { const next = [...(data.mondayAgenda || ["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"])]; next[i] = e.target.value; setData(d => ({ ...d, mondayAgenda: next })); }}
                   style={{ flex: 1, border: "none", background: "transparent", fontSize: 13, color: "#5C3000", fontFamily: "Inter, sans-serif", outline: "none", padding: 0, WebkitTextFillColor: "#5C3000", WebkitBoxShadow: "0 0 0px 1000px transparent inset" }} />
-                <button onPointerDown={() => { const next = [...(data.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"])]; next.splice(i, 1); setData(d => ({ ...d, mondayAgenda: next })); }}
+                <button onPointerDown={() => { const next = [...(data.mondayAgenda || ["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"])]; next.splice(i, 1); setData(d => ({ ...d, mondayAgenda: next })); }}
                   style={{ background: "none", border: "none", cursor: "pointer", color: "#FFCC80", fontSize: 14, flexShrink: 0, padding: "2px 6px", borderRadius: 6 }}>✕</button>
               </div>
             ))}
-            <button onPointerDown={() => setData(d => ({ ...d, mondayAgenda: [...(d.mondayAgenda || ["Review checklist \u2014 what's done, what's blocked (10 min)", "Social calendar \u2014 who posts what and when (10 min)", "24/7 announcement \u2014 approve post copy and set date (5 min)", "Merch \u2014 final design decisions and vendor (10 min)", "Opening event \u2014 date, format, members-first night (10 min)"]), "New agenda item"] }))}
-              style={{ marginTop: 10, width: "100%", background: "rgba(255,180,60,0.06)", border: "1.5px dashed rgba(255,180,60,0.35)", borderRadius: 8, padding: "8px", cursor: "pointer", fontSize: 12, color: "#C68A00", fontFamily: "Inter, sans-serif", fontWeight: 700, letterSpacing: "0.02em" }}>+ Add agenda item</button>
+            <button onPointerDown={() => setData(d => ({ ...d, mondayAgenda: [...(d.mondayAgenda || ["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"]), "New agenda item"] }))}
+              style={{ marginTop: 10, width: "100%", background: "rgba(255,180,60,0.06)", border: "1.5px dashed rgba(255,180,60,0.35)", borderRadius: 8, padding: "8px", cursor: "pointer", fontSize: 12, color: "#C68A00", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>+ Add agenda item</button>
           </div>
 
           {/* Sections */}
           {sections.map(sec => {
-            const deleted = data.gamePlanDeleted?.[sec.id] || [];
-            const custom = data.gamePlanCustom?.[sec.id] || {};
-            const extra = data.gamePlanExtra?.[sec.id] || [];
-            const visibleTasks = sec.tasks
-              .map((t, i) => ({ ...t, ...(custom[i] || {}), origIdx: i }))
-              .filter((_, i) => !deleted.includes(i));
-            const extraTasks = extra.map((t, i) => ({ ...t, origIdx: `extra_${i}` }));
-            const allTasks = [...visibleTasks, ...extraTasks];
-            const doneTasks = allTasks.filter((t) => isDone(sec.id, t.origIdx)).length;
-            const secPct = allTasks.length ? Math.round((doneTasks / allTasks.length) * 100) : 0;
+            const visibleTasks = sec.tasks.filter(t => !t.deleted);
+            const doneTasks = visibleTasks.filter(t => t.done).length;
+            const secPct = visibleTasks.length ? Math.round((doneTasks / visibleTasks.length) * 100) : 0;
             return (
               <div key={sec.id} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 14 }}>
                 <div style={{ background: `linear-gradient(135deg, ${sec.color}, ${sec.color}CC)`, padding: "16px 20px" }}>
@@ -2453,23 +2479,21 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                       <span style={{ fontSize: 20 }}>{sec.emoji}</span>
                       <div>
                         <div className="lora" style={{ fontSize: 16, fontStyle: "italic", color: "#fff" }}>{sec.title}</div>
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                      <span className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.9)", fontWeight: 700, background: "rgba(255,255,255,0.15)", padding: "2px 10px", borderRadius: 99, cursor: "pointer", position: "relative" }}>
-                        <select
-                          value={(data.gamePlanOwners || {})[sec.id] || sec.owner}
-                          onChange={e => setData(d => ({ ...d, gamePlanOwners: { ...(d.gamePlanOwners || {}), [sec.id]: e.target.value } }))}
-                          style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", width: "100%", height: "100%" }}>
-                          {(data.team || ["Collin", "Caleb", "Madeline"]).map(t => <option key={t} value={t}>{t}</option>)}
-                          <option value="All">All</option>
-                        </select>
-                        {(data.gamePlanOwners || {})[sec.id] || sec.owner} ▾
-                      </span>
-                      <span className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>· {sec.deadline}</span>
-                    </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.15)", color: "#fff", borderRadius: 6, padding: "3px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", position: "relative", display: "inline-block" }}>
+                            <select value={sec.owner} onChange={e => updateOwner(sec.id, e.target.value)}
+                              style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", width: "100%", height: "100%" }}>
+                              {(data.team || ["Collin", "Caleb", "Madeline"]).map(t => <option key={t} value={t}>{t}</option>)}
+                              <option value="All">All</option>
+                            </select>
+                            {sec.owner} ▾
+                          </span>
+                          <span className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>· {sec.deadline}</span>
+                        </div>
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div className="lora" style={{ fontSize: 20, color: "#fff" }}>{doneTasks}/{sec.tasks.length}</div>
+                      <div className="lora" style={{ fontSize: 20, color: "#fff" }}>{doneTasks}/{visibleTasks.length}</div>
                     </div>
                   </div>
                   <div style={{ height: 4, background: "rgba(255,255,255,0.2)", borderRadius: 99, overflow: "hidden" }}>
@@ -2477,31 +2501,29 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                   </div>
                 </div>
                 <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 7 }}>
-                  {allTasks.map((task, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", background: "#fff", borderRadius: 12, border: `1px solid ${isDone(sec.id, task.origIdx) ? "#B8E0CC" : "#EAEFF3"}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
-                      <div onPointerDown={() => toggleTask(sec.id, task.origIdx)} style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${isDone(sec.id, task.origIdx) ? "#4CAF50" : "#D0DAE4"}`, background: isDone(sec.id, task.origIdx) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: "pointer", transition: "all 0.2s", boxShadow: isDone(sec.id, task.origIdx) ? "0 2px 8px rgba(76,175,80,0.3)" : "none" }}>
-                        {isDone(sec.id, task.origIdx) && <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>✓</span>}
+                  {visibleTasks.map((task, visIdx) => {
+                    const realIdx = sec.tasks.indexOf(task);
+                    return (
+                      <div key={visIdx} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", background: task.done ? "#F0FBF5" : "#fff", borderRadius: 12, border: `1px solid ${task.done ? "#B8E0CC" : "#EAEFF3"}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                        <div onPointerDown={() => toggleDone(sec.id, realIdx)}
+                          style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${task.done ? "#4CAF50" : "#D0DAE4"}`, background: task.done ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: "pointer", transition: "all 0.2s", boxShadow: task.done ? "0 2px 8px rgba(76,175,80,0.3)" : "none" }}>
+                          {task.done && <span style={{ color: "#fff", fontSize: 11, fontWeight: 900 }}>✓</span>}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <SmoothInput value={task.text} onCommit={v => updateTask(sec.id, realIdx, "text", v)}
+                            style={{ border: "none", padding: 0, fontSize: 14, color: task.done ? "#aaa" : "#0D1117", textDecoration: task.done ? "line-through" : "none", lineHeight: 1.6, fontWeight: 500, background: "transparent", width: "100%", WebkitTextFillColor: task.done ? "#aaa" : "#0D1117", outline: "none" }} />
+                          <select value={task.due || "This week"} onChange={e => updateTask(sec.id, realIdx, "due", e.target.value)}
+                            style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: `${dueColors[task.due] || "#999"}18`, color: dueColors[task.due] || "#999", borderRadius: 99, padding: "2px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
+                            {DUE_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
+                          </select>
+                        </div>
+                        <button onPointerDown={() => deleteTask(sec.id, realIdx)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#C8D5E0", fontSize: 15, flexShrink: 0, padding: "4px 6px", borderRadius: 6 }}>✕</button>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <SmoothInput value={(data.gamePlanCustom?.[sec.id]?.[task.origIdx]?.text) || task.text} onCommit={v => editTask(sec.id, task.origIdx, "text", v)}
-                          style={{ border: "none", padding: "0", fontSize: 14, color: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.6, fontWeight: 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", outline: "none" }} />
-                        {(() => {
-                          const savedDue = (data.gamePlanCustom?.[sec.id]?.[task.origIdx]?.due) || task.due;
-                          return (
-                            <select value={savedDue} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
-                              style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: `${dueColors[savedDue] || "#999"}14`, color: dueColors[savedDue] || "#999", borderRadius: 99, padding: "2px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
-                              {["Today", "Tomorrow", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "This week", "Next week", "Final week", "Before opening", "Before soft open", "Before grand opening", "Opening day", "Daily", "Ongoing", "ASAP"].map(d => <option key={d} value={d}>{d}</option>)}
-                            </select>
-                          );
-                        })()}
-                      </div>
-                      <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C8D5E0", fontSize: 15, flexShrink: 0, padding: "4px 6px", lineHeight: 1, borderRadius: 6 }}>✕</button>
-                    </div>
-                  ))}
-                  <button onPointerDown={() => addCustomTask(sec.id)}
-                    style={{ width: "100%", background: "#FAFBFC", border: "1.5px dashed #D8E2EC", borderRadius: 10, padding: "10px", cursor: "pointer", fontSize: 13, color: "#9BAAB8", fontFamily: "Inter, sans-serif", fontWeight: 600, marginTop: 8, letterSpacing: "0.01em" }}>
-                    + Add task
-                  </button>
+                    );
+                  })}
+                  <button onPointerDown={() => addTask(sec.id)}
+                    style={{ width: "100%", background: "#FAFBFC", border: "1.5px dashed #D8E2EC", borderRadius: 10, padding: "10px", cursor: "pointer", fontSize: 13, color: "#9BAAB8", fontFamily: "Inter, sans-serif", fontWeight: 600, marginTop: 4 }}>+ Add task</button>
                 </div>
               </div>
             );
@@ -2527,14 +2549,12 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
               <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
             </div>
           </div>
-
           <div style={{ marginBottom: 16 }}>
             <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
               <option value="all">All owners</option>
               {TEAM.map(t => <option key={t}>{t}</option>)}
             </select>
           </div>
-
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
             {cats.map(cat => {
               const catItems = filtered.filter(i => i.category === cat);
@@ -2556,7 +2576,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                   <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                     {catItems.map(item => (
                       <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
-                        <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
+                        <input type="checkbox" checked={item.done} onChange={() => toggleCheck(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
                         <div style={{ flex: 1 }}>
                           {isOwner
                             ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)} style={{ border: "none", padding: 0, fontSize: 13, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none", WebkitTextFillColor: item.done ? "#888" : "#0D1117", width: "100%" }} />
@@ -2578,6 +2598,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
     </div>
   );
 }
+
 
 
 function MembersPage({ data, setData }) {
