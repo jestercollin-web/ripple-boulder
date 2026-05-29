@@ -551,7 +551,6 @@ export default function App() {
     { key: "goals",      label: "Goals" },
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
-    { key: "gameplan",   label: "🎯 Game Plan" },
     { key: "guide",      label: "📋 Guide" },
     { key: "settings",   label: "Settings" },
   ];
@@ -912,7 +911,6 @@ export default function App() {
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
-        {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "guide"      && <MembershipGuidePage />}
@@ -2217,14 +2215,109 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
 
 // ── Opening Page ──────────────────────────────────────────────────────────────
 function OpeningPage({ data, setData, isOwner, TEAM }) {
+  const [tab, setTab] = useState("gameplan");
   const [filter, setFilter] = useState("all");
+
+  // ── Game Plan logic ──
+  const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
+  const goal = 200;
+  const pctToGoal = Math.min(100, Math.round((memberCount / goal) * 100));
+  const remaining = Math.max(0, goal - memberCount);
+
+  const toggleTask = (section, idx) => {
+    setData(d => ({
+      ...d,
+      gamePlanTasks: {
+        ...(d.gamePlanTasks || {}),
+        [section]: {
+          ...((d.gamePlanTasks || {})[section] || {}),
+          [idx]: !((d.gamePlanTasks || {})[section] || {})[idx]
+        }
+      }
+    }));
+  };
+  const isDone = (section, idx) => !!(data.gamePlanTasks?.[section]?.[idx]);
+
+  const dueColors = {
+    "Today": "#C62828", "Monday": "#E65100", "Tuesday": "#E65100",
+    "ASAP": "#C62828", "This week": "#1565C0", "Daily": "#2E7D32",
+    "Final week": "#6A1B9A", "Ongoing": "#555", "Before opening": "#2E7D32",
+    "Before soft open": "#2E7D32", "Before grand opening": "#2E7D32", "Opening day": "#1A5F6A",
+  };
+
+  const sections = [
+    { id: "presales", emoji: "💳", title: "Presales — Hit 200 Members", owner: "Collin", deadline: "Complete by Monday", color: "#1A5F6A",
+      tasks: [
+        { text: "Text every founding member — 'We're almost open. Bring one friend.'", due: "Today" },
+        { text: "Send email blast to full list — short, exciting, link to sign up", due: "Monday" },
+        { text: "Announce hard close date for founding pricing publicly", due: "Monday" },
+        { text: "Post member count — '154 members and counting. Founding spots closing soon.'", due: "Today" },
+        { text: "Add discounted opening week day pass presale online ($15)", due: "This week" },
+        { text: "DM everyone who liked or commented on our posts", due: "This week" },
+        { text: "Ask every founding member for one referral before opening", due: "Ongoing" },
+        { text: "Reach out to local companies about corporate memberships", due: "This week" },
+      ]
+    },
+    { id: "social", emoji: "📱", title: "Social Media", owner: "Caleb", deadline: "Posts start today", color: "#7B5EA7",
+      tasks: [
+        { text: "Post 24/7 teaser — 'Something we've been working on is almost ready. 🌊'", due: "Today" },
+        { text: "Post 24/7 announcement — 'Open 24 hrs, 7 days a week. Your terms.'", due: "Tuesday" },
+        { text: "Film cinematic walkthrough of the finished gym", due: "This week" },
+        { text: "Post member count update — '154 founding members and counting'", due: "Today" },
+        { text: "Introduce each team member — one post each", due: "This week" },
+        { text: "Feature a founding member spotlight — real person, real quote", due: "This week" },
+        { text: "Post daily stories — countdown, polls, behind the scenes", due: "Daily" },
+        { text: "Grand opening event announcement post", due: "Final week" },
+        { text: "'Last chance founding pricing' post with hard deadline", due: "Final week" },
+        { text: "Opening day Reel — film everything, post same day", due: "Opening day" },
+      ]
+    },
+    { id: "merch", emoji: "👕", title: "Merch", owner: "Collin", deadline: "Order by Tuesday", color: "#2E7D8C",
+      tasks: [
+        { text: "Finalize Classic Tee design — wordmark on chest, wave on sleeve", due: "Monday" },
+        { text: "Finalize Sticker Pack — logo, wave mark, 'Broad Ripple Climbs'", due: "Monday" },
+        { text: "Select print vendor and confirm lead time", due: "Monday" },
+        { text: "Place order for tees and stickers", due: "Tuesday" },
+        { text: "Price merch for front desk display", due: "Before opening" },
+        { text: "Announce merch on social before opening day", due: "Final week" },
+        { text: "Give sticker pack free to all founding members opening week", due: "Opening day" },
+      ]
+    },
+    { id: "access247", emoji: "🔑", title: "24/7 Access Launch", owner: "Collin", deadline: "Ready before soft open", color: "#0A3540",
+      tasks: [
+        { text: "Confirm 24/7 access system installed and fully tested", due: "This week" },
+        { text: "Test member key fob or app access end-to-end", due: "This week" },
+        { text: "Write and approve the 24/7 announcement post copy", due: "Monday" },
+        { text: "Add 24/7 info to website and Google Business profile", due: "This week" },
+        { text: "Train all staff on 24/7 protocols and emergency procedures", due: "Before opening" },
+        { text: "Test overnight access scenario before opening", due: "Before soft open" },
+      ]
+    },
+    { id: "ops", emoji: "🏋️", title: "Operations", owner: "All", deadline: "Done before soft open", color: "#33691E",
+      tasks: [
+        { text: "Certificate of Occupancy confirmed", due: "ASAP" },
+        { text: "Fire marshal inspection passed", due: "ASAP" },
+        { text: "All routes set and quality-tested across all grades", due: "This week" },
+        { text: "POS and Beta tested end-to-end", due: "This week" },
+        { text: "Full mock operating day completed with all staff", due: "This week" },
+        { text: "Rental shoes cleaned, sized, and ready", due: "Before soft open" },
+        { text: "AED, first aid kits, fire extinguishers checked", due: "Before soft open" },
+        { text: "Staff schedule for opening week locked", due: "This week" },
+        { text: "Photographer booked for opening day", due: "This week" },
+        { text: "Music, lighting, and atmosphere dialed in", due: "Before soft open" },
+        { text: "Soft opening for founding members planned", due: "Before grand opening" },
+        { text: "Grand opening event confirmed with date and details", due: "This week" },
+      ]
+    },
+  ];
+
+  // ── Checklist logic ──
   const items = data.openingChecklist || [];
   const filtered = filter === "all" ? items : items.filter(i => i.owner === filter);
   const cats = [...new Set(items.map(i => i.category))];
   const doneCount = items.filter(i => i.done).length;
   const pctDone = items.length ? Math.round((doneCount / items.length) * 100) : 0;
   const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
-
   const toggle = (id) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, done: !i.done } : i) }));
   const updateItem = (id, f, v) => setData(d => ({ ...d, openingChecklist: d.openingChecklist.map(i => i.id === id ? { ...i, [f]: v } : i) }));
   const addItem = (cat) => setData(d => ({ ...d, openingChecklist: [...d.openingChecklist, { id: `oc${Date.now()}`, category: cat, item: "New item", done: false, owner: TEAM[0], notes: "" }] }));
@@ -2232,88 +2325,189 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
         <div>
-          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Opening Roadmap</h1>
-          <p className="inter" style={{ fontSize: 13, color: "#333", marginTop: 2 }}>Everything that needs to happen before we open.</p>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Opening</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Game plan and checklist to open strong.</p>
         </div>
         {openingDays !== null && (
-          <div style={{ textAlign: "right", background: openingDays <= 14 ? "#FFEBEE" : "#E8F2F4", border: `1px solid ${openingDays <= 14 ? "#FFCDD2" : "#B2D8DD"}`, borderRadius: 12, padding: "10px 16px" }}>
-            <div className="lora" style={{ fontSize: 28, color: openingDays <= 14 ? "#C62828" : "#1A5F6A", lineHeight: 1 }}>{openingDays > 0 ? openingDays : "🎉"}</div>
-            <div className="inter" style={{ fontSize: 11, color: "#333", marginTop: 2 }}>{openingDays > 0 ? "days to go" : "We\'re open!"}</div>
+          <div style={{ textAlign: "right", background: openingDays <= 14 ? "#FFEBEE" : "#E8F2F4", border: `1px solid ${openingDays <= 14 ? "#FFCDD2" : "#B2D8DD"}`, borderRadius: 12, padding: "8px 14px" }}>
+            <div className="lora" style={{ fontSize: 24, color: openingDays <= 14 ? "#C62828" : "#1A5F6A", lineHeight: 1 }}>{openingDays > 0 ? openingDays : "🎉"}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{openingDays > 0 ? "days to go" : "Open!"}</div>
             {isOwner && <input type="date" value={data.openingDate || ""} onChange={e => setData(d => ({ ...d, openingDate: e.target.value }))}
-              style={{ fontSize: 11, border: "none", background: "transparent", color: "#888", marginTop: 4, cursor: "pointer", WebkitTextFillColor: "#888" }} />}
+              style={{ fontSize: 10, border: "none", background: "transparent", color: "#888", marginTop: 2, cursor: "pointer", WebkitTextFillColor: "#888" }} />}
           </div>
         )}
       </div>
 
-      {/* Progress bar */}
-      <div className="card" style={{ marginBottom: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#0D1117" }}>{doneCount} of {items.length} complete</span>
-          <span className="lora" style={{ fontSize: 22, color: pctDone === 100 ? "#2E7D32" : "#1A5F6A" }}>{pctDone}%</span>
-        </div>
-        <div style={{ height: 8, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
-          <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
-        </div>
-        {pctDone === 100 && <p className="inter" style={{ fontSize: 13, color: "#2E7D32", marginTop: 8, fontWeight: 700 }}>🎉 Ready to open!</p>}
+      {/* Tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, background: "#fff", borderRadius: 14, padding: 6, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+        {[{ key: "gameplan", label: "🎯 Game Plan" }, { key: "checklist", label: "✅ Checklist" }].map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            style={{ flex: 1, padding: "10px 0", border: "none", borderRadius: 10, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 700, transition: "all 0.15s",
+              background: tab === t.key ? "linear-gradient(135deg, #1A5F6A, #0A3540)" : "transparent",
+              color: tab === t.key ? "#fff" : "#555" }}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {/* Filter */}
-      <div style={{ marginBottom: 20 }}>
-        <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
-          <option value="all">All owners</option>
-          {TEAM.map(t => <option key={t}>{t}</option>)}
-        </select>
-      </div>
-
-      {/* Categories */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        {cats.map(cat => {
-          const catItems = filtered.filter(i => i.category === cat);
-          if (!catItems.length) return null;
-          const catDone = catItems.filter(i => i.done).length;
-          const cp = Math.round((catDone / catItems.length) * 100);
-          return (
-            <div key={cat}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#0D1117" }}>{cat}</span>
-                  <span className="inter" style={{ fontSize: 11, color: "#555" }}>{catDone}/{catItems.length}</span>
-                  <div style={{ width: 48, height: 4, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
-                    <div style={{ width: `${cp}%`, height: "100%", background: cp === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
-                  </div>
-                </div>
-                {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
+      {/* ── GAME PLAN TAB ── */}
+      {tab === "gameplan" && (
+        <div>
+          {/* 200 member WIG */}
+          <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 20, padding: "22px 22px 18px", marginBottom: 20, boxShadow: "0 6px 24px rgba(26,95,106,0.25)" }}>
+            <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 6 }}>⭐ The Goal</div>
+            <div className="lora" style={{ fontSize: 22, fontStyle: "italic", color: "#fff", marginBottom: 4 }}>200 Members by Opening Day</div>
+            <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 14 }}>We have {memberCount} members. We need {remaining} more.</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+              <div style={{ flex: 1, height: 10, background: "rgba(255,255,255,0.15)", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: `${pctToGoal}%`, height: "100%", background: "linear-gradient(90deg, #7DD3B8, #4DB896)", borderRadius: 99 }} />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {catItems.map(item => (
-                  <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 16px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
-                    <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 20, height: 20, accentColor: "#1A5F6A", flexShrink: 0 }} />
-                    <div style={{ flex: 1 }}>
-                      {isOwner
-                        ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)}
-                            style={{ border: "none", padding: 0, fontSize: 14, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none", WebkitTextFillColor: item.done ? "#888" : "#0D1117", width: "100%" }} />
-                        : <span className="inter" style={{ fontSize: 14, fontWeight: item.done ? 400 : 500, color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none" }}>{item.item}</span>
-                      }
-                    </div>
-                    {isOwner && (
-                      <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto", flexShrink: 0 }}>
-                        {TEAM.map(t => <option key={t}>{t}</option>)}
-                      </select>
-                    )}
-                    {!isOwner && <Avatar name={item.owner} size={26} />}
-                    {isOwner && <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 16, flexShrink: 0 }}>✕</button>}
-                  </div>
-                ))}
+              <span className="lora" style={{ fontSize: 26, color: "#7DD3B8", flexShrink: 0 }}>{pctToGoal}%</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              {[{ label: "Current", value: memberCount, emoji: "👥" }, { label: "Need", value: remaining, emoji: "🎯" }, { label: "Goal", value: 200, emoji: "🏆" }].map(s => (
+                <div key={s.label} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px", textAlign: "center" }}>
+                  <div style={{ fontSize: 16, marginBottom: 2 }}>{s.emoji}</div>
+                  <div className="lora" style={{ fontSize: 20, color: "#fff" }}>{s.value}</div>
+                  <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Monday meeting */}
+          <div style={{ background: "linear-gradient(135deg, #FFF8EC, #FFF3E0)", border: "1px solid #FFD599", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
+            <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 10 }}>
+              <span style={{ fontSize: 18 }}>📅</span>
+              <div>
+                <div className="lora" style={{ fontSize: 16, fontStyle: "italic", color: "#7A4100" }}>Monday Meeting Agenda</div>
+                <div className="inter" style={{ fontSize: 11, color: "#B36B00", fontWeight: 600 }}>Come with answers — under 45 minutes</div>
               </div>
             </div>
-          );
-        })}
-      </div>
+            {["Review checklist — what's done, what's blocked (10 min)", "Social calendar — who posts what and when (10 min)", "24/7 announcement — approve post copy and set date (5 min)", "Merch — final design decisions and vendor (10 min)", "Opening event — date, format, members-first night (10 min)"].map((item, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, padding: "6px 0", borderBottom: i < 4 ? "1px solid rgba(255,180,60,0.2)" : "none" }}>
+                <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#B36B00", flexShrink: 0 }}>{i + 1}.</span>
+                <span className="inter" style={{ fontSize: 13, color: "#5C3000", lineHeight: 1.5 }}>{item}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Sections */}
+          {sections.map(sec => {
+            const doneTasks = sec.tasks.filter((_, i) => isDone(sec.id, i)).length;
+            const secPct = Math.round((doneTasks / sec.tasks.length) * 100);
+            return (
+              <div key={sec.id} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 14 }}>
+                <div style={{ background: `linear-gradient(135deg, ${sec.color}EE, ${sec.color}AA)`, padding: "14px 18px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 20 }}>{sec.emoji}</span>
+                      <div>
+                        <div className="lora" style={{ fontSize: 16, fontStyle: "italic", color: "#fff" }}>{sec.title}</div>
+                        <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>{sec.owner} · <strong>{sec.deadline}</strong></div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div className="lora" style={{ fontSize: 20, color: "#fff" }}>{doneTasks}/{sec.tasks.length}</div>
+                    </div>
+                  </div>
+                  <div style={{ height: 4, background: "rgba(255,255,255,0.2)", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${secPct}%`, height: "100%", background: "rgba(255,255,255,0.8)", borderRadius: 99 }} />
+                  </div>
+                </div>
+                <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 7 }}>
+                  {sec.tasks.map((task, i) => (
+                    <div key={i} onPointerDown={() => toggleTask(sec.id, i)}
+                      style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 12px", background: isDone(sec.id, i) ? "#F0FBF5" : "#F6F9FB", borderRadius: 10, cursor: "pointer", border: `1px solid ${isDone(sec.id, i) ? "#C8E6C9" : "#EEF4F7"}`, userSelect: "none", WebkitUserSelect: "none" }}>
+                      <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${isDone(sec.id, i) ? "#4CAF50" : "#DDE8EE"}`, background: isDone(sec.id, i) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                        {isDone(sec.id, i) && <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>✓</span>}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div className="inter" style={{ fontSize: 13, color: isDone(sec.id, i) ? "#888" : "#0D1117", textDecoration: isDone(sec.id, i) ? "line-through" : "none", lineHeight: 1.5, fontWeight: isDone(sec.id, i) ? 400 : 500 }}>{task.text}</div>
+                        <span style={{ display: "inline-block", marginTop: 3, padding: "1px 7px", borderRadius: 99, fontSize: 10, fontWeight: 700, fontFamily: "Inter, sans-serif", background: `${dueColors[task.due] || "#555"}18`, color: dueColors[task.due] || "#555" }}>⏰ {task.due}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          <div style={{ textAlign: "center", padding: "16px 0 8px" }}>
+            <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#1A5F6A" }}>
+              {remaining <= 0 ? "🎉 200 members! Let's open!" : `${remaining} more members to go. Let's get them.`}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CHECKLIST TAB ── */}
+      {tab === "checklist" && (
+        <div>
+          <div className="card" style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span className="inter" style={{ fontSize: 13, fontWeight: 600, color: "#0D1117" }}>{doneCount} of {items.length} complete</span>
+              <span className="lora" style={{ fontSize: 22, color: pctDone === 100 ? "#2E7D32" : "#1A5F6A" }}>{pctDone}%</span>
+            </div>
+            <div style={{ height: 8, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+              <div style={{ width: `${pctDone}%`, height: "100%", background: pctDone === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <select value={filter} onChange={e => setFilter(e.target.value)} style={{ width: "auto" }}>
+              <option value="all">All owners</option>
+              {TEAM.map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {cats.map(cat => {
+              const catItems = filtered.filter(i => i.category === cat);
+              if (!catItems.length) return null;
+              const catDone = catItems.filter(i => i.done).length;
+              const cp = Math.round((catDone / catItems.length) * 100);
+              return (
+                <div key={cat}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#0D1117" }}>{cat}</span>
+                      <span className="inter" style={{ fontSize: 11, color: "#555" }}>{catDone}/{catItems.length}</span>
+                      <div style={{ width: 40, height: 4, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+                        <div style={{ width: `${cp}%`, height: "100%", background: cp === 100 ? "#4CAF50" : "#1A5F6A", borderRadius: 99 }} />
+                      </div>
+                    </div>
+                    {isOwner && <button onClick={() => addItem(cat)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontSize: 12, color: "#333", fontFamily: "Inter, sans-serif" }}>+ Add</button>}
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                    {catItems.map(item => (
+                      <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: item.done ? "#F0FBF0" : "#fff", border: `1px solid ${item.done ? "#C8E6C9" : "#DDE8EE"}`, borderRadius: 10, opacity: item.done ? 0.75 : 1 }}>
+                        <input type="checkbox" checked={item.done} onChange={() => toggle(item.id)} style={{ width: 18, height: 18, accentColor: "#1A5F6A" }} />
+                        <div style={{ flex: 1 }}>
+                          {isOwner
+                            ? <SmoothInput value={item.item} onCommit={v => updateItem(item.id, "item", v)} style={{ border: "none", padding: 0, fontSize: 13, fontWeight: item.done ? 400 : 500, background: "transparent", color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none", WebkitTextFillColor: item.done ? "#888" : "#0D1117", width: "100%" }} />
+                            : <span className="inter" style={{ fontSize: 13, fontWeight: item.done ? 400 : 500, color: item.done ? "#888" : "#0D1117", textDecoration: item.done ? "line-through" : "none" }}>{item.item}</span>
+                          }
+                        </div>
+                        {isOwner && <select value={item.owner} onChange={e => updateItem(item.id, "owner", e.target.value)} style={{ fontSize: 12, width: "auto" }}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>}
+                        {!isOwner && <Avatar name={item.owner} size={24} />}
+                        {isOwner && <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 15 }}>✕</button>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 function MembersPage({ data, setData }) {
   const members = data.foundingMembers || [];
