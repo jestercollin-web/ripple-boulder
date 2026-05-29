@@ -443,7 +443,8 @@ const pc = {
 // ── App Shell ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [data, setData] = useState(INITIAL_DATA);
-  const [nav, setNav] = useState("home");
+  const [nav, setNavState] = useState("home");
+  const setNav = (v) => { setNavState(v); setData(d => ({ ...d, lastNav: v })); };
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [pinInput, setPinInput] = useState("");
@@ -2215,7 +2216,8 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
 
 // ── Opening Page ──────────────────────────────────────────────────────────────
 function OpeningPage({ data, setData, isOwner, TEAM }) {
-  const [tab, setTab] = useState("gameplan");
+  const [tab, setTabState] = useState(data.openingTab || "gameplan");
+  const setTab = (v) => { setTabState(v); setData(d => ({ ...d, openingTab: v })); };
   const [filter, setFilter] = useState("all");
 
   // ── Game Plan logic ──
