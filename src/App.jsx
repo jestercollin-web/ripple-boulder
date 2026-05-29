@@ -2236,6 +2236,34 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
       }
     }));
   };
+
+  const editTask = (section, idx, field, value) => {
+    setData(d => {
+      const custom = JSON.parse(JSON.stringify(d.gamePlanCustom || {}));
+      if (!custom[section]) custom[section] = {};
+      if (!custom[section][idx]) custom[section][idx] = {};
+      custom[section][idx][field] = value;
+      return { ...d, gamePlanCustom: custom };
+    });
+  };
+
+  const deleteTask = (section, idx) => {
+    setData(d => {
+      const deleted = JSON.parse(JSON.stringify(d.gamePlanDeleted || {}));
+      if (!deleted[section]) deleted[section] = [];
+      if (!deleted[section].includes(idx)) deleted[section].push(idx);
+      return { ...d, gamePlanDeleted: deleted };
+    });
+  };
+
+  const addCustomTask = (sectionId) => {
+    setData(d => {
+      const extra = JSON.parse(JSON.stringify(d.gamePlanExtra || {}));
+      if (!extra[sectionId]) extra[sectionId] = [];
+      extra[sectionId].push({ text: "New task", due: "This week" });
+      return { ...d, gamePlanExtra: extra };
+    });
+  };
   const isDone = (section, idx) => !!(data.gamePlanTasks?.[section]?.[idx]);
 
   const dueColors = {
@@ -2397,8 +2425,16 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
 
           {/* Sections */}
           {sections.map(sec => {
-            const doneTasks = sec.tasks.filter((_, i) => isDone(sec.id, i)).length;
-            const secPct = Math.round((doneTasks / sec.tasks.length) * 100);
+            const deleted = data.gamePlanDeleted?.[sec.id] || [];
+            const custom = data.gamePlanCustom?.[sec.id] || {};
+            const extra = data.gamePlanExtra?.[sec.id] || [];
+            const visibleTasks = sec.tasks
+              .map((t, i) => ({ ...t, ...(custom[i] || {}), origIdx: i }))
+              .filter((_, i) => !deleted.includes(i));
+            const extraTasks = extra.map((t, i) => ({ ...t, origIdx: `extra_${i}` }));
+            const allTasks = [...visibleTasks, ...extraTasks];
+            const doneTasks = allTasks.filter((t) => isDone(sec.id, t.origIdx)).length;
+            const secPct = allTasks.length ? Math.round((doneTasks / allTasks.length) * 100) : 0;
             return (
               <div key={sec.id} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 14 }}>
                 <div style={{ background: `linear-gradient(135deg, ${sec.color}EE, ${sec.color}AA)`, padding: "14px 18px" }}>
@@ -2419,18 +2455,26 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                   </div>
                 </div>
                 <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 7 }}>
-                  {sec.tasks.map((task, i) => (
-                    <div key={i} onPointerDown={() => toggleTask(sec.id, i)}
-                      style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 12px", background: isDone(sec.id, i) ? "#F0FBF5" : "#F6F9FB", borderRadius: 10, cursor: "pointer", border: `1px solid ${isDone(sec.id, i) ? "#C8E6C9" : "#EEF4F7"}`, userSelect: "none", WebkitUserSelect: "none" }}>
-                      <div style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${isDone(sec.id, i) ? "#4CAF50" : "#DDE8EE"}`, background: isDone(sec.id, i) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                        {isDone(sec.id, i) && <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>✓</span>}
+                  {allTasks.map((task, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 12px", background: isDone(sec.id, task.origIdx) ? "#F0FBF5" : "#F6F9FB", borderRadius: 10, border: `1px solid ${isDone(sec.id, task.origIdx) ? "#C8E6C9" : "#EEF4F7"}` }}>
+                      <div onPointerDown={() => toggleTask(sec.id, task.origIdx)} style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${isDone(sec.id, task.origIdx) ? "#4CAF50" : "#DDE8EE"}`, background: isDone(sec.id, task.origIdx) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, cursor: "pointer" }}>
+                        {isDone(sec.id, task.origIdx) && <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>✓</span>}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div className="inter" style={{ fontSize: 13, color: isDone(sec.id, i) ? "#888" : "#0D1117", textDecoration: isDone(sec.id, i) ? "line-through" : "none", lineHeight: 1.5, fontWeight: isDone(sec.id, i) ? 400 : 500 }}>{task.text}</div>
-                        <span style={{ display: "inline-block", marginTop: 3, padding: "1px 7px", borderRadius: 99, fontSize: 10, fontWeight: 700, fontFamily: "Inter, sans-serif", background: `${dueColors[task.due] || "#555"}18`, color: dueColors[task.due] || "#555" }}>⏰ {task.due}</span>
+                        <SmoothInput value={task.text} onCommit={v => editTask(sec.id, task.origIdx, "text", v)}
+                          style={{ border: "none", padding: 0, fontSize: 13, color: isDone(sec.id, task.origIdx) ? "#888" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.5, fontWeight: isDone(sec.id, task.origIdx) ? 400 : 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#888" : "#0D1117" }} />
+                        <select value={task.due} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
+                          style={{ marginTop: 4, fontSize: 10, fontWeight: 700, border: "none", background: `${dueColors[task.due] || "#555"}18`, color: dueColors[task.due] || "#555", borderRadius: 99, padding: "1px 6px", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+                          {Object.keys(dueColors).map(d => <option key={d} value={d}>⏰ {d}</option>)}
+                        </select>
                       </div>
+                      <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 14, flexShrink: 0, padding: "2px 4px" }}>✕</button>
                     </div>
                   ))}
+                  <button onPointerDown={() => addCustomTask(sec.id)}
+                    style={{ width: "100%", background: "none", border: "1.5px dashed #DDE8EE", borderRadius: 10, padding: "8px", cursor: "pointer", fontSize: 12, color: "#888", fontFamily: "Inter, sans-serif", marginTop: 4 }}>
+                    + Add task
+                  </button>
                 </div>
               </div>
             );
