@@ -2301,53 +2301,49 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
     const saved = data.gamePlanSections || {};
     return DEFAULT_SECTIONS.map(sec => {
       const savedSec = saved[sec.id] || {};
-      const savedTasks = savedSec.tasks || [];
+      // Use taskOverrides object - works for ANY task index
+      const overrides = savedSec.taskOverrides || {};
       const tasks = sec.tasks.map((t, i) => ({
         ...t,
-        ...(savedTasks[i] || {}),
+        ...(overrides[String(i)] || {}),
       }));
-      // Append any extra custom tasks added by user
-      const extraTasks = savedSec.extraTasks || [];
+      const extraTasks = (savedSec.extraTasks || []).map((t, i) => ({
+        ...t,
+        ...(overrides[String(sec.tasks.length + i)] || {}),
+      }));
       return {
         ...sec,
         title: savedSec.title || sec.title,
         owner: savedSec.owner || sec.owner,
         tasks: [...tasks, ...extraTasks],
-        isExtra: (i) => i >= sec.tasks.length,
       };
     });
   };
 
   const sections = getSections();
 
-  // Save task change directly to Supabase via setData
+  // Save task change - uses object keys so ANY index saves correctly
   const updateTask = (secId, taskIdx, field, value) => {
     setData(d => {
-      const sections = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
-      if (!sections[secId]) sections[secId] = {};
-      if (!sections[secId].tasks) sections[secId].tasks = [];
-      while (sections[secId].tasks.length <= taskIdx) sections[secId].tasks.push({});
-      sections[secId].tasks[taskIdx] = { ...sections[secId].tasks[taskIdx], [field]: value };
-      return { ...d, gamePlanSections: sections };
+      const secs = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
+      if (!secs[secId]) secs[secId] = {};
+      // Use an object keyed by index instead of array to avoid length issues
+      if (!secs[secId].taskOverrides) secs[secId].taskOverrides = {};
+      const key = String(taskIdx);
+      secs[secId].taskOverrides[key] = { ...(secs[secId].taskOverrides[key] || {}), [field]: value };
+      return { ...d, gamePlanSections: secs };
     });
   };
 
   const toggleDone = (secId, taskIdx) => {
     const sec = sections.find(s => s.id === secId);
     const task = sec?.tasks[taskIdx];
-    const currentDone = task?.done || false;
+    const currentDone = !!(task?.done);
     updateTask(secId, taskIdx, "done", !currentDone);
   };
 
   const deleteTask = (secId, taskIdx) => {
-    setData(d => {
-      const secs = JSON.parse(JSON.stringify(d.gamePlanSections || {}));
-      if (!secs[secId]) secs[secId] = {};
-      if (!secs[secId].tasks) secs[secId].tasks = [];
-      while (secs[secId].tasks.length <= taskIdx) secs[secId].tasks.push({});
-      secs[secId].tasks[taskIdx] = { ...secs[secId].tasks[taskIdx], deleted: true };
-      return { ...d, gamePlanSections: secs };
-    });
+    updateTask(secId, taskIdx, "deleted", true);
   };
 
   const addTask = (secId) => {
