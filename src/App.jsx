@@ -551,6 +551,7 @@ export default function App() {
     { key: "goals",      label: "Goals" },
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
+    { key: "gameplan",   label: "🎯 Game Plan" },
     { key: "guide",      label: "📋 Guide" },
     { key: "settings",   label: "Settings" },
   ];
@@ -911,6 +912,7 @@ export default function App() {
         {nav === "opening"    && <OpeningPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "members"    && <MembersPage data={data} setData={setData} />}
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
+        {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "guide"      && <MembershipGuidePage />}
