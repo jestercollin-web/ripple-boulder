@@ -2437,7 +2437,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
             const secPct = allTasks.length ? Math.round((doneTasks / allTasks.length) * 100) : 0;
             return (
               <div key={sec.id} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 14 }}>
-                <div style={{ background: `linear-gradient(135deg, ${sec.color}EE, ${sec.color}AA)`, padding: "14px 18px" }}>
+                <div style={{ background: `linear-gradient(135deg, ${sec.color}, ${sec.color}CC)`, padding: "16px 20px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 20 }}>{sec.emoji}</span>
@@ -2456,23 +2456,23 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                 </div>
                 <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 7 }}>
                   {allTasks.map((task, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "9px 12px", background: isDone(sec.id, task.origIdx) ? "#F0FBF5" : "#F6F9FB", borderRadius: 10, border: `1px solid ${isDone(sec.id, task.origIdx) ? "#C8E6C9" : "#EEF4F7"}` }}>
-                      <div onPointerDown={() => toggleTask(sec.id, task.origIdx)} style={{ width: 20, height: 20, borderRadius: "50%", border: `2px solid ${isDone(sec.id, task.origIdx) ? "#4CAF50" : "#DDE8EE"}`, background: isDone(sec.id, task.origIdx) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, cursor: "pointer" }}>
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", background: "#fff", borderRadius: 12, border: `1px solid ${isDone(sec.id, task.origIdx) ? "#B8E0CC" : "#EAEFF3"}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                      <div onPointerDown={() => toggleTask(sec.id, task.origIdx)} style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${isDone(sec.id, task.origIdx) ? "#4CAF50" : "#D0DAE4"}`, background: isDone(sec.id, task.origIdx) ? "#4CAF50" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: "pointer", transition: "all 0.2s", boxShadow: isDone(sec.id, task.origIdx) ? "0 2px 8px rgba(76,175,80,0.3)" : "none" }}>
                         {isDone(sec.id, task.origIdx) && <span style={{ color: "#fff", fontSize: 10, fontWeight: 900 }}>✓</span>}
                       </div>
                       <div style={{ flex: 1 }}>
                         <SmoothInput value={task.text} onCommit={v => editTask(sec.id, task.origIdx, "text", v)}
-                          style={{ border: "none", padding: 0, fontSize: 13, color: isDone(sec.id, task.origIdx) ? "#888" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.5, fontWeight: isDone(sec.id, task.origIdx) ? 400 : 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#888" : "#0D1117" }} />
+                          style={{ border: "none", padding: "0", fontSize: 14, color: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.6, fontWeight: 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", outline: "none" }} />
                         <select value={task.due} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
-                          style={{ marginTop: 4, fontSize: 10, fontWeight: 700, border: "none", background: `${dueColors[task.due] || "#555"}18`, color: dueColors[task.due] || "#555", borderRadius: 99, padding: "1px 6px", cursor: "pointer", fontFamily: "Inter, sans-serif" }}>
+                          style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: "transparent", color: dueColors[task.due] || "#999", borderRadius: 6, padding: "0", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
                           {Object.keys(dueColors).map(d => <option key={d} value={d}>⏰ {d}</option>)}
                         </select>
                       </div>
-                      <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ccc", fontSize: 14, flexShrink: 0, padding: "2px 4px" }}>✕</button>
+                      <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#D0DAE4", fontSize: 16, flexShrink: 0, padding: "2px 6px", lineHeight: 1 }}>✕</button>
                     </div>
                   ))}
                   <button onPointerDown={() => addCustomTask(sec.id)}
-                    style={{ width: "100%", background: "none", border: "1.5px dashed #DDE8EE", borderRadius: 10, padding: "8px", cursor: "pointer", fontSize: 12, color: "#888", fontFamily: "Inter, sans-serif", marginTop: 4 }}>
+                    style={{ width: "100%", background: "none", border: "1.5px dashed #D0DAE4", borderRadius: 12, padding: "10px", cursor: "pointer", fontSize: 13, color: "#A0AEBF", fontFamily: "Inter, sans-serif", fontWeight: 600, marginTop: 6, letterSpacing: "0.02em" }}>
                     + Add task
                   </button>
                 </div>
