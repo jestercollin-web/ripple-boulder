@@ -2288,27 +2288,30 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
     },
     { id: "social", emoji: "📱", title: "Social Media", owner: "Caleb", deadline: "Posts start today", color: "#7B5EA7",
       tasks: [
-        { text: "Post 24/7 teaser — 'Something we've been working on is almost ready. 🌊'", due: "Today" },
-        { text: "Post 24/7 announcement — 'Open 24 hrs, 7 days a week. Your terms.'", due: "Tuesday" },
-        { text: "Film cinematic walkthrough of the finished gym", due: "This week" },
-        { text: "Post member count update — '154 founding members and counting'", due: "Today" },
-        { text: "Introduce each team member — one post each", due: "This week" },
-        { text: "Feature a founding member spotlight — real person, real quote", due: "This week" },
-        { text: "Post daily stories — countdown, polls, behind the scenes", due: "Daily" },
-        { text: "Grand opening event announcement post", due: "Final week" },
-        { text: "'Last chance founding pricing' post with hard deadline", due: "Final week" },
-        { text: "Opening day Reel — film everything, post same day", due: "Opening day" },
+        { text: "🌊 Post 24/7 teaser — 'Something we've been working on is almost ready.'", due: "Today" },
+        { text: "📢 Post 24/7 announcement — 'Open 24 hrs, 7 days a week. Your schedule, your terms.'", due: "Tuesday" },
+        { text: "🎥 Film cinematic walkthrough of the finished gym — no talking, great music", due: "This week" },
+        { text: "📊 Post member count — '154 founding members and counting. Spots closing soon.'", due: "Today" },
+        { text: "👤 Introduce Collin — founder story post", due: "This week" },
+        { text: "👤 Introduce Caleb — staff spotlight post", due: "This week" },
+        { text: "👤 Introduce Madeline — staff spotlight post", due: "This week" },
+        { text: "🌟 Feature a founding member spotlight — real person, real quote", due: "This week" },
+        { text: "📱 Post daily stories — countdown, polls, behind the scenes", due: "Daily" },
+        { text: "🎉 Grand opening event announcement post with date and details", due: "Final week" },
+        { text: "⏰ 'Last chance founding pricing' post — urgency, clear deadline", due: "Final week" },
+        { text: "🎬 Opening day Reel — film everything, edit same night, post", due: "Opening day" },
       ]
     },
     { id: "merch", emoji: "👕", title: "Merch", owner: "Collin", deadline: "Order by Tuesday", color: "#2E7D8C",
       tasks: [
-        { text: "Finalize Classic Tee design — wordmark on chest, wave on sleeve", due: "Monday" },
-        { text: "Finalize Sticker Pack — logo, wave mark, 'Broad Ripple Climbs'", due: "Monday" },
-        { text: "Select print vendor and confirm lead time", due: "Monday" },
-        { text: "Place order for tees and stickers", due: "Tuesday" },
-        { text: "Price merch for front desk display", due: "Before opening" },
-        { text: "Announce merch on social before opening day", due: "Final week" },
-        { text: "Give sticker pack free to all founding members opening week", due: "Opening day" },
+        { text: "✏️ Finalize Classic Tee design — Ripple Boulder wordmark chest, wave logo sleeve", due: "Monday" },
+        { text: "✏️ Finalize Sticker Pack — 3 designs: logo, wave mark, 'Broad Ripple Climbs'", due: "Monday" },
+        { text: "🏭 Select print vendor — confirm pricing and lead time (must arrive before opening)", due: "Monday" },
+        { text: "📦 Place order for tees and stickers", due: "Tuesday" },
+        { text: "🏷️ Set retail pricing for front desk display", due: "Before opening" },
+        { text: "📸 Photograph merch for social content", due: "Before opening" },
+        { text: "📢 Announce merch drop on social — 'Something for the founding members'", due: "Final week" },
+        { text: "🎁 Give sticker pack free to every founding member during opening week", due: "Opening day" },
       ]
     },
     { id: "access247", emoji: "🔑", title: "24/7 Access Launch", owner: "Collin", deadline: "Ready before soft open", color: "#0A3540",
@@ -2482,7 +2485,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                           style={{ border: "none", padding: "0", fontSize: 14, color: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", textDecoration: isDone(sec.id, task.origIdx) ? "line-through" : "none", lineHeight: 1.6, fontWeight: 500, background: "transparent", width: "100%", WebkitTextFillColor: isDone(sec.id, task.origIdx) ? "#aaa" : "#0D1117", outline: "none" }} />
                         <select value={task.due} onChange={e => editTask(sec.id, task.origIdx, "due", e.target.value)}
                           style={{ marginTop: 4, fontSize: 11, fontWeight: 600, border: "none", background: `${dueColors[task.due] || "#999"}14`, color: dueColors[task.due] || "#999", borderRadius: 99, padding: "2px 8px", cursor: "pointer", fontFamily: "Inter, sans-serif", outline: "none" }}>
-                          {Object.keys(dueColors).map(d => <option key={d} value={d}>⏰ {d}</option>)}
+                          {["Today", "Tomorrow", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "This week", "Next week", "Final week", "Before opening", "Before soft open", "Before grand opening", "Opening day", "Daily", "Ongoing", "ASAP"].map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                       </div>
                       <button onPointerDown={() => deleteTask(sec.id, task.origIdx)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C8D5E0", fontSize: 15, flexShrink: 0, padding: "4px 6px", lineHeight: 1, borderRadius: 6 }}>✕</button>
