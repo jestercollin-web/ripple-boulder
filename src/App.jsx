@@ -2465,7 +2465,15 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
 
           {/* Sections */}
           {sections.map(sec => {
-            const visibleTasks = sec.tasks.filter(t => !t.deleted);
+            const duePriority = {"Today": 0, "ASAP": 0, "Tomorrow": 1, "Monday": 2, "Tuesday": 2, "Wednesday": 2, "Thursday": 2, "Friday": 2, "This week": 3, "Next week": 4, "Final week": 5, "Before opening": 6, "Before soft open": 7, "Before grand opening": 8, "Opening day": 9, "Daily": 10, "Ongoing": 11};
+            const visibleTasks = sec.tasks
+              .filter(t => !t.deleted)
+              .map((t, i) => ({ ...t, _origIdx: sec.tasks.indexOf(t) }))
+              .sort((a, b) => {
+                if (a.done && !b.done) return 1;
+                if (!a.done && b.done) return -1;
+                return (duePriority[a.due] ?? 5) - (duePriority[b.due] ?? 5);
+              });
             const doneTasks = visibleTasks.filter(t => t.done).length;
             const secPct = visibleTasks.length ? Math.round((doneTasks / visibleTasks.length) * 100) : 0;
             return (
@@ -2503,7 +2511,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
                 </div>
                 <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 7 }}>
                   {visibleTasks.map((task, visIdx) => {
-                    const realIdx = sec.tasks.indexOf(task);
+                    const realIdx = task._origIdx ?? sec.tasks.indexOf(task);
                     return (
                       <div key={visIdx} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", background: task.done ? "#F0FBF5" : "#fff", borderRadius: 12, border: `1px solid ${task.done ? "#B8E0CC" : "#EAEFF3"}`, boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
                         <div onPointerDown={() => toggleDone(sec.id, realIdx)}
