@@ -2465,7 +2465,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
 
           {/* Sections */}
           {sections.map(sec => {
-            const duePriority = {"Today": 0, "ASAP": 0, "Tomorrow": 1, "Monday": 2, "Tuesday": 2, "Wednesday": 2, "Thursday": 2, "Friday": 2, "This week": 3, "Next week": 4, "Final week": 5, "Before opening": 6, "Before soft open": 7, "Before grand opening": 8, "Opening day": 9, "Daily": 10, "Ongoing": 11};
+            const duePriority = {"Today": 0, "ASAP": 0, "Daily": 0, "Ongoing": 0, "Tomorrow": 1, "Monday": 2, "Tuesday": 2, "Wednesday": 2, "Thursday": 2, "Friday": 2, "This week": 3, "Next week": 4, "Final week": 5, "Before opening": 6, "Before soft open": 7, "Before grand opening": 8, "Opening day": 9};
             const visibleTasks = sec.tasks
               .filter(t => !t.deleted)
               .map((t, i) => ({ ...t, _origIdx: sec.tasks.indexOf(t) }))
