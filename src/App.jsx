@@ -553,6 +553,7 @@ export default function App() {
     { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
     { key: "guide",      label: "📋 Guide" },
+    { key: "budget",     label: "💰 Budget" },
     { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
@@ -914,6 +915,7 @@ export default function App() {
         {nav === "scoreboard" && <ScoreboardPage data={{...data, goals: goalsWithRealCount}} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
+        {nav === "budget"     && <BudgetPage data={data} setData={setData} />}
         {nav === "guide"      && <MembershipGuidePage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
@@ -3245,6 +3247,253 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+
+// ── Budget Page ───────────────────────────────────────────────────────────────
+function BudgetPage({ data, setData }) {
+  const MONTHS = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
+
+  const CATEGORIES = [
+    {
+      id: "facility",
+      title: "Facility Supplies",
+      color: "#1A5F6A",
+      lines: [
+        { id: "cleaning",   label: "Cleaning & Janitorial",        monthly: 83,  annual: 1000  },
+        { id: "facility",   label: "Facility Supplies",             monthly: 243, annual: 2920  },
+        { id: "frontdesk",  label: "Front Desk Supplies",           monthly: 83,  annual: 1000  },
+        { id: "concessions",label: "Concessions & Member Goods",    monthly: 105, annual: 1360  },
+        { id: "safety",     label: "Staff, Safety & Hygiene",       monthly: 66,  annual: 800   },
+        { id: "programs",   label: "Programs, Events & Misc",       monthly: 83,  annual: 1000  },
+        { id: "retail",     label: "Local Retail Buffer",           monthly: 63,  annual: 760   },
+      ],
+      groupMonthly: 726,
+      groupAnnual: 8840,
+    },
+    {
+      id: "payroll",
+      title: "Payroll",
+      color: "#7B5EA7",
+      lines: [
+        { id: "payroll", label: "Staff Payroll (~110 hrs/week)", monthly: 14100, annual: 169200 },
+      ],
+      groupMonthly: 14100,
+      groupAnnual: 169200,
+      note: "~220 hours per pay cycle",
+    },
+    {
+      id: "contract",
+      title: "Contract Labor",
+      color: "#2E7D8C",
+      lines: [
+        { id: "bryce", label: "Bryce Trebley",              monthly: null, annual: null },
+        { id: "aiden", label: "Aiden Lyons",                monthly: null, annual: null },
+        { id: "boaz",  label: "Boaz Dixon (Mon/Wed/Fri)",   monthly: null, annual: null },
+      ],
+      groupMonthly: null,
+      groupAnnual: 15000,
+      note: "Total budget: $15,000",
+    },
+    {
+      id: "admin",
+      title: "Admin",
+      color: "#33691E",
+      lines: [
+        { id: "beta",        label: "Beta (Gym Software)",  monthly: null, annual: null },
+        { id: "bankfees",    label: "Bank Fees",            monthly: null, annual: null },
+        { id: "insurance",   label: "Insurance",            monthly: null, annual: null },
+        { id: "bookkeeping", label: "Bookkeeping",          monthly: 400,  annual: 4800 },
+        { id: "wix",         label: "Wix",                  monthly: null, annual: null },
+      ],
+      groupMonthly: null,
+      groupAnnual: null,
+      note: "Amounts TBD for some line items",
+    },
+    {
+      id: "accounting",
+      title: "Accounting & Tax",
+      color: "#7A4100",
+      lines: [
+        { id: "taxfiling",   label: "Tax Filing (one-time)", monthly: null, annual: 1094 },
+        { id: "bookkeeping2",label: "Bookkeeping",           monthly: 400,  annual: 4800 },
+      ],
+      groupMonthly: 400,
+      groupAnnual: 5894,
+    },
+    {
+      id: "presales",
+      title: "Presales",
+      color: "#1A5F6A",
+      lines: [
+        { id: "presales", label: "Presales Budget", monthly: null, annual: 4750 },
+      ],
+      groupMonthly: null,
+      groupAnnual: 4750,
+      note: "Budget range: $4,500–$5,000",
+    },
+  ];
+
+  const getActual = (catId, lineId, month) => {
+    return Number(data.budget?.[catId]?.[lineId]?.[month] || 0);
+  };
+
+  const setActual = (catId, lineId, month, value) => {
+    setData(d => ({
+      ...d,
+      budget: {
+        ...(d.budget || {}),
+        [catId]: {
+          ...(d.budget?.[catId] || {}),
+          [lineId]: {
+            ...(d.budget?.[catId]?.[lineId] || {}),
+            [month]: value === "" ? 0 : Number(value),
+          }
+        }
+      }
+    }));
+  };
+
+  const getYTDActual = (catId, lineId) => MONTHS.reduce((s, m) => s + getActual(catId, lineId, m), 0);
+  const getMonthTotal = (catId, month) => {
+    const cat = CATEGORIES.find(c => c.id === catId);
+    return cat.lines.reduce((s, l) => s + getActual(catId, l.id, month), 0);
+  };
+
+  // Summary stats
+  const totalAnnualBudget = CATEGORIES.reduce((s, c) => s + (c.groupAnnual || 0), 0);
+  const totalSpentYTD = CATEGORIES.reduce((s, c) => s + c.lines.reduce((ls, l) => ls + getYTDActual(c.id, l.id), 0), 0);
+  const pctUsed = totalAnnualBudget ? Math.round((totalSpentYTD / totalAnnualBudget) * 100) : 0;
+  const totalRemaining = totalAnnualBudget - totalSpentYTD;
+
+  const cellColor = (actual, budget) => {
+    if (!budget) return "transparent";
+    const ratio = actual / budget;
+    if (ratio > 1) return "#FFEBEE";
+    if (ratio > 0.9) return "#FFF8E1";
+    if (actual > 0) return "#F1F8E9";
+    return "transparent";
+  };
+  const cellTextColor = (actual, budget) => {
+    if (!budget) return "#0D1117";
+    const ratio = actual / budget;
+    if (ratio > 1) return "#C62828";
+    if (ratio > 0.9) return "#F57F17";
+    if (actual > 0) return "#2E7D32";
+    return "#0D1117";
+  };
+
+  const fmt = (n) => n ? `$${n.toLocaleString()}` : "—";
+  const fmtInput = (n) => n ? String(n) : "";
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Budget</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Fiscal year April – March · Enter actual spend in any cell</p>
+      </div>
+
+      {/* Summary strip */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 28 }} className="g2">
+        {[
+          { label: "Annual Budget", value: `$${totalAnnualBudget.toLocaleString()}`, color: "#1A5F6A", sub: "FY total" },
+          { label: "Spent YTD", value: `$${totalSpentYTD.toLocaleString()}`, color: totalSpentYTD > totalAnnualBudget ? "#C62828" : "#1A5F6A", sub: "entered actuals" },
+          { label: "% Used", value: `${pctUsed}%`, color: pctUsed > 100 ? "#C62828" : pctUsed > 90 ? "#F57F17" : "#2E7D32", sub: "of annual budget" },
+          { label: "Remaining", value: `$${Math.abs(totalRemaining).toLocaleString()}`, color: totalRemaining < 0 ? "#C62828" : "#2E7D32", sub: totalRemaining < 0 ? "over budget" : "left in budget" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "#fff", borderRadius: 14, padding: "16px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <div className="sec-label" style={{ marginBottom: 6 }}>{s.label}</div>
+            <div className="lora" style={{ fontSize: 22, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 4 }}>{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Budget tables */}
+      {CATEGORIES.map(cat => {
+        const catYTD = cat.lines.reduce((s, l) => s + getYTDActual(cat.id, l.id), 0);
+        const catRemaining = (cat.groupAnnual || 0) - catYTD;
+        return (
+          <div key={cat.id} style={{ marginBottom: 28, background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
+            {/* Category header */}
+            <div style={{ background: `linear-gradient(135deg, ${cat.color}, ${cat.color}CC)`, padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#fff" }}>{cat.title}</div>
+                {cat.note && <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>{cat.note}</div>}
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>Annual Budget</div>
+                <div className="lora" style={{ fontSize: 18, color: "#fff" }}>{cat.groupAnnual ? `$${cat.groupAnnual.toLocaleString()}` : "TBD"}</div>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "Inter, sans-serif" }}>
+                <thead>
+                  <tr style={{ background: "#F6F9FB" }}>
+                    <th style={{ padding: "8px 16px", textAlign: "left", fontWeight: 700, color: "#555", whiteSpace: "nowrap", minWidth: 160, borderBottom: "1px solid #EEF4F7" }}>Line Item</th>
+                    <th style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: "#555", whiteSpace: "nowrap", borderBottom: "1px solid #EEF4F7" }}>Budget/Mo</th>
+                    {MONTHS.map(m => (
+                      <th key={m} style={{ padding: "8px 6px", textAlign: "center", fontWeight: 700, color: "#555", whiteSpace: "nowrap", minWidth: 60, borderBottom: "1px solid #EEF4F7" }}>{m}</th>
+                    ))}
+                    <th style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: "#1A5F6A", whiteSpace: "nowrap", borderBottom: "1px solid #EEF4F7" }}>YTD Actual</th>
+                    <th style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: "#555", whiteSpace: "nowrap", borderBottom: "1px solid #EEF4F7" }}>Remaining</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cat.lines.map((line, li) => {
+                    const ytd = getYTDActual(cat.id, line.id);
+                    const remaining = (line.annual || 0) - ytd;
+                    return (
+                      <tr key={line.id} style={{ borderBottom: "1px solid #F0F4F7", background: li % 2 === 0 ? "#fff" : "#FAFBFC" }}>
+                        <td style={{ padding: "8px 16px", color: "#0D1117", fontWeight: 500, whiteSpace: "nowrap" }}>{line.label}</td>
+                        <td style={{ padding: "8px 10px", textAlign: "right", color: "#555", whiteSpace: "nowrap" }}>{line.monthly ? `$${line.monthly}` : "—"}</td>
+                        {MONTHS.map(m => {
+                          const actual = getActual(cat.id, line.id, m);
+                          const bg = cellColor(actual, line.monthly);
+                          const tc = cellTextColor(actual, line.monthly);
+                          return (
+                            <td key={m} style={{ padding: "4px 4px", textAlign: "center", background: bg }}>
+                              <input
+                                type="number"
+                                value={actual || ""}
+                                onChange={e => setActual(cat.id, line.id, m, e.target.value)}
+                                onFocus={e => e.target.select()}
+                                placeholder="—"
+                                style={{ width: 54, textAlign: "center", border: "1px solid #E0E8EF", borderRadius: 6, padding: "4px 2px", fontSize: 12, fontFamily: "Inter, sans-serif", color: tc, background: bg || "#fff", outline: "none", WebkitTextFillColor: tc }}
+                              />
+                            </td>
+                          );
+                        })}
+                        <td style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: ytd > (line.annual || Infinity) ? "#C62828" : "#1A5F6A", whiteSpace: "nowrap" }}>{ytd > 0 ? `$${ytd.toLocaleString()}` : "—"}</td>
+                        <td style={{ padding: "8px 10px", textAlign: "right", color: remaining < 0 ? "#C62828" : "#555", whiteSpace: "nowrap" }}>{line.annual ? (remaining < 0 ? `-$${Math.abs(remaining).toLocaleString()}` : `$${remaining.toLocaleString()}`) : "—"}</td>
+                      </tr>
+                    );
+                  })}
+                  {/* Group total row */}
+                  <tr style={{ background: `${cat.color}10`, borderTop: `2px solid ${cat.color}30` }}>
+                    <td style={{ padding: "10px 16px", fontWeight: 800, color: cat.color }}>TOTAL</td>
+                    <td style={{ padding: "10px 10px", textAlign: "right", fontWeight: 700, color: cat.color }}>{cat.groupMonthly ? `$${cat.groupMonthly.toLocaleString()}` : "—"}</td>
+                    {MONTHS.map(m => {
+                      const total = getMonthTotal(cat.id, m);
+                      return (
+                        <td key={m} style={{ padding: "10px 4px", textAlign: "center", fontWeight: 700, color: cat.color, fontSize: 12 }}>
+                          {total > 0 ? `$${total.toLocaleString()}` : "—"}
+                        </td>
+                      );
+                    })}
+                    <td style={{ padding: "10px 10px", textAlign: "right", fontWeight: 800, color: catYTD > (cat.groupAnnual || Infinity) ? "#C62828" : cat.color }}>{catYTD > 0 ? `$${catYTD.toLocaleString()}` : "—"}</td>
+                    <td style={{ padding: "10px 10px", textAlign: "right", fontWeight: 700, color: catRemaining < 0 ? "#C62828" : "#555" }}>{cat.groupAnnual ? (catRemaining < 0 ? `-$${Math.abs(catRemaining).toLocaleString()}` : `$${catRemaining.toLocaleString()}`) : "—"}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
