@@ -547,6 +547,7 @@ export default function App() {
 
   const ownerNav = [
     { key: "home",       label: "Home" },
+    { key: "announce",   label: "📣 Board" },
     { key: "ops",        label: "Ops" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "goals",      label: "Goals" },
@@ -915,6 +916,7 @@ export default function App() {
         {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "budget"     && <BudgetPage data={data} setData={setData} />}
+        {nav === "announce"   && <AnnouncePage data={data} setData={setData} memberCount={memberCount} />}
         {nav === "guide"      && <MembershipGuidePage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
@@ -3252,6 +3254,193 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 
 
 // ── Budget Page ───────────────────────────────────────────────────────────────
+
+// ── Announcement Board + Member Milestones ───────────────────────────────────
+function AnnouncePage({ data, setData, memberCount }) {
+  const [msg, setMsg] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState("");
+
+  const announcements = data.announcements || [];
+
+  const post = () => {
+    if (!msg.trim()) return;
+    const newAnnouncement = {
+      id: `ann_${Date.now()}`,
+      text: msg.trim(),
+      author: "Collin",
+      createdAt: new Date().toISOString(),
+      pinned: false,
+    };
+    setData(d => ({ ...d, announcements: [newAnnouncement, ...(d.announcements || [])] }));
+    setMsg("");
+  };
+
+  const deleteAnn = (id) => setData(d => ({ ...d, announcements: d.announcements.filter(a => a.id !== id) }));
+  const togglePin = (id) => setData(d => ({ ...d, announcements: d.announcements.map(a => a.id === id ? { ...a, pinned: !a.pinned } : a) }));
+  const saveEdit = (id) => {
+    setData(d => ({ ...d, announcements: d.announcements.map(a => a.id === id ? { ...a, text: editText } : a) }));
+    setEditId(null);
+  };
+
+  const sorted = [...announcements].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
+  const timeAgo = (iso) => {
+    const mins = Math.floor((Date.now() - new Date(iso)) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs / 24)}d ago`;
+  };
+
+  // Milestone data
+  const MILESTONES = [
+    { count: 50,  label: "First 50",       emoji: "🌱" },
+    { count: 75,  label: "75 Members",      emoji: "🌊" },
+    { count: 100, label: "100 Club",        emoji: "💯" },
+    { count: 125, label: "125 Members",     emoji: "⚡" },
+    { count: 150, label: "150 Members",     emoji: "🔥" },
+    { count: 160, label: "160 Members",     emoji: "📈" },
+    { count: 175, label: "175 Members",     emoji: "🚀" },
+    { count: 190, label: "190 Members",     emoji: "⭐" },
+    { count: 200, label: "200 — We Open!",  emoji: "🎉" },
+  ];
+
+  const milestoneLog = data.milestoneLog || {};
+
+  // Auto-log milestones
+  const checkMilestones = () => {
+    MILESTONES.forEach(m => {
+      if (memberCount >= m.count && !milestoneLog[m.count]) {
+        setData(d => ({ ...d, milestoneLog: { ...(d.milestoneLog || {}), [m.count]: new Date().toISOString() } }));
+      }
+    });
+  };
+
+  React.useEffect(() => { checkMilestones(); }, [memberCount]);
+
+  const nextMilestone = MILESTONES.find(m => memberCount < m.count);
+  const toNext = nextMilestone ? nextMilestone.count - memberCount : 0;
+
+  return (
+    <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Board 📣</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Post announcements for staff · Track membership milestones</p>
+      </div>
+
+      {/* Member milestone strip */}
+      <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", borderRadius: 20, padding: "20px 22px", marginBottom: 24, boxShadow: "0 6px 24px rgba(26,95,106,0.25)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+          <div>
+            <div className="inter" style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", marginBottom: 4 }}>Member Milestones</div>
+            <div className="lora" style={{ fontSize: 32, color: "#fff", lineHeight: 1 }}>{memberCount}</div>
+            <div className="inter" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>
+              {nextMilestone ? `${toNext} away from ${nextMilestone.emoji} ${nextMilestone.label}` : "🎉 All milestones reached!"}
+            </div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>GOAL</div>
+            <div className="lora" style={{ fontSize: 32, color: "#7DD3B8", lineHeight: 1 }}>200</div>
+          </div>
+        </div>
+
+        {/* Progress dots */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {MILESTONES.map(m => {
+            const reached = memberCount >= m.count;
+            const loggedAt = milestoneLog[m.count];
+            return (
+              <div key={m.count} title={loggedAt ? `Reached ${new Date(loggedAt).toLocaleDateString()}` : `${m.count - memberCount} to go`}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flex: 1, minWidth: 48 }}>
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: reached ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.1)", border: reached ? "none" : "2px solid rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, transition: "all 0.3s" }}>
+                  {reached ? m.emoji : <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "Inter,sans-serif", fontWeight: 700 }}>{m.count}</span>}
+                </div>
+                <div className="inter" style={{ fontSize: 9, color: reached ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.3)", textAlign: "center", lineHeight: 1.2 }}>{m.label}</div>
+                {loggedAt && <div className="inter" style={{ fontSize: 8, color: "rgba(255,255,255,0.4)" }}>{new Date(loggedAt).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Post new announcement */}
+      <div style={{ background: "#fff", borderRadius: 16, padding: "18px 20px", marginBottom: 20, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+        <div className="inter" style={{ fontSize: 12, fontWeight: 700, color: "#555", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10 }}>Post to Staff Board</div>
+        <textarea value={msg} onChange={e => setMsg(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && e.metaKey && post()}
+          placeholder="Write an announcement for your team... (Cmd+Enter to post)"
+          rows={3}
+          style={{ width: "100%", border: "1.5px solid #DDE8EE", borderRadius: 12, padding: "12px 14px", fontSize: 14, fontFamily: "Inter, sans-serif", outline: "none", resize: "none", color: "#0D1117", WebkitTextFillColor: "#0D1117", marginBottom: 10, lineHeight: 1.6 }} />
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button onClick={post} disabled={!msg.trim()}
+            style={{ background: !msg.trim() ? "#ccc" : "linear-gradient(135deg, #1A5F6A, #0A3540)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", cursor: msg.trim() ? "pointer" : "not-allowed", fontSize: 14, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+            Post Announcement
+          </button>
+        </div>
+      </div>
+
+      {/* Announcements list */}
+      {sorted.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px 0" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📣</div>
+          <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#555" }}>No announcements yet</div>
+          <p className="inter" style={{ fontSize: 13, color: "#888", marginTop: 6 }}>Post something for your team above!</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {sorted.map(ann => (
+            <div key={ann.id} style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: ann.pinned ? "2px solid #1A5F6A" : "none" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  {ann.pinned && <div style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#E8F2F4", color: "#1A5F6A", borderRadius: 99, padding: "2px 10px", fontSize: 11, fontWeight: 700, fontFamily: "Inter,sans-serif", marginBottom: 8 }}>📌 Pinned</div>}
+                  {editId === ann.id ? (
+                    <div>
+                      <textarea value={editText} onChange={e => setEditText(e.target.value)} rows={3}
+                        style={{ width: "100%", border: "1.5px solid #1A5F6A", borderRadius: 10, padding: "10px 12px", fontSize: 14, fontFamily: "Inter, sans-serif", outline: "none", resize: "none", color: "#0D1117", WebkitTextFillColor: "#0D1117", marginBottom: 8 }} />
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={() => saveEdit(ann.id)} style={{ background: "#1A5F6A", color: "#fff", border: "none", borderRadius: 8, padding: "7px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter,sans-serif", fontWeight: 700 }}>Save</button>
+                        <button onClick={() => setEditId(null)} style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 8, padding: "7px 16px", cursor: "pointer", fontSize: 13, fontFamily: "Inter,sans-serif" }}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="inter" style={{ fontSize: 15, color: "#0D1117", lineHeight: 1.65, margin: 0 }}>{ann.text}</p>
+                  )}
+                  <div style={{ display: "flex", gap: 12, marginTop: 10, alignItems: "center" }}>
+                    <Avatar name={ann.author} size={20} />
+                    <span className="inter" style={{ fontSize: 12, color: "#888" }}>{ann.author}</span>
+                    <span className="inter" style={{ fontSize: 12, color: "#bbb" }}>·</span>
+                    <span className="inter" style={{ fontSize: 12, color: "#888" }}>{timeAgo(ann.createdAt)}</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <button onClick={() => togglePin(ann.id)} title={ann.pinned ? "Unpin" : "Pin"}
+                    style={{ background: ann.pinned ? "#E8F2F4" : "none", border: "1px solid #DDE8EE", borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 14 }}>
+                    📌
+                  </button>
+                  <button onClick={() => { setEditId(ann.id); setEditText(ann.text); }}
+                    style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 14 }}>
+                    ✏️
+                  </button>
+                  <button onClick={() => deleteAnn(ann.id)}
+                    style={{ background: "none", border: "1px solid #DDE8EE", borderRadius: 8, padding: "6px 10px", cursor: "pointer", fontSize: 14, color: "#ccc" }}>
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BudgetPage({ data, setData }) {
   const MONTHS = ["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
   const MONTH_LABELS = ["April","May","June","July","August","September","October","November","December","January","February","March"];
