@@ -3569,18 +3569,18 @@ function BudgetPage({ data, setData }) {
                             </td>
                             <td style={{ padding:"8px", textAlign:"right" }}>
                               <input type="number" value={line.monthly??""} onChange={e => saveLineMeta(cat.id,line.id,"monthly",e.target.value)} placeholder="—"
-                                style={{ width:55, textAlign:"right", border:"1px solid #E0E8EF", borderRadius:6, padding:"3px 4px", fontSize:12, color:"#555", background:"#fff", outline:"none" }} />
+                                style={{ width:70, textAlign:"right", border:"1px solid #E0E8EF", borderRadius:6, padding:"7px 6px", fontSize:13, color:"#555", background:"#fff", outline:"none" }} />
                             </td>
                             <td style={{ padding:"8px", textAlign:"right" }}>
                               <input type="number" value={line.annual??""} onChange={e => saveLineMeta(cat.id,line.id,"annual",e.target.value)} placeholder="—"
-                                style={{ width:65, textAlign:"right", border:"1px solid #E0E8EF", borderRadius:6, padding:"3px 4px", fontSize:12, color:"#555", background:"#fff", outline:"none" }} />
+                                style={{ width:80, textAlign:"right", border:"1px solid #E0E8EF", borderRadius:6, padding:"7px 6px", fontSize:13, color:"#555", background:"#fff", outline:"none" }} />
                             </td>
                             {MONTHS.map(m => {
                               const actual = getActual(cat.id, line.id, m);
                               return (
-                                <td key={m} style={{ padding:"3px", textAlign:"center", background:cellBg(actual,line.monthly) }}>
+                                <td key={m} style={{ padding:"5px 3px", textAlign:"center", background:cellBg(actual,line.monthly) }}>
                                   <input type="number" value={actual||""} onChange={e => setActual(cat.id,line.id,m,e.target.value)} onFocus={e => e.target.select()} placeholder="—"
-                                    style={{ width:48, textAlign:"center", border:`1px solid ${actual>0?"#C8D8E8":"#E0E8EF"}`, borderRadius:6, padding:"4px 2px", fontSize:11, color:cellTc(actual,line.monthly), background:cellBg(actual,line.monthly), outline:"none", WebkitTextFillColor:cellTc(actual,line.monthly) }} />
+                                    style={{ width:62, textAlign:"center", border:`1px solid ${actual>0?"#C8D8E8":"#E0E8EF"}`, borderRadius:6, padding:"7px 3px", fontSize:13, color:cellTc(actual,line.monthly), background:cellBg(actual,line.monthly), outline:"none", WebkitTextFillColor:cellTc(actual,line.monthly) }} />
                                 </td>
                               );
                             })}
