@@ -550,7 +550,6 @@ export default function App() {
     { key: "ops",        label: "Ops" },
     { key: "scoreboard", label: "Scoreboard" },
     { key: "goals",      label: "Goals" },
-    { key: "members",    label: "Members" },
     { key: "opening",    label: "Opening" },
     { key: "guide",      label: "📋 Guide" },
     { key: "budget",     label: "💰 Budget" },
@@ -3254,249 +3253,366 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 
 // ── Budget Page ───────────────────────────────────────────────────────────────
 function BudgetPage({ data, setData }) {
-  const MONTHS = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
+  const MONTHS = ["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
+  const MONTH_LABELS = ["April","May","June","July","August","September","October","November","December","January","February","March"];
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [view, setView] = useState("overview"); // overview | detail
 
-  const CATEGORIES = [
-    {
-      id: "facility",
-      title: "Facility Supplies",
-      color: "#1A5F6A",
+  const DEFAULT_CATEGORIES = [
+    { id: "facility", title: "Facility Supplies", emoji: "🧹", color: "#1A5F6A",
       lines: [
-        { id: "cleaning",   label: "Cleaning & Janitorial",        monthly: 83,  annual: 1000  },
-        { id: "facility",   label: "Facility Supplies",             monthly: 243, annual: 2920  },
-        { id: "frontdesk",  label: "Front Desk Supplies",           monthly: 83,  annual: 1000  },
-        { id: "concessions",label: "Concessions & Member Goods",    monthly: 105, annual: 1360  },
-        { id: "safety",     label: "Staff, Safety & Hygiene",       monthly: 66,  annual: 800   },
-        { id: "programs",   label: "Programs, Events & Misc",       monthly: 83,  annual: 1000  },
-        { id: "retail",     label: "Local Retail Buffer",           monthly: 63,  annual: 760   },
+        { id: "cleaning",    label: "Cleaning & Janitorial",      monthly: 83,    annual: 1000  },
+        { id: "facility",    label: "Facility Supplies",           monthly: 243,   annual: 2920  },
+        { id: "frontdesk",   label: "Front Desk Supplies",         monthly: 83,    annual: 1000  },
+        { id: "concessions", label: "Concessions & Member Goods",  monthly: 105,   annual: 1360  },
+        { id: "safety",      label: "Staff, Safety & Hygiene",     monthly: 66,    annual: 800   },
+        { id: "programs",    label: "Programs, Events & Misc",     monthly: 83,    annual: 1000  },
+        { id: "retail",      label: "Local Retail Buffer",         monthly: 63,    annual: 760   },
       ],
-      groupMonthly: 726,
-      groupAnnual: 8840,
     },
-    {
-      id: "payroll",
-      title: "Payroll",
-      color: "#7B5EA7",
-      lines: [
-        { id: "payroll", label: "Staff Payroll (~110 hrs/week)", monthly: 14100, annual: 169200 },
-      ],
-      groupMonthly: 14100,
-      groupAnnual: 169200,
+    { id: "payroll", title: "Payroll", emoji: "💼", color: "#7B5EA7",
+      lines: [{ id: "payroll", label: "Staff Payroll (~110 hrs/week)", monthly: 14100, annual: 169200 }],
       note: "~220 hours per pay cycle",
     },
-    {
-      id: "contract",
-      title: "Contract Labor",
-      color: "#2E7D8C",
+    { id: "contract", title: "Contract Labor", emoji: "🔧", color: "#2E7D8C",
       lines: [
-        { id: "bryce", label: "Bryce Trebley",              monthly: null, annual: null },
-        { id: "aiden", label: "Aiden Lyons",                monthly: null, annual: null },
-        { id: "boaz",  label: "Boaz Dixon (Mon/Wed/Fri)",   monthly: null, annual: null },
+        { id: "bryce", label: "Bryce Trebley",            monthly: null, annual: null },
+        { id: "aiden", label: "Aiden Lyons",              monthly: null, annual: null },
+        { id: "boaz",  label: "Boaz Dixon (Mon/Wed/Fri)", monthly: null, annual: null },
       ],
-      groupMonthly: null,
-      groupAnnual: 15000,
-      note: "Total budget: $15,000",
+      note: "Total budget: $15,000", groupAnnual: 15000,
     },
-    {
-      id: "admin",
-      title: "Admin",
-      color: "#33691E",
+    { id: "admin", title: "Admin", emoji: "🗂️", color: "#33691E",
       lines: [
-        { id: "beta",        label: "Beta (Gym Software)",  monthly: null, annual: null },
-        { id: "bankfees",    label: "Bank Fees",            monthly: null, annual: null },
-        { id: "insurance",   label: "Insurance",            monthly: null, annual: null },
-        { id: "bookkeeping", label: "Bookkeeping",          monthly: 400,  annual: 4800 },
-        { id: "wix",         label: "Wix",                  monthly: null, annual: null },
+        { id: "beta",        label: "Beta",        monthly: null, annual: null },
+        { id: "bankfees",    label: "Bank Fees",   monthly: null, annual: null },
+        { id: "insurance",   label: "Insurance",   monthly: null, annual: null },
+        { id: "bookkeeping", label: "Bookkeeping", monthly: 400,  annual: 4800 },
+        { id: "wix",         label: "Wix",         monthly: null, annual: null },
       ],
-      groupMonthly: null,
-      groupAnnual: null,
-      note: "Amounts TBD for some line items",
     },
-    {
-      id: "accounting",
-      title: "Accounting & Tax",
-      color: "#7A4100",
+    { id: "accounting", title: "Accounting & Tax", emoji: "📊", color: "#7A4100",
       lines: [
-        { id: "taxfiling",   label: "Tax Filing (one-time)", monthly: null, annual: 1094 },
-        { id: "bookkeeping2",label: "Bookkeeping",           monthly: 400,  annual: 4800 },
+        { id: "taxfiling",    label: "Tax Filing (one-time)", monthly: null, annual: 1094 },
+        { id: "bookkeeping2", label: "Bookkeeping",           monthly: 400,  annual: 4800 },
       ],
-      groupMonthly: 400,
-      groupAnnual: 5894,
     },
-    {
-      id: "presales",
-      title: "Presales",
-      color: "#1A5F6A",
-      lines: [
-        { id: "presales", label: "Presales Budget", monthly: null, annual: 4750 },
-      ],
-      groupMonthly: null,
-      groupAnnual: 4750,
+    { id: "presales", title: "Presales", emoji: "🚀", color: "#0A3540",
+      lines: [{ id: "presales", label: "Presales Budget", monthly: null, annual: 4750 }],
       note: "Budget range: $4,500–$5,000",
     },
   ];
 
-  const getActual = (catId, lineId, month) => {
-    return Number(data.budget?.[catId]?.[lineId]?.[month] || 0);
+  const getCategories = () => {
+    const saved = data.budgetMeta || {};
+    return DEFAULT_CATEGORIES.map(cat => {
+      const sc = saved[cat.id] || {};
+      const ga = sc.groupAnnual !== undefined ? sc.groupAnnual : (cat.groupAnnual || cat.lines.reduce((s,l) => s+(l.annual||0),0));
+      return {
+        ...cat,
+        title: sc.title || cat.title,
+        note: sc.note || cat.note,
+        groupAnnual: ga,
+        lines: cat.lines.map(l => {
+          const sl = (sc.lines||{})[l.id] || {};
+          return { ...l, label: sl.label||l.label, monthly: sl.monthly!==undefined?sl.monthly:l.monthly, annual: sl.annual!==undefined?sl.annual:l.annual };
+        }),
+      };
+    });
   };
 
-  const setActual = (catId, lineId, month, value) => {
-    setData(d => ({
-      ...d,
-      budget: {
-        ...(d.budget || {}),
-        [catId]: {
-          ...(d.budget?.[catId] || {}),
-          [lineId]: {
-            ...(d.budget?.[catId]?.[lineId] || {}),
-            [month]: value === "" ? 0 : Number(value),
-          }
-        }
-      }
-    }));
+  const categories = getCategories();
+
+  const saveMeta = (catId, field, value) => setData(d => ({ ...d, budgetMeta: { ...(d.budgetMeta||{}), [catId]: { ...(d.budgetMeta?.[catId]||{}), [field]: value } } }));
+  const saveLineMeta = (catId, lineId, field, value) => {
+    const parsed = (field==="monthly"||field==="annual") ? (value===""?null:Number(value)) : value;
+    setData(d => ({ ...d, budgetMeta: { ...(d.budgetMeta||{}), [catId]: { ...(d.budgetMeta?.[catId]||{}), lines: { ...(d.budgetMeta?.[catId]?.lines||{}), [lineId]: { ...(d.budgetMeta?.[catId]?.lines?.[lineId]||{}), [field]: parsed } } } } }));
   };
 
-  const getYTDActual = (catId, lineId) => MONTHS.reduce((s, m) => s + getActual(catId, lineId, m), 0);
-  const getMonthTotal = (catId, month) => {
-    const cat = CATEGORIES.find(c => c.id === catId);
-    return cat.lines.reduce((s, l) => s + getActual(catId, l.id, month), 0);
+  const getActual = (catId, lineId, month) => Number(data.budget?.[catId]?.[lineId]?.[month]||0);
+  const setActual = (catId, lineId, month, value) => setData(d => ({ ...d, budget: { ...(d.budget||{}), [catId]: { ...(d.budget?.[catId]||{}), [lineId]: { ...(d.budget?.[catId]?.[lineId]||{}), [month]: value===""?0:Number(value) } } } }));
+
+  const getYTD = (catId, lineId) => MONTHS.reduce((s,m) => s+getActual(catId,lineId,m), 0);
+  const getCatYTD = (cat) => cat.lines.reduce((s,l) => s+getYTD(cat.id,l.id), 0);
+  const getCatMonthTotal = (cat, month) => cat.lines.reduce((s,l) => s+getActual(cat.id,l.id,month), 0);
+
+  const totalBudget = categories.reduce((s,c) => s+(c.groupAnnual||0), 0);
+  const totalSpent = categories.reduce((s,c) => s+getCatYTD(c), 0);
+  const pctUsed = totalBudget ? Math.round((totalSpent/totalBudget)*100) : 0;
+  const remaining = totalBudget - totalSpent;
+
+  const $ = (n) => n!=null && n!==0 ? `$${Number(n).toLocaleString()}` : "—";
+  const $n = (n) => n!=null ? `$${Number(n).toLocaleString()}` : "—";
+
+  const cellBg = (actual, budget) => { if(!budget||actual===0) return "#fff"; const r=actual/budget; if(r>1) return "#FFEBEE"; if(r>0.9) return "#FFF8E1"; return "#F1F8E9"; };
+  const cellTc = (actual, budget) => { if(!budget||actual===0) return "#333"; const r=actual/budget; if(r>1) return "#C62828"; if(r>0.9) return "#F57F17"; return "#2E7D32"; };
+
+  // Simple SVG bar chart for monthly spend
+  const SpendChart = ({ cat }) => {
+    const maxVal = Math.max(...MONTHS.map(m => getCatMonthTotal(cat, m)), cat.groupAnnual/12 || 1);
+    const w = 40; const gap = 6; const chartH = 80;
+    return (
+      <div style={{ overflowX: "auto", paddingBottom: 4 }}>
+        <svg width={MONTHS.length*(w+gap)} height={chartH+28} style={{ display: "block" }}>
+          {MONTHS.map((m, i) => {
+            const actual = getCatMonthTotal(cat, m);
+            const budget = cat.groupAnnual/12 || 0;
+            const bh = budget ? Math.round((budget/maxVal)*chartH) : 0;
+            const ah = actual ? Math.round((actual/maxVal)*chartH) : 0;
+            const x = i*(w+gap);
+            const over = actual > budget && budget > 0;
+            const near = !over && budget > 0 && actual/budget > 0.9;
+            const barColor = over ? "#EF5350" : near ? "#FF9800" : actual > 0 ? cat.color : "#E0E8EF";
+            return (
+              <g key={m}>
+                {bh > 0 && <rect x={x} y={chartH-bh} width={w} height={bh} fill={`${cat.color}18`} rx={4} />}
+                {ah > 0 && <rect x={x} y={chartH-ah} width={w} height={ah} fill={barColor} rx={4} />}
+                <text x={x+w/2} y={chartH+14} textAnchor="middle" fontSize={9} fill="#888" fontFamily="Inter,sans-serif">{m}</text>
+                {actual > 0 && <text x={x+w/2} y={chartH-ah-4} textAnchor="middle" fontSize={8} fill={barColor} fontFamily="Inter,sans-serif">${Math.round(actual/100)*100>999?`${Math.round(actual/1000)}k`:actual}</text>}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    );
   };
 
-  // Summary stats
-  const totalAnnualBudget = CATEGORIES.reduce((s, c) => s + (c.groupAnnual || 0), 0);
-  const totalSpentYTD = CATEGORIES.reduce((s, c) => s + c.lines.reduce((ls, l) => ls + getYTDActual(c.id, l.id), 0), 0);
-  const pctUsed = totalAnnualBudget ? Math.round((totalSpentYTD / totalAnnualBudget) * 100) : 0;
-  const totalRemaining = totalAnnualBudget - totalSpentYTD;
-
-  const cellColor = (actual, budget) => {
-    if (!budget) return "transparent";
-    const ratio = actual / budget;
-    if (ratio > 1) return "#FFEBEE";
-    if (ratio > 0.9) return "#FFF8E1";
-    if (actual > 0) return "#F1F8E9";
-    return "transparent";
-  };
-  const cellTextColor = (actual, budget) => {
-    if (!budget) return "#0D1117";
-    const ratio = actual / budget;
-    if (ratio > 1) return "#C62828";
-    if (ratio > 0.9) return "#F57F17";
-    if (actual > 0) return "#2E7D32";
-    return "#0D1117";
+  // Overview donut-style progress rings
+  const Ring = ({ pct, color, size=60, stroke=6 }) => {
+    const r = (size-stroke*2)/2; const circ = 2*Math.PI*r; const offset = circ*(1-Math.min(1,pct/100));
+    return (
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#EEF4F7" strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={pct>100?"#EF5350":pct>90?"#FF9800":color} strokeWidth={stroke} strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.6s" }} />
+      </svg>
+    );
   };
 
-  const fmt = (n) => n ? `$${n.toLocaleString()}` : "—";
-  const fmtInput = (n) => n ? String(n) : "";
+  const activeCat = activeCategory ? categories.find(c => c.id === activeCategory) : null;
 
   return (
-    <div>
-      <div style={{ marginBottom: 24 }}>
-        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Budget</h1>
-        <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Fiscal year April – March · Enter actual spend in any cell</p>
+    <div style={{ maxWidth: 900, margin: "0 auto" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Budget 💰</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Fiscal year April – March · Tap a category to expand</p>
+        </div>
+        <div style={{ display: "flex", gap: 6, background: "#fff", borderRadius: 10, padding: 5, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
+          {[{k:"overview",l:"Overview"},{k:"detail",l:"Detail"}].map(v => (
+            <button key={v.k} onClick={() => setView(v.k)}
+              style={{ padding: "7px 16px", border: "none", borderRadius: 7, cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "Inter,sans-serif", background: view===v.k ? "#1A5F6A" : "transparent", color: view===v.k ? "#fff" : "#888" }}>
+              {v.l}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Summary strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 28 }} className="g2">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 24 }} className="g2">
         {[
-          { label: "Annual Budget", value: `$${totalAnnualBudget.toLocaleString()}`, color: "#1A5F6A", sub: "FY total" },
-          { label: "Spent YTD", value: `$${totalSpentYTD.toLocaleString()}`, color: totalSpentYTD > totalAnnualBudget ? "#C62828" : "#1A5F6A", sub: "entered actuals" },
-          { label: "% Used", value: `${pctUsed}%`, color: pctUsed > 100 ? "#C62828" : pctUsed > 90 ? "#F57F17" : "#2E7D32", sub: "of annual budget" },
-          { label: "Remaining", value: `$${Math.abs(totalRemaining).toLocaleString()}`, color: totalRemaining < 0 ? "#C62828" : "#2E7D32", sub: totalRemaining < 0 ? "over budget" : "left in budget" },
+          { label: "Annual Budget", value: $n(totalBudget), color: "#1A5F6A", sub: "total FY budget", icon: "📋" },
+          { label: "Spent YTD",     value: $n(totalSpent),  color: totalSpent>totalBudget?"#C62828":"#0D1117", sub: "from actuals", icon: "💸" },
+          { label: "% Used",        value: `${pctUsed}%`,   color: pctUsed>100?"#C62828":pctUsed>90?"#F57F17":"#2E7D32", sub: "of annual budget", icon: "📊" },
+          { label: "Remaining",     value: `${remaining<0?"-":""}${$n(Math.abs(remaining))}`, color: remaining<0?"#C62828":"#2E7D32", sub: remaining<0?"over budget":"left to spend", icon: "💰" },
         ].map(s => (
-          <div key={s.label} style={{ background: "#fff", borderRadius: 14, padding: "16px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-            <div className="sec-label" style={{ marginBottom: 6 }}>{s.label}</div>
-            <div className="lora" style={{ fontSize: 22, color: s.color, lineHeight: 1 }}>{s.value}</div>
-            <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 4 }}>{s.sub}</div>
+          <div key={s.label} style={{ background: "#fff", borderRadius: 16, padding: "18px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div className="sec-label" style={{ marginBottom: 8 }}>{s.label}</div>
+              <span style={{ fontSize: 18 }}>{s.icon}</span>
+            </div>
+            <div className="lora" style={{ fontSize: 24, color: s.color, lineHeight: 1 }}>{s.value}</div>
+            <div className="inter" style={{ fontSize: 11, color: "#888", marginTop: 6 }}>{s.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Budget tables */}
-      {CATEGORIES.map(cat => {
-        const catYTD = cat.lines.reduce((s, l) => s + getYTDActual(cat.id, l.id), 0);
-        const catRemaining = (cat.groupAnnual || 0) - catYTD;
-        return (
-          <div key={cat.id} style={{ marginBottom: 28, background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)" }}>
-            {/* Category header */}
-            <div style={{ background: `linear-gradient(135deg, ${cat.color}, ${cat.color}CC)`, padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#fff" }}>{cat.title}</div>
-                {cat.note && <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>{cat.note}</div>}
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)" }}>Annual Budget</div>
-                <div className="lora" style={{ fontSize: 18, color: "#fff" }}>{cat.groupAnnual ? `$${cat.groupAnnual.toLocaleString()}` : "TBD"}</div>
-              </div>
-            </div>
+      {/* Overall progress bar */}
+      <div style={{ background: "#fff", borderRadius: 16, padding: "18px 20px", marginBottom: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+          <span className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#0D1117" }}>Annual Budget Progress</span>
+          <span className="inter" style={{ fontSize: 13, color: "#555" }}>{$n(totalSpent)} of {$n(totalBudget)}</span>
+        </div>
+        <div style={{ height: 12, background: "#EEF4F7", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ width: `${Math.min(100,pctUsed)}%`, height: "100%", background: pctUsed>100?"#EF5350":pctUsed>90?"#FF9800":"linear-gradient(90deg, #1A5F6A, #4DB896)", borderRadius: 99, transition: "width 0.6s" }} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+          <span className="inter" style={{ fontSize: 11, color: "#888" }}>April</span>
+          <span className="inter" style={{ fontSize: 11, color: "#888" }}>March</span>
+        </div>
+      </div>
 
-            {/* Table */}
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "Inter, sans-serif" }}>
-                <thead>
-                  <tr style={{ background: "#F6F9FB" }}>
-                    <th style={{ padding: "8px 16px", textAlign: "left", fontWeight: 700, color: "#555", whiteSpace: "nowrap", minWidth: 160, borderBottom: "1px solid #EEF4F7" }}>Line Item</th>
-                    <th style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: "#555", whiteSpace: "nowrap", borderBottom: "1px solid #EEF4F7" }}>Budget/Mo</th>
-                    {MONTHS.map(m => (
-                      <th key={m} style={{ padding: "8px 6px", textAlign: "center", fontWeight: 700, color: "#555", whiteSpace: "nowrap", minWidth: 60, borderBottom: "1px solid #EEF4F7" }}>{m}</th>
-                    ))}
-                    <th style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: "#1A5F6A", whiteSpace: "nowrap", borderBottom: "1px solid #EEF4F7" }}>YTD Actual</th>
-                    <th style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: "#555", whiteSpace: "nowrap", borderBottom: "1px solid #EEF4F7" }}>Remaining</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cat.lines.map((line, li) => {
-                    const ytd = getYTDActual(cat.id, line.id);
-                    const remaining = (line.annual || 0) - ytd;
-                    return (
-                      <tr key={line.id} style={{ borderBottom: "1px solid #F0F4F7", background: li % 2 === 0 ? "#fff" : "#FAFBFC" }}>
-                        <td style={{ padding: "8px 16px", color: "#0D1117", fontWeight: 500, whiteSpace: "nowrap" }}>{line.label}</td>
-                        <td style={{ padding: "8px 10px", textAlign: "right", color: "#555", whiteSpace: "nowrap" }}>{line.monthly ? `$${line.monthly}` : "—"}</td>
-                        {MONTHS.map(m => {
-                          const actual = getActual(cat.id, line.id, m);
-                          const bg = cellColor(actual, line.monthly);
-                          const tc = cellTextColor(actual, line.monthly);
-                          return (
-                            <td key={m} style={{ padding: "4px 4px", textAlign: "center", background: bg }}>
-                              <input
-                                type="number"
-                                value={actual || ""}
-                                onChange={e => setActual(cat.id, line.id, m, e.target.value)}
-                                onFocus={e => e.target.select()}
-                                placeholder="—"
-                                style={{ width: 54, textAlign: "center", border: "1px solid #E0E8EF", borderRadius: 6, padding: "4px 2px", fontSize: 12, fontFamily: "Inter, sans-serif", color: tc, background: bg || "#fff", outline: "none", WebkitTextFillColor: tc }}
-                              />
-                            </td>
-                          );
-                        })}
-                        <td style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700, color: ytd > (line.annual || Infinity) ? "#C62828" : "#1A5F6A", whiteSpace: "nowrap" }}>{ytd > 0 ? `$${ytd.toLocaleString()}` : "—"}</td>
-                        <td style={{ padding: "8px 10px", textAlign: "right", color: remaining < 0 ? "#C62828" : "#555", whiteSpace: "nowrap" }}>{line.annual ? (remaining < 0 ? `-$${Math.abs(remaining).toLocaleString()}` : `$${remaining.toLocaleString()}`) : "—"}</td>
-                      </tr>
-                    );
+      {/* OVERVIEW VIEW - category rings grid */}
+      {view === "overview" && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 24 }} className="g2">
+          {categories.map(cat => {
+            const ytd = getCatYTD(cat);
+            const pct = cat.groupAnnual ? Math.round((ytd/cat.groupAnnual)*100) : 0;
+            const rem = cat.groupAnnual - ytd;
+            return (
+              <div key={cat.id} onPointerDown={() => { setActiveCategory(activeCategory===cat.id?null:cat.id); setView("detail"); }}
+                style={{ background: "#fff", borderRadius: 16, padding: "18px 16px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", cursor: "pointer", border: `2px solid ${activeCategory===cat.id?cat.color:"transparent"}`, transition: "all 0.2s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                  <span style={{ fontSize: 20 }}>{cat.emoji}</span>
+                  <div className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#0D1117" }}>{cat.title}</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ position: "relative", flexShrink: 0 }}>
+                    <Ring pct={pct} color={cat.color} size={64} stroke={7} />
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span className="inter" style={{ fontSize: 12, fontWeight: 800, color: pct>100?"#C62828":pct>90?"#FF9800":cat.color }}>{pct}%</span>
+                    </div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div className="inter" style={{ fontSize: 12, color: "#888", marginBottom: 2 }}>Spent YTD</div>
+                    <div className="lora" style={{ fontSize: 16, color: "#0D1117" }}>{ytd>0?$n(ytd):"—"}</div>
+                    <div className="inter" style={{ fontSize: 11, color: rem<0?"#C62828":"#555", marginTop: 2 }}>{cat.groupAnnual ? (rem<0?`$${Math.abs(rem).toLocaleString()} over`:`$${rem.toLocaleString()} left`) : "No budget set"}</div>
+                  </div>
+                </div>
+                {/* Mini sparkline */}
+                <div style={{ marginTop: 10, height: 24, display: "flex", alignItems: "flex-end", gap: 2 }}>
+                  {MONTHS.map(m => {
+                    const v = getCatMonthTotal(cat, m);
+                    const maxV = Math.max(...MONTHS.map(mo => getCatMonthTotal(cat, mo)), 1);
+                    const h = Math.round((v/maxV)*24);
+                    return <div key={m} style={{ flex: 1, height: h||2, background: v>0?cat.color:"#EEF4F7", borderRadius: 2, opacity: v>0?1:0.4 }} />;
                   })}
-                  {/* Group total row */}
-                  <tr style={{ background: `${cat.color}10`, borderTop: `2px solid ${cat.color}30` }}>
-                    <td style={{ padding: "10px 16px", fontWeight: 800, color: cat.color }}>TOTAL</td>
-                    <td style={{ padding: "10px 10px", textAlign: "right", fontWeight: 700, color: cat.color }}>{cat.groupMonthly ? `$${cat.groupMonthly.toLocaleString()}` : "—"}</td>
-                    {MONTHS.map(m => {
-                      const total = getMonthTotal(cat.id, m);
-                      return (
-                        <td key={m} style={{ padding: "10px 4px", textAlign: "center", fontWeight: 700, color: cat.color, fontSize: 12 }}>
-                          {total > 0 ? `$${total.toLocaleString()}` : "—"}
-                        </td>
-                      );
-                    })}
-                    <td style={{ padding: "10px 10px", textAlign: "right", fontWeight: 800, color: catYTD > (cat.groupAnnual || Infinity) ? "#C62828" : cat.color }}>{catYTD > 0 ? `$${catYTD.toLocaleString()}` : "—"}</td>
-                    <td style={{ padding: "10px 10px", textAlign: "right", fontWeight: 700, color: catRemaining < 0 ? "#C62828" : "#555" }}>{cat.groupAnnual ? (catRemaining < 0 ? `-$${Math.abs(catRemaining).toLocaleString()}` : `$${catRemaining.toLocaleString()}`) : "—"}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* DETAIL VIEW */}
+      {view === "detail" && (
+        <div>
+          {/* Category selector */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+            {categories.map(cat => (
+              <button key={cat.id} onClick={() => setActiveCategory(activeCategory===cat.id?null:cat.id)}
+                style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", border: `2px solid ${activeCategory===cat.id?cat.color:"#DDE8EE"}`, borderRadius: 99, background: activeCategory===cat.id?cat.color:"#fff", color: activeCategory===cat.id?"#fff":"#555", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "Inter,sans-serif", transition: "all 0.15s" }}>
+                <span>{cat.emoji}</span> {cat.title}
+              </button>
+            ))}
           </div>
-        );
-      })}
+
+          {/* Show all or selected category */}
+          {(activeCategory ? categories.filter(c=>c.id===activeCategory) : categories).map(cat => {
+            const catYTD = getCatYTD(cat);
+            const catPct = cat.groupAnnual ? Math.round((catYTD/cat.groupAnnual)*100) : 0;
+            const catRem = (cat.groupAnnual||0) - catYTD;
+            const allLines = [...cat.lines, ...(data.budgetMeta?.[cat.id]?.extraLines||[])];
+            return (
+              <div key={cat.id} style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.07)", marginBottom: 16 }}>
+                {/* Cat header */}
+                <div style={{ background: `linear-gradient(135deg, ${cat.color}, ${cat.color}CC)`, padding: "18px 22px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 22 }}>{cat.emoji}</span>
+                        <input value={data.budgetMeta?.[cat.id]?.title||cat.title} onChange={e => saveMeta(cat.id,"title",e.target.value)}
+                          style={{ border:"none", background:"transparent", fontSize:18, fontStyle:"italic", color:"#fff", fontFamily:"Lora,Georgia,serif", outline:"none", WebkitTextFillColor:"#fff", WebkitBoxShadow:"0 0 0px 1000px transparent inset", caretColor:"#fff" }} />
+                      </div>
+                      {cat.note && <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginLeft: 30 }}>{cat.note}</div>}
+                    </div>
+                    <div style={{ display: "flex", gap: 20, textAlign: "right" }}>
+                      <div>
+                        <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Annual Budget</div>
+                        <div className="lora" style={{ fontSize: 20, color: "#fff" }}>{cat.groupAnnual?$n(cat.groupAnnual):"TBD"}</div>
+                      </div>
+                      <div>
+                        <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Spent YTD</div>
+                        <div className="lora" style={{ fontSize: 20, color: catYTD>cat.groupAnnual?"#FFB3B3":"#7DD3B8" }}>{catYTD>0?$n(catYTD):"—"}</div>
+                      </div>
+                      <div>
+                        <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>Remaining</div>
+                        <div className="lora" style={{ fontSize: 20, color: catRem<0?"#FFB3B3":"#fff" }}>{cat.groupAnnual?(catRem<0?`-${$n(Math.abs(catRem))}`:$n(catRem)):"—"}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ height: 8, background: "rgba(255,255,255,0.2)", borderRadius: 99, overflow: "hidden" }}>
+                    <div style={{ width: `${Math.min(100,catPct)}%`, height: "100%", background: catPct>100?"#EF5350":catPct>90?"#FF9800":"rgba(255,255,255,0.8)", borderRadius: 99, transition: "width 0.5s" }} />
+                  </div>
+                  <div className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 4, textAlign: "right" }}>{catPct}% used</div>
+                </div>
+
+                {/* Chart */}
+                <div style={{ padding: "16px 20px", borderBottom: "1px solid #EEF4F7" }}>
+                  <div className="inter" style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Monthly Spend vs Budget</div>
+                  <SpendChart cat={cat} />
+                </div>
+
+                {/* Table */}
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontFamily: "Inter,sans-serif", minWidth: 700 }}>
+                    <thead>
+                      <tr style={{ background: "#F6F9FB" }}>
+                        <th style={{ padding: "10px 16px", textAlign: "left", fontWeight: 700, color: "#555", borderBottom: "1px solid #EEF4F7", minWidth: 160, position: "sticky", left: 0, background: "#F6F9FB", zIndex: 1 }}>Line Item</th>
+                        <th style={{ padding: "10px 8px", textAlign: "right", fontWeight: 700, color: "#555", borderBottom: "1px solid #EEF4F7", whiteSpace: "nowrap" }}>Mo Budget</th>
+                        <th style={{ padding: "10px 8px", textAlign: "right", fontWeight: 700, color: "#555", borderBottom: "1px solid #EEF4F7", whiteSpace: "nowrap" }}>Annual</th>
+                        {MONTHS.map(m => <th key={m} style={{ padding: "10px 4px", textAlign: "center", fontWeight: 700, color: "#555", borderBottom: "1px solid #EEF4F7", minWidth: 52, whiteSpace: "nowrap" }}>{m}</th>)}
+                        <th style={{ padding: "10px 10px", textAlign: "right", fontWeight: 700, color: "#1A5F6A", borderBottom: "1px solid #EEF4F7", whiteSpace: "nowrap" }}>YTD</th>
+                        <th style={{ padding: "10px 10px", textAlign: "right", fontWeight: 700, color: "#555", borderBottom: "1px solid #EEF4F7", whiteSpace: "nowrap" }}>Left</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allLines.map((line, li) => {
+                        const ytd = getYTD(cat.id, line.id);
+                        const rem = (line.annual||0) - ytd;
+                        return (
+                          <tr key={line.id} style={{ borderBottom: "1px solid #F0F4F7", background: li%2===0?"#fff":"#FAFBFC" }}>
+                            <td style={{ padding: "8px 16px", position: "sticky", left: 0, background: li%2===0?"#fff":"#FAFBFC", zIndex: 1 }}>
+                              <input value={line.label} onChange={e => saveLineMeta(cat.id,line.id,"label",e.target.value)}
+                                style={{ border:"none", background:"transparent", fontSize:13, color:"#0D1117", fontFamily:"Inter,sans-serif", outline:"none", fontWeight:500, WebkitTextFillColor:"#0D1117", width:"100%" }} />
+                            </td>
+                            <td style={{ padding:"8px", textAlign:"right" }}>
+                              <input type="number" value={line.monthly??""} onChange={e => saveLineMeta(cat.id,line.id,"monthly",e.target.value)} placeholder="—"
+                                style={{ width:55, textAlign:"right", border:"1px solid #E0E8EF", borderRadius:6, padding:"3px 4px", fontSize:12, color:"#555", background:"#fff", outline:"none" }} />
+                            </td>
+                            <td style={{ padding:"8px", textAlign:"right" }}>
+                              <input type="number" value={line.annual??""} onChange={e => saveLineMeta(cat.id,line.id,"annual",e.target.value)} placeholder="—"
+                                style={{ width:65, textAlign:"right", border:"1px solid #E0E8EF", borderRadius:6, padding:"3px 4px", fontSize:12, color:"#555", background:"#fff", outline:"none" }} />
+                            </td>
+                            {MONTHS.map(m => {
+                              const actual = getActual(cat.id, line.id, m);
+                              return (
+                                <td key={m} style={{ padding:"3px", textAlign:"center", background:cellBg(actual,line.monthly) }}>
+                                  <input type="number" value={actual||""} onChange={e => setActual(cat.id,line.id,m,e.target.value)} onFocus={e => e.target.select()} placeholder="—"
+                                    style={{ width:48, textAlign:"center", border:`1px solid ${actual>0?"#C8D8E8":"#E0E8EF"}`, borderRadius:6, padding:"4px 2px", fontSize:11, color:cellTc(actual,line.monthly), background:cellBg(actual,line.monthly), outline:"none", WebkitTextFillColor:cellTc(actual,line.monthly) }} />
+                                </td>
+                              );
+                            })}
+                            <td style={{ padding:"8px 10px", textAlign:"right", fontWeight:700, color:ytd>(line.annual||Infinity)?"#C62828":"#1A5F6A", whiteSpace:"nowrap" }}>{ytd>0?$n(ytd):"—"}</td>
+                            <td style={{ padding:"8px 10px", textAlign:"right", color:rem<0?"#C62828":"#555", whiteSpace:"nowrap" }}>{line.annual?(rem<0?`-${$n(Math.abs(rem))}`:$n(rem)):"—"}</td>
+                          </tr>
+                        );
+                      })}
+                      <tr style={{ background:`${cat.color}10`, borderTop:`2px solid ${cat.color}25` }}>
+                        <td style={{ padding:"10px 16px", fontWeight:800, color:cat.color, position:"sticky", left:0, background:`${cat.color}10` }}>TOTAL</td>
+                        <td style={{ padding:"10px 8px", textAlign:"right", fontWeight:700, color:cat.color }}>{cat.lines.some(l=>l.monthly) ? $n(cat.lines.reduce((s,l)=>s+(l.monthly||0),0)) : "—"}</td>
+                        <td style={{ padding:"10px 8px", textAlign:"right", fontWeight:700, color:cat.color }}>{cat.groupAnnual?$n(cat.groupAnnual):"—"}</td>
+                        {MONTHS.map(m => { const t=allLines.reduce((s,l)=>s+getActual(cat.id,l.id,m),0); return <td key={m} style={{ padding:"10px 3px", textAlign:"center", fontWeight:700, color:cat.color, fontSize:11 }}>{t>0?$n(t):"—"}</td>; })}
+                        <td style={{ padding:"10px", textAlign:"right", fontWeight:800, color:catYTD>cat.groupAnnual?"#C62828":cat.color }}>{catYTD>0?$n(catYTD):"—"}</td>
+                        <td style={{ padding:"10px", textAlign:"right", fontWeight:700, color:catRem<0?"#C62828":"#555" }}>{cat.groupAnnual?(catRem<0?`-${$n(Math.abs(catRem))}`:$n(catRem)):"—"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div style={{ padding:"12px 16px", borderTop:"1px solid #EEF4F7" }}>
+                    <button onPointerDown={() => setData(d => ({ ...d, budgetMeta: { ...(d.budgetMeta||{}), [cat.id]: { ...(d.budgetMeta?.[cat.id]||{}), extraLines: [...(d.budgetMeta?.[cat.id]?.extraLines||[]), { id:`extra_${Date.now()}`, label:"New line item", monthly:null, annual:null }] } } }))}
+                      style={{ background:"none", border:`1.5px dashed ${cat.color}50`, borderRadius:8, padding:"7px 16px", cursor:"pointer", fontSize:12, color:cat.color, fontFamily:"Inter,sans-serif", fontWeight:700 }}>+ Add line item</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
+
 
 function MembershipGuidePage() {
   const [search, setSearch] = useState("");
