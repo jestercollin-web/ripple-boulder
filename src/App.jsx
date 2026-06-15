@@ -916,7 +916,7 @@ export default function App() {
         {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "budget"     && <BudgetPage data={data} setData={setData} />}
-        {nav === "announce"   && <AnnouncePage data={data} setData={setData} memberCount={memberCount} />}
+        {nav === "announce"   && <AnnouncePage data={data} setData={setData} memberCount={data.manualMembershipCount || (data.foundingMembers || []).length || 154} />}
         {nav === "guide"      && <MembershipGuidePage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
       </main>
