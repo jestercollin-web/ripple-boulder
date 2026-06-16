@@ -573,7 +573,7 @@ export default function App() {
   }, [isOwner]);
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117" }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: "#F2F4F7", minHeight: "100vh", color: "#0D1117", overflowX: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -925,7 +925,7 @@ export default function App() {
       </header>
 
       {/* Main */}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 16px 80px", minHeight: "calc(100vh - 64px)" }}>
+      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "78px 16px 100px" }}>
         {nav === "home"       && (isOwner ? <OwnerHome data={{...data, goals: goalsWithRealCount}} setData={setData} setMemberCount={setMemberCount} TEAM={TEAM} setNav={setNav} /> : <StaffHome data={data} setData={setData} updateLog={updateLog} updateTask={updateTask} TEAM={TEAM} setNav={setNav} />)}
         {nav === "ops"        && <OpsPage data={data} setData={setData} isOwner={isOwner} TEAM={TEAM} />}
         {nav === "goals"      && <GoalsPage data={{...data, goals: goalsWithRealCount}} setData={setData} updateGoal={updateGoal} updateLog={updateLog} isOwner={isOwner} TEAM={TEAM} />}
