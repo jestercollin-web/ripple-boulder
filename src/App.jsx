@@ -558,9 +558,9 @@ export default function App() {
   ];
   const staffNav = [
     { key: "ops",        label: "My Shift" },
-    { key: "scoreboard", label: "Scoreboard" },
-    { key: "incidents",  label: "⚠️ Report" },
-    { key: "guide",      label: "📋 Guide" },
+    { key: "announce",   label: "Board" },
+    { key: "incidents",  label: "Report" },
+    { key: "guide",      label: "Guide" },
   ];
   const navItems = isOwner ? ownerNav : staffNav;
 
