@@ -859,48 +859,67 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header style={{ background: "rgba(242,244,247,0.85)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "none", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 72, padding: "0 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 56, width: "auto" }} />
-            <span className="inter" style={{ fontSize: 10, color: "#1A5F6A", background: "rgba(26,95,106,0.1)", padding: "2px 10px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.08em" }}>
+      <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: "rgba(242,244,247,0.96)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(0,0,0,0.07)", height: 58 }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", padding: "0 16px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          
+          {/* Logo + mode badge */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 38, width: "auto" }} />
+            <span className="inter" style={{ fontSize: 9, color: isOwner ? "#1A5F6A" : "#7B5EA7", background: isOwner ? "rgba(26,95,106,0.1)" : "rgba(123,94,167,0.1)", padding: "2px 8px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
               {isOwner ? "OWNER" : "STAFF"}
             </span>
           </div>
+
           {/* Desktop nav */}
-          <nav style={{ display: "flex", alignItems: "center", gap: 0 }} className="hide-sm">
+          <nav style={{ display: "flex", alignItems: "center", flex: 1, justifyContent: "center", gap: 2, overflow: "hidden" }} className="hide-sm">
             {navItems.map(item => (
-              <button key={item.key} onClick={() => setNav(item.key)} className={`nav-tab${nav === item.key ? " active" : ""}`}>
+              <button key={item.key} onClick={() => setNav(item.key)}
+                style={{ padding: "6px 10px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 12, fontWeight: nav === item.key ? 700 : 500, color: nav === item.key ? "#1A5F6A" : "#555", background: nav === item.key ? "rgba(26,95,106,0.1)" : "transparent", whiteSpace: "nowrap", transition: "all 0.15s" }}>
                 {item.label}
               </button>
             ))}
-            <div style={{ width: 1, height: 16, background: "rgba(0,0,0,0.1)", margin: "0 8px" }} />
-            <button onClick={switchView}
-              style={{ background: isOwner ? "rgba(26,95,106,0.08)" : "rgba(26,95,106,0.12)", border: "1px solid rgba(26,95,106,0.25)", borderRadius: 99, cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700, padding: "5px 14px" }}>
-              {isOwner ? "👤 Staff view" : "🔑 Owner view"}
-            </button>
           </nav>
-          {/* Mobile menu button */}
-          <button onClick={() => setMenuOpen(o => !o)}
-            style={{ background: menuOpen ? "rgba(26,95,106,0.08)" : "#DDE4EC", border: `1px solid ${menuOpen ? "rgba(26,95,106,0.2)" : "#C5D0DA"}`, borderRadius: 10, padding: "7px 13px", cursor: "pointer", fontSize: 17, color: menuOpen ? "#1A5F6A" : "#222", lineHeight: 1, transition: "all 0.15s", touchAction: "manipulation" }}>
-            {menuOpen ? "✕" : "☰"}
-          </button>
-        </div>
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div style={{ background: "rgba(248,250,252,0.97)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderTop: "none" }}>
-            {navItems.map(item => (
-              <button key={item.key} onClick={() => { setNav(item.key); setMenuOpen(false); }}
-                style={{ display: "flex", alignItems: "center", width: "100%", textAlign: "left", padding: "16px 20px", background: nav === item.key ? "rgba(26,95,106,0.06)" : "none", border: "none", borderBottom: "1px solid rgba(0,0,0,0.05)", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 17, color: nav === item.key ? "#1A5F6A" : "#1a1a1a", fontWeight: nav === item.key ? 700 : 400, touchAction: "manipulation" }}>
-                {nav === item.key && <span style={{ width: 3, height: 18, background: "#1A5F6A", borderRadius: 99, marginRight: 12, flexShrink: 0 }} />}
-                {item.label}
-              </button>
-            ))}
+
+          {/* Right side — switch + hamburger */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            {/* Switch view button */}
             <button onClick={switchView}
-              style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", padding: "16px 20px", background: "rgba(26,95,106,0.05)", border: "none", borderTop: "2px solid rgba(26,95,106,0.1)", cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 16, color: "#1A5F6A", fontWeight: 700 }}>
-              <span style={{ fontSize: 18 }}>{isOwner ? "👤" : "🔑"}</span>
-              Switch to {isOwner ? "Staff" : "Owner"} view
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: isOwner ? "rgba(123,94,167,0.1)" : "rgba(26,95,106,0.1)", border: "none", borderRadius: 99, cursor: "pointer", fontSize: 11, fontWeight: 800, color: isOwner ? "#7B5EA7" : "#1A5F6A", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap", letterSpacing: "0.04em" }}>
+              {isOwner ? "→ Staff" : "→ Owner"}
             </button>
+
+            {/* Hamburger */}
+            <button onClick={() => setMenuOpen(o => !o)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "6px", display: "flex", flexDirection: "column", gap: 4, touchAction: "manipulation" }}>
+              <span style={{ display: "block", width: 20, height: 2, background: "#1A5F6A", borderRadius: 99, transition: "all 0.2s", transform: menuOpen ? "rotate(45deg) translate(4px, 4px)" : "none" }} />
+              <span style={{ display: "block", width: 20, height: 2, background: "#1A5F6A", borderRadius: 99, opacity: menuOpen ? 0 : 1 }} />
+              <span style={{ display: "block", width: 20, height: 2, background: "#1A5F6A", borderRadius: 99, transition: "all 0.2s", transform: menuOpen ? "rotate(-45deg) translate(4px, -4px)" : "none" }} />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile / dropdown menu */}
+        {menuOpen && (
+          <div style={{ position: "absolute", top: 58, left: 0, right: 0, background: "rgba(248,250,252,0.98)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 8px 30px rgba(0,0,0,0.1)", zIndex: 99 }}>
+            <div style={{ maxWidth: 1040, margin: "0 auto", padding: "8px 12px 16px" }}>
+              {/* Role badge */}
+              <div style={{ padding: "10px 12px", marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span className="inter" style={{ fontSize: 11, fontWeight: 800, color: "#888", letterSpacing: "0.1em" }}>{isOwner ? "OWNER VIEW" : "STAFF VIEW"}</span>
+                <button onClick={switchView}
+                  style={{ padding: "6px 14px", background: isOwner ? "rgba(123,94,167,0.1)" : "rgba(26,95,106,0.1)", border: "none", borderRadius: 99, cursor: "pointer", fontSize: 12, fontWeight: 800, color: isOwner ? "#7B5EA7" : "#1A5F6A", fontFamily: "Inter, sans-serif" }}>
+                  Switch to {isOwner ? "Staff" : "Owner"}
+                </button>
+              </div>
+              {/* Nav grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                {navItems.map(item => (
+                  <button key={item.key} onClick={() => { setNav(item.key); setMenuOpen(false); }}
+                    style={{ padding: "14px 16px", border: "none", borderRadius: 12, cursor: "pointer", fontFamily: "Inter, sans-serif", fontSize: 15, fontWeight: nav === item.key ? 700 : 500, color: nav === item.key ? "#fff" : "#0D1117", background: nav === item.key ? "linear-gradient(135deg, #1A5F6A, #0A3540)" : "#fff", textAlign: "left", boxShadow: "0 1px 6px rgba(0,0,0,0.06)", touchAction: "manipulation" }}>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </header>
