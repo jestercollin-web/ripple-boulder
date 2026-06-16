@@ -3333,24 +3333,14 @@ function AnnouncePage({ data, setData, memberCount }) {
 
   // Milestone data
   const MILESTONES = [
-    { count: 10,  label: "First 10",        emoji: "🐣" },
-    { count: 25,  label: "25 Members",      emoji: "🌱" },
-    { count: 50,  label: "50 Members",      emoji: "🌊" },
-    { count: 75,  label: "75 Members",      emoji: "🔥" },
+    { count: 50,  label: "50 Members",      emoji: "🌱" },
     { count: 100, label: "100 Club",        emoji: "💯" },
-    { count: 110, label: "110 Members",     emoji: "📈" },
-    { count: 120, label: "120 Members",     emoji: "⚡" },
-    { count: 130, label: "130 Members",     emoji: "🎯" },
-    { count: 140, label: "140 Members",     emoji: "💪" },
-    { count: 150, label: "150 Members",     emoji: "🌟" },
-    { count: 154, label: "Current!",        emoji: "📍" },
-    { count: 160, label: "160 Members",     emoji: "🚀" },
-    { count: 170, label: "170 Members",     emoji: "⭐" },
-    { count: 175, label: "175 Members",     emoji: "🏃" },
-    { count: 180, label: "180 Members",     emoji: "🔑" },
-    { count: 190, label: "190 Members",     emoji: "🏔️" },
-    { count: 195, label: "So close!",       emoji: "😤" },
+    { count: 150, label: "150 Members",     emoji: "🔥" },
     { count: 200, label: "200 — We Open!",  emoji: "🎉" },
+    { count: 250, label: "250 Members",     emoji: "⚡" },
+    { count: 300, label: "300 Members",     emoji: "🚀" },
+    { count: 400, label: "400 Members",     emoji: "🏔️" },
+    { count: 500, label: "500 Members",     emoji: "🏆" },
   ];
 
   const milestoneLog = data.milestoneLog || {};
