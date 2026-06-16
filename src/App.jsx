@@ -3322,7 +3322,7 @@ function AnnouncePage({ data, setData, memberCount }) {
     });
   };
 
-  React.useEffect(() => { checkMilestones(); }, [memberCount]);
+  useEffect(() => { checkMilestones(); }, [memberCount]);
 
   const nextMilestone = MILESTONES.find(m => memberCount < m.count);
   const toNext = nextMilestone ? nextMilestone.count - memberCount : 0;
