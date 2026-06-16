@@ -2058,7 +2058,21 @@ function ScoreboardPage({ data, setData, isOwner, TEAM }) {
             </div>
             <div className="lora" style={{ fontSize: 28, color: "#7DD3B8", lineHeight: 1, flexShrink: 0 }}>{wigPct}%</div>
           </div>
-          <div className="inter" style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 16 }}>{fmt(wigGoal.current)} of {fmt(wigGoal.target)}</div>
+          <div style={{ display: "flex", gap: 16, marginBottom: 16, alignItems: "center" }}>
+            <div>
+              <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Members</div>
+              <div className="lora" style={{ fontSize: 32, color: "#fff", lineHeight: 1 }}>{fmt(wigGoal.current)}</div>
+            </div>
+            <div className="inter" style={{ fontSize: 24, color: "rgba(255,255,255,0.3)" }}>→</div>
+            <div>
+              <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Goal</div>
+              <div className="lora" style={{ fontSize: 32, color: "#7DD3B8", lineHeight: 1 }}>{fmt(wigGoal.target)}</div>
+            </div>
+            <div style={{ flex: 1, textAlign: "right" }}>
+              <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Need</div>
+              <div className="lora" style={{ fontSize: 32, color: "#FFD59D", lineHeight: 1 }}>{Math.max(0, (wigGoal.target||200) - (wigGoal.current||0))}</div>
+            </div>
+          </div>
           <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 18 }}>{milestone.emoji}</span>
             <span className="inter" style={{ fontSize: 14, color: "#fff", fontWeight: 700 }}>{milestone.msg}</span>
@@ -3319,14 +3333,23 @@ function AnnouncePage({ data, setData, memberCount }) {
 
   // Milestone data
   const MILESTONES = [
-    { count: 50,  label: "First 50",       emoji: "🌱" },
-    { count: 75,  label: "75 Members",      emoji: "🌊" },
+    { count: 10,  label: "First 10",        emoji: "🐣" },
+    { count: 25,  label: "25 Members",      emoji: "🌱" },
+    { count: 50,  label: "50 Members",      emoji: "🌊" },
+    { count: 75,  label: "75 Members",      emoji: "🔥" },
     { count: 100, label: "100 Club",        emoji: "💯" },
-    { count: 125, label: "125 Members",     emoji: "⚡" },
-    { count: 150, label: "150 Members",     emoji: "🔥" },
-    { count: 160, label: "160 Members",     emoji: "📈" },
-    { count: 175, label: "175 Members",     emoji: "🚀" },
-    { count: 190, label: "190 Members",     emoji: "⭐" },
+    { count: 110, label: "110 Members",     emoji: "📈" },
+    { count: 120, label: "120 Members",     emoji: "⚡" },
+    { count: 130, label: "130 Members",     emoji: "🎯" },
+    { count: 140, label: "140 Members",     emoji: "💪" },
+    { count: 150, label: "150 Members",     emoji: "🌟" },
+    { count: 154, label: "Current!",        emoji: "📍" },
+    { count: 160, label: "160 Members",     emoji: "🚀" },
+    { count: 170, label: "170 Members",     emoji: "⭐" },
+    { count: 175, label: "175 Members",     emoji: "🏃" },
+    { count: 180, label: "180 Members",     emoji: "🔑" },
+    { count: 190, label: "190 Members",     emoji: "🏔️" },
+    { count: 195, label: "So close!",       emoji: "😤" },
     { count: 200, label: "200 — We Open!",  emoji: "🎉" },
   ];
 
