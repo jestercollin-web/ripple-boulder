@@ -3491,14 +3491,7 @@ function BudgetPage({ data, setData }) {
       lines: [{ id: "payroll", label: "Staff Payroll (~110 hrs/week)", monthly: 14100, annual: 169200 }],
       note: "~220 hours per pay cycle",
     },
-    { id: "contract", title: "Contract Labor", emoji: "🔧", color: "#2E7D8C",
-      lines: [
-        { id: "bryce", label: "Bryce Trebley",            monthly: null, annual: null },
-        { id: "aiden", label: "Aiden Lyons",              monthly: null, annual: null },
-        { id: "boaz",  label: "Boaz Dixon (Mon/Wed/Fri)", monthly: null, annual: null },
-      ],
-      note: "Total budget: $15,000", groupAnnual: 15000,
-    },
+
     { id: "admin", title: "Admin", emoji: "🗂️", color: "#33691E",
       lines: [
         { id: "beta",        label: "Beta",        monthly: null, annual: null },
