@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -441,7 +441,32 @@ const pc = {
 };
 
 // ── App Shell ─────────────────────────────────────────────────────────────────
-export default function App() {
+
+// ── Error Boundary — no more blank white screens ─────────────────────────────
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: "100vh", background: "#F2F4F7", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <div style={{ background: "#fff", borderRadius: 20, padding: "32px 28px", maxWidth: 400, textAlign: "center", boxShadow: "0 8px 40px rgba(0,0,0,0.1)" }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🌊</div>
+            <div style={{ fontSize: 20, fontFamily: "Lora, Georgia, serif", fontStyle: "italic", color: "#0D1117", marginBottom: 8 }}>Something went sideways</div>
+            <p style={{ fontSize: 13, color: "#555", fontFamily: "Inter, sans-serif", lineHeight: 1.6, marginBottom: 20 }}>Don't worry — your data is safe. Tap below to reload the app.</p>
+            <button onClick={() => window.location.reload()}
+              style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", color: "#fff", border: "none", borderRadius: 12, padding: "12px 32px", cursor: "pointer", fontSize: 15, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+              Reload App
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function AppInner() {
   const [data, setData] = useState(INITIAL_DATA);
   const [nav, setNavState] = useState("home");
   const setNav = (v) => { setNavState(v); setData(d => ({ ...d, lastNav: v })); };
@@ -501,11 +526,19 @@ export default function App() {
     return () => {};
   }, []);
 
+  const [saveState, setSaveState] = useState("saved"); // saved | saving | error
+
   useEffect(() => {
     if (loading) return;
+    setSaveState("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
-      await supabase.from("app_data").upsert({ id: 1, payload: data });
+      try {
+        const { error } = await supabase.from("app_data").upsert({ id: 1, payload: data });
+        setSaveState(error ? "error" : "saved");
+      } catch(e) {
+        setSaveState("error");
+      }
     }, 800);
     return () => clearTimeout(saveTimer.current);
   }, [data, loading]);
@@ -867,6 +900,11 @@ export default function App() {
             <img src="/logo.svg" alt="Ripple Boulder" style={{ height: 38, width: "auto" }} />
             <span className="inter" style={{ fontSize: 9, color: isOwner ? "#1A5F6A" : "#7B5EA7", background: isOwner ? "rgba(26,95,106,0.1)" : "rgba(123,94,167,0.1)", padding: "2px 8px", borderRadius: 99, fontWeight: 800, letterSpacing: "0.1em", whiteSpace: "nowrap" }}>
               {isOwner ? "OWNER" : "STAFF"}
+            </span>
+            <span className="inter" title={saveState === "error" ? "Save failed — check connection" : ""}
+              style={{ fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 3,
+                color: saveState === "saved" ? "#4CAF50" : saveState === "saving" ? "#999" : "#EF5350" }}>
+              {saveState === "saved" ? "✓ Saved" : saveState === "saving" ? "● Saving…" : "⚠ Retry"}
             </span>
           </div>
 
@@ -4312,5 +4350,13 @@ function SettingsPage({ data, setData }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppInner />
+    </ErrorBoundary>
   );
 }
