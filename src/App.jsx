@@ -1364,6 +1364,99 @@ function ValuesCard() {
 }
 
 // ── Ops Page ──────────────────────────────────────────────────────────────────
+
+// ── Daily Pulse — auto-generated staff motivation ─────────────────────────────
+function DailyPulse({ data, TEAM }) {
+  const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
+  const goal = 200;
+  const remaining = Math.max(0, goal - memberCount);
+  const pct = Math.min(100, Math.round((memberCount / goal) * 100));
+
+  const MILESTONES = [50, 100, 150, 200, 250, 300, 400, 500];
+  const nextMilestone = MILESTONES.find(m => memberCount < m);
+  const toNext = nextMilestone ? nextMilestone - memberCount : 0;
+
+  const openingDays = data.openingDate ? Math.max(0, Math.ceil((new Date(data.openingDate) - new Date()) / 86400000)) : null;
+
+  // Count yesterday + today's ops completions per person
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  
+  const countCompletions = (dateStr) => {
+    const counts = {};
+    (data.opsTasks || []).forEach(t => {
+      Object.entries(t.completions || {}).forEach(([key, c]) => {
+        if (c && c.at && c.at.startsWith(dateStr) && c.by) {
+          counts[c.by] = (counts[c.by] || 0) + 1;
+        }
+      });
+    });
+    return counts;
+  };
+
+  const todayCounts = countCompletions(today);
+  const yesterdayCounts = countCompletions(yesterday);
+  const todayTotal = Object.values(todayCounts).reduce((a,b) => a+b, 0);
+  const yesterdayTotal = Object.values(yesterdayCounts).reduce((a,b) => a+b, 0);
+  const topToday = Object.entries(todayCounts).sort((a,b) => b[1]-a[1])[0];
+
+  // Rotating daily message — changes each day automatically
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const dailyMessages = [
+    "Every person you welcome today could be member #" + (memberCount + 1) + ".",
+    "Someone's first climb happens because you made them feel at home.",
+    remaining > 0 ? `Just ${remaining} more members. Every conversation counts.` : "We hit our goal — now let's keep the energy going!",
+    "The Ripple Effect: notice the extra thing and do it anyway.",
+    "Learn one new member's name today. It matters more than you think.",
+    "You're not selling memberships. You're helping people find their place.",
+    openingDays !== null && openingDays > 0 ? `${openingDays} days until we open these doors. It's happening.` : "This gym exists because of days like today.",
+  ].filter(Boolean);
+  const todayMessage = dailyMessages[dayOfYear % dailyMessages.length];
+
+  return (
+    <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", borderRadius: 18, padding: "18px 20px", marginBottom: 20, boxShadow: "0 4px 20px rgba(26,95,106,0.2)" }}>
+      {/* Daily message */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 14 }}>
+        <span style={{ fontSize: 20, flexShrink: 0 }}>🌊</span>
+        <div className="lora" style={{ fontSize: 15, fontStyle: "italic", color: "#fff", lineHeight: 1.5 }}>{todayMessage}</div>
+      </div>
+
+      {/* Live stats row */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+        <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+          <div className="lora" style={{ fontSize: 22, color: "#7DD3B8", lineHeight: 1 }}>{memberCount}</div>
+          <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>members · {toNext > 0 ? `${toNext} to ${nextMilestone}` : "🎉"}</div>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+          <div className="lora" style={{ fontSize: 22, color: "#fff", lineHeight: 1 }}>{todayTotal}</div>
+          <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>tasks done today{yesterdayTotal > 0 ? ` · ${yesterdayTotal} yesterday` : ""}</div>
+        </div>
+        <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+          {topToday ? (
+            <>
+              <div className="lora" style={{ fontSize: 22, color: "#FFD59D", lineHeight: 1 }}>👑</div>
+              <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>{topToday[0]} leads · {topToday[1]} tasks</div>
+            </>
+          ) : (
+            <>
+              <div className="lora" style={{ fontSize: 22, color: "rgba(255,255,255,0.4)", lineHeight: 1 }}>—</div>
+              <div className="inter" style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginTop: 3 }}>first task = crown 👑</div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Goal progress mini bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+        <div style={{ flex: 1, height: 6, background: "rgba(255,255,255,0.12)", borderRadius: 99, overflow: "hidden" }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: "linear-gradient(90deg, #7DD3B8, #4DB896)", borderRadius: 99 }} />
+        </div>
+        <span className="inter" style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, flexShrink: 0 }}>{pct}% to {goal}</span>
+      </div>
+    </div>
+  );
+}
+
 function OpsPage({ data, setData, isOwner, TEAM }) {
   const freqs = [
     { key: "opening", label: "Opening", emoji: "☀️" },
@@ -1404,6 +1497,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
   return (
     <div>
+      <DailyPulse data={data} TEAM={TEAM} />
       {/* WIG — always visible for staff */}
       {wigGoal && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
@@ -3387,7 +3481,14 @@ function AnnouncePage({ data, setData, memberCount }) {
   const checkMilestones = () => {
     MILESTONES.forEach(m => {
       if (memberCount >= m.count && !milestoneLog[m.count]) {
-        setData(d => ({ ...d, milestoneLog: { ...(d.milestoneLog || {}), [m.count]: new Date().toISOString() } }));
+        setData(d => ({
+          ...d,
+          milestoneLog: { ...(d.milestoneLog || {}), [m.count]: new Date().toISOString() },
+          announcements: [
+            { id: `ann_milestone_${m.count}`, text: `${m.emoji} MILESTONE: We just hit ${m.count} members! ${m.count >= 200 ? "This team made it happen. Incredible work everyone!" : "Every conversation, every welcome, every extra touch got us here. Keep going!"}`, author: "Ripple Bot", createdAt: new Date().toISOString(), pinned: m.count >= 200 },
+            ...(d.announcements || [])
+          ]
+        }));
       }
     });
   };
