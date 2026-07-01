@@ -3480,15 +3480,11 @@ function BudgetPage({ data, setData }) {
   const [view, setView] = useState("overview"); // overview | detail
 
   const DEFAULT_CATEGORIES = [
-    { id: "facility", title: "Facility Supplies", emoji: "🧹", color: "#1A5F6A",
+    { id: "facility", title: "Facility & Supplies", emoji: "🧹", color: "#1A5F6A",
       lines: [
-        { id: "cleaning",    label: "Cleaning & Janitorial",      monthly: 83,    annual: 1000  },
-        { id: "facility",    label: "Facility Supplies",           monthly: 243,   annual: 2920  },
-        { id: "frontdesk",   label: "Front Desk Supplies",         monthly: 83,    annual: 1000  },
-        { id: "concessions", label: "Concessions & Member Goods",  monthly: 105,   annual: 1360  },
-        { id: "safety",      label: "Staff, Safety & Hygiene",     monthly: 66,    annual: 800   },
-        { id: "programs",    label: "Programs, Events & Misc",     monthly: 83,    annual: 1000  },
-        { id: "retail",      label: "Local Retail Buffer",         monthly: 63,    annual: 760   },
+        { id: "cleaning",    label: "Facility & Cleaning Supplies",   monthly: 83,  annual: 1000 },
+        { id: "frontdesk",   label: "Front Desk & Member Goods",      monthly: 67,  annual: 800  },
+        { id: "programs",    label: "Programs, Safety & Misc Supplies", monthly: 50, annual: 600  },
       ],
     },
     { id: "payroll", title: "Payroll", emoji: "💼", color: "#7B5EA7",
