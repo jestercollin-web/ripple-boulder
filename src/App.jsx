@@ -3474,8 +3474,8 @@ function AnnouncePage({ data, setData, memberCount }) {
 }
 
 function BudgetPage({ data, setData }) {
-  const MONTHS = ["Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"];
-  const MONTH_LABELS = ["April","May","June","July","August","September","October","November","December","January","February","March"];
+  const MONTHS = ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul"];
+  const MONTH_LABELS = ["August","September","October","November","December","January","February","March","April","May","June","July"];
   const [activeCategory, setActiveCategory] = useState(null);
   const [view, setView] = useState("overview"); // overview | detail
 
@@ -3607,7 +3607,7 @@ function BudgetPage({ data, setData }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
         <div>
           <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Budget 💰</h1>
-          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Fiscal year April – March · Tap a category to expand</p>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Fiscal year August – July · Tap a category to expand</p>
         </div>
         <div style={{ display: "flex", gap: 6, background: "#fff", borderRadius: 10, padding: 5, boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
           {[{k:"overview",l:"Overview"},{k:"detail",l:"Detail"}].map(v => (
@@ -3648,8 +3648,8 @@ function BudgetPage({ data, setData }) {
           <div style={{ width: `${Math.min(100,pctUsed)}%`, height: "100%", background: pctUsed>100?"#EF5350":pctUsed>90?"#FF9800":"linear-gradient(90deg, #1A5F6A, #4DB896)", borderRadius: 99, transition: "width 0.6s" }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
-          <span className="inter" style={{ fontSize: 11, color: "#888" }}>April</span>
-          <span className="inter" style={{ fontSize: 11, color: "#888" }}>March</span>
+          <span className="inter" style={{ fontSize: 11, color: "#888" }}>August</span>
+          <span className="inter" style={{ fontSize: 11, color: "#888" }}>July</span>
         </div>
       </div>
 
