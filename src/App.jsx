@@ -528,13 +528,16 @@ function AppInner() {
 
   const [saveState, setSaveState] = useState("saved"); // saved | saving | error
 
+  const latestData = useRef(data);
+  latestData.current = data;
+
   useEffect(() => {
     if (loading) return;
     setSaveState("saving");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       try {
-        const { error } = await supabase.from("app_data").upsert({ id: 1, payload: data });
+        const { error } = await supabase.from("app_data").upsert({ id: 1, payload: latestData.current });
         setSaveState(error ? "error" : "saved");
       } catch(e) {
         setSaveState("error");
@@ -542,6 +545,34 @@ function AppInner() {
     }, 800);
     return () => clearTimeout(saveTimer.current);
   }, [data, loading]);
+
+  // Flush save immediately when leaving/hiding the page — no more lost changes on refresh
+  useEffect(() => {
+    const flush = () => {
+      if (loading) return;
+      const body = JSON.stringify({ id: 1, payload: latestData.current });
+      // sendBeacon survives page unload; fallback to fetch keepalive
+      const url = "https://ypkgtmtzvepzgtrpdtma.supabase.co/rest/v1/app_data?on_conflict=id";
+      const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2d0bXR6dmVwemd0cnBkdG1hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzM1NDcsImV4cCI6MjA5MzU0OTU0N30.xAyv3pnHzkbYFDzMccPMswLuRmON4TXCOgOpplaHJ0E";
+      try {
+        fetch(url, {
+          method: "POST",
+          keepalive: true,
+          headers: { "Content-Type": "application/json", "apikey": KEY, "Authorization": `Bearer ${KEY}`, "Prefer": "resolution=merge-duplicates" },
+          body,
+        });
+      } catch(e) {}
+    };
+    const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    window.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", flush);
+    return () => {
+      window.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("beforeunload", flush);
+    };
+  }, [loading]);
 
   const isOwner = data.viewMode === "owner";
   const TEAM = data.team || ["Caleb", "Madeline", "Collin"];
