@@ -618,6 +618,7 @@ function AppInner() {
     { key: "opening",    label: "Opening" },
     { key: "guide",      label: "📋 Guide" },
     { key: "budget",     label: "💰 Budget" },
+    { key: "passwords",  label: "Passwords" },
     { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
@@ -1004,6 +1005,7 @@ function AppInner() {
         {nav === "gameplan"   && <GamePlanPage data={data} setData={setData} />}
         {nav === "incidents"  && <IncidentPage data={data} setData={setData} TEAM={TEAM} isOwner={isOwner} />}
         {nav === "budget"     && <BudgetPage data={data} setData={setData} />}
+        {nav === "passwords"  && isOwner && <PasswordsPage data={data} setData={setData} />}
         {nav === "announce"   && <AnnouncePage data={data} setData={setData} memberCount={data.manualMembershipCount || (data.foundingMembers || []).length || 154} />}
         {nav === "guide"      && <MembershipGuidePage />}
         {nav === "settings"   && isOwner && <SettingsPage data={data} setData={setData} />}
@@ -4414,6 +4416,86 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+
+// ── Passwords Vault (owner only) ──────────────────────────────────────────────
+function PasswordsPage({ data, setData }) {
+  const [visible, setVisible] = useState({});
+  const [copied, setCopied] = useState(null);
+  const entries = data.passwords || [];
+
+  const addEntry = () => setData(d => ({ ...d, passwords: [...(d.passwords || []), { id: `pw_${Date.now()}`, label: "New account", username: "", password: "", url: "", notes: "" }] }));
+  const updateEntry = (id, field, value) => setData(d => ({ ...d, passwords: d.passwords.map(p => p.id === id ? { ...p, [field]: value } : p) }));
+  const deleteEntry = (id) => { if (window.confirm("Delete this password entry?")) setData(d => ({ ...d, passwords: d.passwords.filter(p => p.id !== id) })); };
+  const copy = (id, text) => { navigator.clipboard.writeText(text).then(() => { setCopied(id); setTimeout(() => setCopied(null), 1500); }); };
+
+  const inputStyle = { width: "100%", border: "1px solid #E0E8EF", borderRadius: 8, padding: "8px 10px", fontSize: 13, fontFamily: "Inter, sans-serif", color: "#0D1117", background: "#fff", outline: "none", WebkitTextFillColor: "#0D1117" };
+  const labelStyle = { fontSize: 10, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4, fontFamily: "Inter, sans-serif" };
+
+  return (
+    <div style={{ maxWidth: 680, margin: "0 auto" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 20 }}>
+        <div>
+          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Passwords 🔐</h1>
+          <p className="inter" style={{ fontSize: 13, color: "#555", marginTop: 2 }}>Owner-only vault for gym accounts.</p>
+        </div>
+        <button onClick={addEntry} className="btn btn-teal" style={{ fontSize: 13, padding: "9px 18px" }}>+ Add</button>
+      </div>
+
+      <div style={{ background: "#FFF8EC", border: "1px solid #FFD599", borderRadius: 12, padding: "12px 16px", marginBottom: 20, display: "flex", gap: 10 }}>
+        <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
+        <p className="inter" style={{ fontSize: 12, color: "#7A4100", lineHeight: 1.5, margin: 0 }}>Use for everyday gym accounts (Canva, Wix, vendors). For banking or payroll use a real password manager like 1Password.</p>
+      </div>
+
+      {entries.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "50px 0" }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🔐</div>
+          <div className="lora" style={{ fontSize: 18, fontStyle: "italic", color: "#555" }}>No passwords saved yet</div>
+          <p className="inter" style={{ fontSize: 13, color: "#888", marginTop: 6 }}>Tap + Add to store your first account.</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {entries.map(entry => (
+            <div key={entry.id} style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <input value={entry.label} onChange={e => updateEntry(entry.id, "label", e.target.value)} placeholder="Account name"
+                  style={{ border: "none", background: "transparent", fontSize: 16, fontWeight: 700, color: "#0D1117", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#0D1117", flex: 1 }} />
+                <button onClick={() => deleteEntry(entry.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#C8D5E0", fontSize: 16, padding: "4px 8px" }}>✕</button>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }} className="g2">
+                <div>
+                  <div style={labelStyle}>Username / Email</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <input value={entry.username} onChange={e => updateEntry(entry.id, "username", e.target.value)} placeholder="user@email.com" style={inputStyle} />
+                    {entry.username && <button onClick={() => copy(`${entry.id}_u`, entry.username)} style={{ background: copied === `${entry.id}_u` ? "#E8F5E9" : "#F6F9FB", border: "1px solid #E0E8EF", borderRadius: 8, padding: "0 10px", cursor: "pointer", fontSize: 12, flexShrink: 0 }}>{copied === `${entry.id}_u` ? "✓" : "📋"}</button>}
+                  </div>
+                </div>
+                <div>
+                  <div style={labelStyle}>Password</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <input type={visible[entry.id] ? "text" : "password"} value={entry.password} onChange={e => updateEntry(entry.id, "password", e.target.value)} placeholder="••••••••" style={inputStyle} />
+                    <button onClick={() => setVisible(v => ({ ...v, [entry.id]: !v[entry.id] }))} style={{ background: "#F6F9FB", border: "1px solid #E0E8EF", borderRadius: 8, padding: "0 10px", cursor: "pointer", fontSize: 12, flexShrink: 0 }}>{visible[entry.id] ? "🙈" : "👁️"}</button>
+                    {entry.password && <button onClick={() => copy(`${entry.id}_p`, entry.password)} style={{ background: copied === `${entry.id}_p` ? "#E8F5E9" : "#F6F9FB", border: "1px solid #E0E8EF", borderRadius: 8, padding: "0 10px", cursor: "pointer", fontSize: 12, flexShrink: 0 }}>{copied === `${entry.id}_p` ? "✓" : "📋"}</button>}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="g2">
+                <div>
+                  <div style={labelStyle}>Website</div>
+                  <input value={entry.url} onChange={e => updateEntry(entry.id, "url", e.target.value)} placeholder="https://..." style={inputStyle} />
+                </div>
+                <div>
+                  <div style={labelStyle}>Notes</div>
+                  <input value={entry.notes} onChange={e => updateEntry(entry.id, "notes", e.target.value)} placeholder="Optional" style={inputStyle} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
