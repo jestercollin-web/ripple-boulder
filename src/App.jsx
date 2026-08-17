@@ -4098,6 +4098,7 @@ function MembershipGuidePage() {
     { q: "I've never climbed before — is this for me?", a: "Absolutely. Ripple is built for beginners. Just ask and we'll show you around on day one." },
     { q: "Can my kids climb here?", a: "Yes! Kids of all ages are welcome. Important: all kids under 12 must be supervised by a parent or guardian at all times while in the gym — no exceptions. We have family memberships and kid-friendly areas." },
     { q: "Do parents need to stay with their kids?", a: "Yes — all children under 12 must be supervised by a parent or guardian at all times. This is a firm safety policy. Kindly remind parents if you see unsupervised kids." },
+    { q: "Who signs the waiver for minors?", a: "Any climber under 18 must have their waiver signed by a parent or legal guardian — a minor cannot sign for themselves. No guardian-signed waiver, no climbing." },
     { q: "What's the best membership for a family?", a: "The Duo Monthly at $110 — covers two people and additional members are just $35/month each." },
     { q: "Is the annual worth it?", a: "If you climb consistently, yes. Standard annual is $800 — about $67/month vs $75 monthly. You save ~$100." },
     { q: "I'm visiting from out of town — what should I get?", a: "A Day Pass at $19 is perfect. We want you to feel welcome however long you're here." },
@@ -4159,6 +4160,28 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      {/* CRITICAL POLICIES — always visible */}
+      <div style={{ background: "linear-gradient(135deg, #C62828, #8E0000)", borderRadius: 18, padding: "18px 20px", marginBottom: 16, boxShadow: "0 4px 20px rgba(198,40,40,0.25)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <span style={{ fontSize: 22 }}>🚨</span>
+          <div className="lora" style={{ fontSize: 17, fontStyle: "italic", color: "#fff" }}>Must-Know Safety Rules</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>👶</span>
+            <div className="inter" style={{ fontSize: 14, color: "#fff", lineHeight: 1.5, fontWeight: 600 }}>
+              All kids <span style={{ background: "#fff", color: "#C62828", padding: "1px 8px", borderRadius: 6, fontWeight: 800 }}>UNDER 12</span> must be supervised by a parent or guardian at ALL times. No exceptions.
+            </div>
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>📝</span>
+            <div className="inter" style={{ fontSize: 14, color: "#fff", lineHeight: 1.5, fontWeight: 600 }}>
+              Every <span style={{ background: "#fff", color: "#C62828", padding: "1px 8px", borderRadius: 6, fontWeight: 800 }}>MINOR (under 18)</span> must have their waiver signed by a parent or legal guardian before climbing.
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Hero */}
       <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0A3540 100%)", borderRadius: 20, padding: "28px 26px", marginBottom: 24, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, background: "rgba(255,255,255,0.04)", borderRadius: "50%" }} />
