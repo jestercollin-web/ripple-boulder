@@ -546,6 +546,30 @@ function AppInner() {
     return () => clearTimeout(saveTimer.current);
   }, [data, loading]);
 
+  // Real-time sync — subscribes only AFTER initial load (mobile-safe)
+  useEffect(() => {
+    if (loading) return;
+    let channel;
+    // Delay subscription so it never blocks first paint on mobile Safari
+    const t = setTimeout(() => {
+      try {
+        channel = supabase
+          .channel("app_sync_" + Math.random().toString(36).slice(2, 8))
+          .on("postgres_changes", { event: "UPDATE", schema: "public", table: "app_data", filter: "id=eq.1" }, (payload) => {
+            if (payload.new?.payload) {
+              // Merge remote changes; local unsaved edits win via latestData timing
+              setData(d => ({ ...d, ...payload.new.payload }));
+            }
+          })
+          .subscribe();
+      } catch(e) { console.warn("Realtime unavailable:", e); }
+    }, 2000);
+    return () => {
+      clearTimeout(t);
+      if (channel) { try { supabase.removeChannel(channel); } catch(e) {} }
+    };
+  }, [loading]);
+
   // Flush save immediately when leaving/hiding the page — no more lost changes on refresh
   useEffect(() => {
     const flush = () => {
