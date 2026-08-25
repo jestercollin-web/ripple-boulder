@@ -3550,7 +3550,7 @@ function AnnouncePage({ data, setData, memberCount }) {
           </div>
           <div style={{ textAlign: "right" }}>
             <div className="inter" style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>GOAL</div>
-            <div className="lora" style={{ fontSize: 32, color: "#7DD3B8", lineHeight: 1 }}>200</div>
+            <div className="lora" style={{ fontSize: 32, color: "#7DD3B8", lineHeight: 1 }}>500</div>
           </div>
         </div>
 
