@@ -542,7 +542,7 @@ function AppInner() {
       } catch(e) {
         setSaveState("error");
       }
-    }, 800);
+    }, 300);
     return () => clearTimeout(saveTimer.current);
   }, [data, loading]);
 
