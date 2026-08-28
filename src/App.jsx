@@ -542,7 +542,7 @@ function AppInner() {
       } catch(e) {
         setSaveState("error");
       }
-    }, 150);
+    }, 50);
     return () => clearTimeout(saveTimer.current);
   }, [data, loading]);
 
@@ -563,7 +563,7 @@ function AppInner() {
           })
           .subscribe();
       } catch(e) { console.warn("Realtime unavailable:", e); }
-    }, 500);
+    }, 100);
     return () => {
       clearTimeout(t);
       if (channel) { try { supabase.removeChannel(channel); } catch(e) {} }
