@@ -1423,7 +1423,7 @@ function ValuesCard() {
 // ── Ops Page ──────────────────────────────────────────────────────────────────
 
 // ── Daily Pulse — auto-generated staff motivation ─────────────────────────────
-function DailyPulse({ data, TEAM }) {
+function DailyPulse({ data, setData, TEAM }) {
   const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
   const goal = 200;
   const remaining = Math.max(0, goal - memberCount);
@@ -1470,8 +1470,57 @@ function DailyPulse({ data, TEAM }) {
   ].filter(Boolean);
   const todayMessage = dailyMessages[dayOfYear % dailyMessages.length];
 
+  const [celebrate, setCelebrate] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+
+  const addMember = () => {
+    const current = data.manualMembershipCount || memberCount;
+    const next = current + 1;
+    setData(d => ({ ...d, manualMembershipCount: next }));
+    setCelebrate(true);
+    setJustAdded(true);
+    if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
+    setTimeout(() => setCelebrate(false), 900);
+    setTimeout(() => setJustAdded(false), 2200);
+  };
+
   return (
-    <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", borderRadius: 18, padding: "18px 20px", marginBottom: 20, boxShadow: "0 4px 20px rgba(26,95,106,0.2)" }}>
+    <div style={{ background: "linear-gradient(135deg, #1A5F6A, #0A3540)", borderRadius: 18, padding: "18px 20px", marginBottom: 20, boxShadow: "0 4px 20px rgba(26,95,106,0.2)", position: "relative", overflow: "hidden" }}>
+      {/* Confetti burst */}
+      {celebrate && (
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
+          {["🎉","✨","🌊","⭐","💚","🔥"].map((e, i) => (
+            <span key={i} style={{
+              position: "absolute", left: `${15 + i * 14}%`, top: "40%", fontSize: 20,
+              animation: `pulseFloat${i} 0.9s ease-out forwards`,
+            }}>{e}</span>
+          ))}
+          <style>{`
+            @keyframes pulseFloat0 { 0%{transform:translateY(0) scale(0.5);opacity:1} 100%{transform:translateY(-60px) translateX(-20px) scale(1.2);opacity:0} }
+            @keyframes pulseFloat1 { 0%{transform:translateY(0) scale(0.5);opacity:1} 100%{transform:translateY(-70px) translateX(10px) scale(1.3);opacity:0} }
+            @keyframes pulseFloat2 { 0%{transform:translateY(0) scale(0.5);opacity:1} 100%{transform:translateY(-55px) translateX(-8px) scale(1.1);opacity:0} }
+            @keyframes pulseFloat3 { 0%{transform:translateY(0) scale(0.5);opacity:1} 100%{transform:translateY(-65px) translateX(18px) scale(1.2);opacity:0} }
+            @keyframes pulseFloat4 { 0%{transform:translateY(0) scale(0.5);opacity:1} 100%{transform:translateY(-50px) translateX(-15px) scale(1.1);opacity:0} }
+            @keyframes pulseFloat5 { 0%{transform:translateY(0) scale(0.5);opacity:1} 100%{transform:translateY(-75px) translateX(5px) scale(1.3);opacity:0} }
+          `}</style>
+        </div>
+      )}
+
+      {/* Add member button — big, satisfying, front and center */}
+      <button onClick={addMember}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          background: justAdded ? "linear-gradient(135deg, #4DB896, #2E9970)" : "rgba(255,255,255,0.14)",
+          border: "none", borderRadius: 14, padding: "16px", cursor: "pointer", marginBottom: 16,
+          transform: celebrate ? "scale(0.97)" : "scale(1)", transition: "all 0.15s ease",
+          boxShadow: justAdded ? "0 4px 16px rgba(77,184,150,0.4)" : "none",
+        }}>
+        <span style={{ fontSize: 22, transform: celebrate ? "scale(1.3) rotate(-10deg)" : "scale(1)", transition: "transform 0.2s" }}>{justAdded ? "✅" : "➕"}</span>
+        <span className="inter" style={{ fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "0.01em" }}>
+          {justAdded ? "Member Added! 🎉" : "Add a New Member"}
+        </span>
+      </button>
+
       {/* Daily message */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 14 }}>
         <span style={{ fontSize: 20, flexShrink: 0 }}>🌊</span>
@@ -1554,7 +1603,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
   return (
     <div>
-      <DailyPulse data={data} TEAM={TEAM} />
+      <DailyPulse data={data} setData={setData} TEAM={TEAM} />
       {/* WIG — always visible for staff */}
       {wigGoal && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
