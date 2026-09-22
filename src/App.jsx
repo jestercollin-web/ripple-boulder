@@ -468,7 +468,7 @@ class ErrorBoundary extends React.Component {
 
 function AppInner() {
   const [data, setData] = useState(INITIAL_DATA);
-  const [nav, setNavState] = useState("home");
+  const [nav, setNavState] = useState("goals");
   const setNav = (v) => { setNavState(v); setData(d => ({ ...d, lastNav: v })); };
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -498,7 +498,7 @@ function AppInner() {
       setPinInput("");
       setPinError(false);
       setData(d => ({ ...d, viewMode: "owner" }));
-      setNav("home");
+      setNav("goals");
     } else {
       setPinError(true);
       setPinInput("");
@@ -510,7 +510,7 @@ function AppInner() {
   useEffect(() => {
     // Set default nav based on view mode after load
     if (!loading) {
-      setNav(data.viewMode === "staff" ? "ops" : "home");
+      setNav(data.viewMode === "staff" ? "ops" : "goals");
     }
   }, [loading]);
 
@@ -634,16 +634,10 @@ function AppInner() {
   );
 
   const ownerNav = [
-    { key: "home",       label: "Home" },
-    { key: "announce",   label: "📣 Board" },
     { key: "ops",        label: "Ops" },
-    { key: "scoreboard", label: "Scoreboard" },
     { key: "goals",      label: "Goals" },
-    { key: "opening",    label: "Opening" },
     { key: "guide",      label: "📋 Guide" },
     { key: "budget",     label: "💰 Budget" },
-    { key: "passwords",  label: "Passwords" },
-    { key: "settings",   label: "Settings" },
   ];
   const staffNav = [
     { key: "ops",        label: "My Shift" },
@@ -657,7 +651,7 @@ function AppInner() {
   useEffect(() => {
     const validKeys = navItems.map(n => n.key);
     if (!validKeys.includes(nav)) {
-      setNav(isOwner ? "home" : "ops");
+      setNav(isOwner ? "goals" : "ops");
     }
   }, [isOwner]);
 
@@ -1966,6 +1960,8 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
         </div>
         {isOwner && <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New goal</button>}
       </div>
+
+      <GrowthGoalsCard data={data} />
 
       {adding && (
         <div className="card-warm" style={{ marginBottom: 20 }}>
@@ -3527,6 +3523,67 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 // ── Budget Page ───────────────────────────────────────────────────────────────
 
 // ── Announcement Board + Member Milestones ───────────────────────────────────
+function GrowthGoalsCard({ data }) {
+  const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
+  const tiers = [
+    { count: 500,  emoji: "👕", title: "500 Members",   reward: "Staff Merch",      note: "" },
+    { count: 700,  emoji: "🍽️", title: "700 Members",   reward: "Big Team Dinner",  note: "Expanded design & hold budget unlock" },
+    { count: 1000, emoji: "💰", title: "1,000 Members", reward: "Rich Bitch Goal",  note: "The big one." },
+  ];
+  const strategies = [
+    { emoji: "🎉", text: "10 solid events a month" },
+    { emoji: "🎓", text: "Connecting with schools & universities" },
+    { emoji: "🏢", text: "Corporate parties" },
+  ];
+
+  return (
+    <div className="card" style={{ marginBottom: 20, background: "linear-gradient(135deg, #FBF8F3 0%, #F3EFE6 100%)", border: "1px solid #E8DFD0" }}>
+      <div className="sec-label" style={{ marginBottom: 4 }}>Growth Milestones 🚀</div>
+      <p className="inter" style={{ fontSize: 12, color: "#555", marginBottom: 16 }}>
+        We're at <strong>{memberCount}</strong> members. Here's what we're playing for.
+      </p>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>
+        {tiers.map(t => {
+          const reached = memberCount >= t.count;
+          const pctVal = Math.min(100, Math.round((memberCount / t.count) * 100));
+          return (
+            <div key={t.count} style={{ padding: "12px 14px", background: reached ? "linear-gradient(135deg, #F0FBF5, #E8F9F0)" : "#fff", borderRadius: 12, border: `1.5px solid ${reached ? "#A8DCC0" : "#E8DFD0"}` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>{t.emoji}</span>
+                  <div>
+                    <div className="inter" style={{ fontSize: 13, fontWeight: 700, color: "#0D1117" }}>{t.title} — {t.reward}</div>
+                    {t.note && <div className="inter" style={{ fontSize: 10, color: "#888" }}>{t.note}</div>}
+                  </div>
+                </div>
+                <div className="inter" style={{ fontSize: 13, fontWeight: 800, color: reached ? "#2E7D32" : "#1A5F6A" }}>
+                  {reached ? "✓ Hit!" : `${pctVal}%`}
+                </div>
+              </div>
+              <div style={{ height: 6, background: "#E0EAF0", borderRadius: 99, overflow: "hidden" }}>
+                <div style={{ width: `${pctVal}%`, height: "100%", background: reached ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.6s" }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ borderTop: "1px solid #E8DFD0", paddingTop: 14 }}>
+        <div className="inter" style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", color: "#888", textTransform: "uppercase", marginBottom: 10 }}>How we get there</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {strategies.map(s => (
+            <div key={s.text} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#fff", borderRadius: 10, border: "1px solid #E8DFD0" }}>
+              <span style={{ fontSize: 15 }}>{s.emoji}</span>
+              <span className="inter" style={{ fontSize: 13, color: "#333" }}>{s.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AnnouncePage({ data, setData, memberCount }) {
   const [msg, setMsg] = useState("");
   const [editId, setEditId] = useState(null);
