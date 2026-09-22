@@ -130,6 +130,7 @@ function SmoothTextarea({ value, onCommit, placeholder, rows = 2, style, readOnl
 const TEAM = ["Caleb", "Madeline", "Collin"];
 
 const INITIAL_DATA = {
+  growthTracking: { eventsCount: 0, eventsMonthKey: "", schoolsCount: 0, corporateCount: 0 },
   team: TEAM,
   currentUser: "Collin",
   viewMode: "owner",
@@ -1599,6 +1600,7 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
   return (
     <div>
       <DailyPulse data={data} setData={setData} TEAM={TEAM} />
+      <GrowthGoalsCard data={data} setData={setData} />
       {/* WIG — always visible for staff */}
       {wigGoal && (
         <div style={{ background: "linear-gradient(135deg, #1A5F6A 0%, #0F3D45 100%)", borderRadius: 14, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 16 }}>
@@ -1932,7 +1934,7 @@ function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
         <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Goals & Focus</h1>
         <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Our membership goals, and how we get there.</p>
       </div>
-      <GrowthGoalsCard data={data} />
+      <GrowthGoalsCard data={data} setData={setData} />
     </div>
   );
 }
@@ -3340,17 +3342,31 @@ function IncidentPage({ data, setData, TEAM, isOwner }) {
 // ── Budget Page ───────────────────────────────────────────────────────────────
 
 // ── Announcement Board + Member Milestones ───────────────────────────────────
-function GrowthGoalsCard({ data }) {
+function GrowthGoalsCard({ data, setData }) {
   const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
   const tiers = [
     { count: 500,  emoji: "👕", title: "500 Members",   reward: "Staff Merch",      note: "" },
     { count: 700,  emoji: "🍽️", title: "700 Members",   reward: "Big Team Dinner",  note: "Expanded design & hold budget unlock" },
     { count: 1000, emoji: "💰", title: "1,000 Members", reward: "Rich Bitch Goal",  note: "The big one." },
   ];
+
+  const monthKey = new Date().toISOString().slice(0, 7);
+  const gt = data.growthTracking || { eventsCount: 0, eventsMonthKey: monthKey, schoolsCount: 0, corporateCount: 0 };
+  const eventsThisMonth = gt.eventsMonthKey === monthKey ? (gt.eventsCount || 0) : 0;
+
+  const logEvent = () => setData(d => {
+    const cur = d.growthTracking || {};
+    const curMonthKey = new Date().toISOString().slice(0, 7);
+    const curCount = cur.eventsMonthKey === curMonthKey ? (cur.eventsCount || 0) : 0;
+    return { ...d, growthTracking: { ...cur, eventsCount: curCount + 1, eventsMonthKey: curMonthKey } };
+  });
+  const logSchool = () => setData(d => ({ ...d, growthTracking: { ...(d.growthTracking || {}), schoolsCount: ((d.growthTracking || {}).schoolsCount || 0) + 1 } }));
+  const logCorporate = () => setData(d => ({ ...d, growthTracking: { ...(d.growthTracking || {}), corporateCount: ((d.growthTracking || {}).corporateCount || 0) + 1 } }));
+
   const strategies = [
-    { emoji: "🎉", text: "10 solid events a month" },
-    { emoji: "🎓", text: "Connecting with schools & universities" },
-    { emoji: "🏢", text: "Corporate parties" },
+    { key: "events",    emoji: "🎉", text: "10 solid events a month",              count: eventsThisMonth,     target: 10,   onLog: logEvent,     logLabel: "+1 Event" },
+    { key: "schools",   emoji: "🎓", text: "Connecting with schools & universities", count: gt.schoolsCount || 0,   target: null, onLog: logSchool,    logLabel: "+1 Connection" },
+    { key: "corporate", emoji: "🏢", text: "Corporate parties",                     count: gt.corporateCount || 0, target: null, onLog: logCorporate, logLabel: "+1 Booked" },
   ];
 
   return (
@@ -3387,12 +3403,27 @@ function GrowthGoalsCard({ data }) {
       </div>
 
       <div style={{ borderTop: "1px solid #E8DFD0", paddingTop: 14 }}>
-        <div className="inter" style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", color: "#888", textTransform: "uppercase", marginBottom: 10 }}>How we get there</div>
+        <div className="inter" style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", color: "#888", textTransform: "uppercase", marginBottom: 10 }}>How we get there — tap to log</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {strategies.map(s => (
-            <div key={s.text} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#fff", borderRadius: 10, border: "1px solid #E8DFD0" }}>
-              <span style={{ fontSize: 15 }}>{s.emoji}</span>
-              <span className="inter" style={{ fontSize: 13, color: "#333" }}>{s.text}</span>
+            <div key={s.key} style={{ padding: "10px 12px", background: "#fff", borderRadius: 10, border: "1px solid #E8DFD0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 15 }}>{s.emoji}</span>
+                  <span className="inter" style={{ fontSize: 13, color: "#333" }}>{s.text}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                  <span className="inter" style={{ fontSize: 12, fontWeight: 800, color: "#1A5F6A" }}>
+                    {s.target ? `${s.count}/${s.target}` : s.count}
+                  </span>
+                  <button onClick={s.onLog} style={{ background: "#1A5F6A", color: "#fff", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{s.logLabel}</button>
+                </div>
+              </div>
+              {s.target && (
+                <div style={{ height: 5, background: "#E0EAF0", borderRadius: 99, overflow: "hidden", marginTop: 8 }}>
+                  <div style={{ width: `${Math.min(100, Math.round((s.count / s.target) * 100))}%`, height: "100%", background: s.count >= s.target ? "#4CAF50" : "#1A5F6A", borderRadius: 99, transition: "width 0.5s" }} />
+                </div>
+              )}
             </div>
           ))}
         </div>
