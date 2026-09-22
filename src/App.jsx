@@ -1421,7 +1421,7 @@ function ValuesCard() {
 // ── Daily Pulse — auto-generated staff motivation ─────────────────────────────
 function DailyPulse({ data, setData, TEAM }) {
   const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
-  const goal = 200;
+  const goal = 500;
   const remaining = Math.max(0, goal - memberCount);
   const pct = Math.min(100, Math.round((memberCount / goal) * 100));
 
@@ -2311,7 +2311,7 @@ function OpeningPage({ data, setData, isOwner, TEAM }) {
 
   const openingDays = data.openingDate ? Math.ceil((new Date(data.openingDate) - new Date()) / 86400000) : null;
   const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
-  const goal = 200;
+  const goal = 500;
   const pctToGoal = Math.min(100, Math.round((memberCount / goal) * 100));
   const remaining = Math.max(0, goal - memberCount);
 
@@ -2882,7 +2882,7 @@ function MembersPage({ data, setData }) {
 // ── Game Plan Page ────────────────────────────────────────────────────────────
 function GamePlanPage({ data, setData }) {
   const memberCount = data.manualMembershipCount || (data.foundingMembers || []).length || 154;
-  const goal = 200;
+  const goal = 500;
   const pctToGoal = Math.min(100, Math.round((memberCount / goal) * 100));
   const remaining = Math.max(0, goal - memberCount);
 
