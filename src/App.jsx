@@ -642,6 +642,7 @@ function AppInner() {
   const staffNav = [
     { key: "ops",        label: "My Shift" },
     { key: "announce",   label: "Board" },
+    { key: "goals",      label: "Goals" },
     { key: "incidents",  label: "Report" },
     { key: "guide",      label: "Guide" },
   ];
@@ -1925,197 +1926,13 @@ function OpsPage({ data, setData, isOwner, TEAM }) {
 
 // ── Goals Page ────────────────────────────────────────────────────────────────
 function GoalsPage({ data, setData, updateGoal, updateLog, isOwner, TEAM }) {
-  const [adding, setAdding] = useState(false);
-  const [ng, setNg] = useState({ title: "", category: "Memberships", target: "", current: 0, owner: "Collin", status: "on-track", why: "" });
-
-  const save = () => {
-    if (!ng.title || !ng.target) return;
-    const id = Math.max(...data.goals.map(g => g.id)) + 1;
-    setData(d => ({ ...d, goals: [...d.goals, { ...ng, id, target: Number(ng.target), current: Number(ng.current), notes: "" }] }));
-    setAdding(false);
-    setNg({ title: "", category: "Memberships", target: "", current: 0, owner: "Collin", status: "on-track", why: "" });
-  };
-
-  const allMeasures = data.leadMeasures.map(m => {
-    const val = data.weeklyLogs[m.goalId]?.[m.id] ?? (m.type === "checkbox" ? false : 0);
-    const done = m.type === "checkbox" ? !!val : Number(val) >= m.target;
-    const progress = m.type === "checkbox" ? (done ? 100 : 0) : Math.min(100, Math.round((Number(val) / m.target) * 100));
-    return { ...m, val, done, progress };
-  });
-
-  const addMeasure = (goalId) => {
-    const id = Math.max(...data.leadMeasures.map(m => m.id), 0) + 1;
-    setData(d => ({ ...d, leadMeasures: [...d.leadMeasures, { id, goalId, title: "New action", type: "number", target: 1, unit: "per week" }] }));
-  };
-  const updateMeasure = (id, f, v) => setData(d => ({ ...d, leadMeasures: d.leadMeasures.map(m => m.id === id ? { ...m, [f]: v } : m) }));
-  const deleteMeasure = (id) => setData(d => ({ ...d, leadMeasures: d.leadMeasures.filter(m => m.id !== id) }));
-  const CATS = ["Memberships","Marketing","Community","Events","Retail","Operations","Partnerships"];
-
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 24 }}>
-        <div>
-          <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Goals & Focus</h1>
-          <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Edit anything — all changes save automatically.</p>
-        </div>
-        {isOwner && <button className="btn btn-teal" onClick={() => setAdding(true)}>+ New goal</button>}
+      <div style={{ marginBottom: 20 }}>
+        <h1 className="lora" style={{ fontSize: 26, fontStyle: "italic", color: "#0D1117" }}>Goals & Focus</h1>
+        <p className="inter" style={{ fontSize: 13, color: "#222", marginTop: 2 }}>Our membership goals, and how we get there.</p>
       </div>
-
       <GrowthGoalsCard data={data} />
-
-      {adding && (
-        <div className="card-warm" style={{ marginBottom: 20 }}>
-          <div className="sec-label">New Goal</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-            <input placeholder="Goal title" value={ng.title} onChange={e => setNg(g => ({ ...g, title: e.target.value }))} />
-            <select value={ng.category} onChange={e => setNg(g => ({ ...g, category: e.target.value }))}>{CATS.map(c => <option key={c}>{c}</option>)}</select>
-            <input type="number" placeholder="Current number" value={ng.current} onChange={e => setNg(g => ({ ...g, current: Number(e.target.value) }))} />
-            <input type="number" placeholder="Target number" value={ng.target} onChange={e => setNg(g => ({ ...g, target: e.target.value }))} />
-            <select value={ng.owner} onChange={e => setNg(g => ({ ...g, owner: e.target.value }))}>{TEAM.map(t => <option key={t}>{t}</option>)}</select>
-            <select value={ng.status} onChange={e => setNg(g => ({ ...g, status: e.target.value }))}>
-              <option value="on-track">On track</option>
-              <option value="needs-attention">Needs attention</option>
-              <option value="off-track">Off track</option>
-            </select>
-          </div>
-          <textarea placeholder="Why does this goal matter to Ripple Boulder?" rows={2} value={ng.why} onChange={e => setNg(g => ({ ...g, why: e.target.value }))} style={{ marginBottom: 10 }} />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-teal" onClick={save}>Save goal</button>
-            <button className="btn" onClick={() => setAdding(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {data.goals.map((g) => {
-          const p = pct(g.current, g.target);
-          const s = sc[g.status];
-          const measures = allMeasures.filter(m => m.goalId === g.id);
-          const measuresDone = measures.filter(m => m.done).length;
-          const isWIG = g.id === data.wigId;
-
-          return (
-            <div key={g.id} className="card" style={{ border: isWIG ? "2px solid #1A5F6A" : "1px solid #DDE8EE", boxShadow: isWIG ? "0 4px 20px rgba(26,95,106,0.12)" : "0 1px 4px rgba(0,0,0,0.04)" }}>
-
-              {/* WIG indicator */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {isWIG
-                    ? <div style={{ background: "#1A5F6A", color: "#fff", borderRadius: 99, padding: "3px 10px", fontSize: 10, fontWeight: 800, fontFamily: "Inter, sans-serif", letterSpacing: "0.08em" }}>⭐ WILDLY IMPORTANT GOAL</div>
-                    : isOwner && <button onClick={() => setData(d => ({ ...d, wigId: g.id }))}
-                        style={{ background: "none", border: "1px dashed #ccc", borderRadius: 99, padding: "3px 10px", fontSize: 10, fontWeight: 600, color: "#888", fontFamily: "Inter, sans-serif", cursor: "pointer" }}>
-                        Set as WIG
-                      </button>
-                  }
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span className="badge" style={{ background: s.bg, color: s.text }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: s.dot }} />
-                    {g.status === "on-track" ? "On track" : g.status === "needs-attention" ? "Watch" : "Off track"}
-                  </span>
-                  {isOwner && (
-                    <button onClick={() => setData(d => ({ ...d, goals: d.goals.filter(x => x.id !== g.id) }))}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", fontSize: 16 }}>✕</button>
-                  )}
-                </div>
-              </div>
-
-              {/* Title */}
-              <div style={{ marginBottom: 6 }}>
-                {isOwner
-                  ? <SmoothInput value={g.title} onCommit={v => updateGoal(g.id, "title", v)}
-                      style={{ border: "none", padding: 0, fontSize: 17, fontWeight: 600, fontFamily: "Lora, serif", fontStyle: "italic", background: "transparent", color: "#0D1117", width: "100%" }} />
-                  : <div className="lora" style={{ fontSize: 17, fontStyle: "italic", fontWeight: 600, color: "#0D1117" }}>{g.title}</div>
-                }
-              </div>
-
-              {/* Why — always editable by owner */}
-              {isOwner
-                ? <SmoothInput value={g.why || ""} onCommit={v => updateGoal(g.id, "why", v)}
-                    placeholder="Why does this goal matter? (click to edit)"
-                    style={{ border: "none", padding: 0, fontSize: 13, background: "transparent", color: "#555", marginBottom: 14, width: "100%", fontStyle: g.why ? "normal" : "italic" }} />
-                : g.why && <p className="inter" style={{ fontSize: 13, color: "#555", marginBottom: 14, lineHeight: 1.5 }}>{g.why}</p>
-              }
-
-              {/* Progress numbers */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-                <div className="pbar" style={{ flex: 1 }}>
-                  <div className="pfill" style={{ width: `${p}%`, background: isWIG ? "#1A5F6A" : s.bar }} />
-                </div>
-                {isOwner
-                  ? <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                      <div style={{ textAlign: "center" }}>
-                        <div className="inter" style={{ fontSize: 9, color: "#888", marginBottom: 2, fontWeight: 700 }}>CURRENT</div>
-                        <input type="number" inputMode="numeric"
-                          value={g.current}
-                          onChange={e => updateGoal(g.id, "current", Number(e.target.value) || 0)}
-                          onFocus={e => e.target.select()}
-                          style={{ width: 80, fontSize: 18, textAlign: "center", fontWeight: 800, color: "#1A5F6A", border: "2px solid #1A5F6A", background: "#fff", borderRadius: 10, padding: "6px 4px", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#1A5F6A", WebkitBoxShadow: "0 0 0px 1000px #fff inset" }} />
-                      </div>
-                      <span className="inter" style={{ fontSize: 20, color: "#ccc", fontWeight: 300 }}>/</span>
-                      <div style={{ textAlign: "center" }}>
-                        <div className="inter" style={{ fontSize: 9, color: "#888", marginBottom: 2, fontWeight: 700 }}>TARGET</div>
-                        <input type="number" inputMode="numeric"
-                          value={g.target}
-                          onChange={e => updateGoal(g.id, "target", Number(e.target.value) || 0)}
-                          onFocus={e => e.target.select()}
-                          style={{ width: 80, fontSize: 18, textAlign: "center", fontWeight: 800, color: "#333", border: "2px solid #DDE8EE", background: "#F6F9FB", borderRadius: 10, padding: "6px 4px", fontFamily: "Inter, sans-serif", outline: "none", WebkitTextFillColor: "#333", WebkitBoxShadow: "0 0 0px 1000px #F6F9FB inset" }} />
-                      </div>
-                    </div>
-                  : <span className="inter" style={{ fontSize: 14, fontWeight: 700, color: "#0D1117", whiteSpace: "nowrap" }}>{fmt(g.current)} / {fmt(g.target)}</span>
-                }
-              </div>
-
-              <div className="inter" style={{ fontSize: 12, fontWeight: 700, color: isWIG ? "#1A5F6A" : s.text, marginBottom: 14 }}>{p}% complete</div>
-
-              {/* Status & owner */}
-              {isOwner && (
-                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                  <select value={g.status} onChange={e => updateGoal(g.id, "status", e.target.value)} style={{ width: "auto", fontSize: 12 }}>
-                    <option value="on-track">On track</option>
-                    <option value="needs-attention">Needs attention</option>
-                    <option value="off-track">Off track</option>
-                  </select>
-                  <select value={g.owner} onChange={e => updateGoal(g.id, "owner", e.target.value)} style={{ width: "auto", fontSize: 12 }}>
-                    {TEAM.map(t => <option key={t}>{t}</option>)}
-                  </select>
-                </div>
-              )}
-
-              <hr className="divider" />
-
-              {/* Lead measures */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <div className="sec-label" style={{ marginBottom: 0 }}>Weekly actions · {measuresDone}/{measures.length} done</div>
-                {isOwner && <button onClick={() => addMeasure(g.id)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "#1A5F6A", fontFamily: "Inter, sans-serif", fontWeight: 700 }}>+ Add action</button>}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {measures.map(m => (
-                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 13px", background: m.done ? "#F0FBF0" : "#F6F9FB", borderRadius: 8, border: `1px solid ${m.done ? "#C8E6C9" : "#CCD5DE"}` }}>
-                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: m.done ? "#5CC87A" : "#999", flexShrink: 0 }} />
-                    {isOwner
-                      ? <SmoothInput value={m.title} onCommit={v => updateMeasure(m.id, "title", v)} style={{ flex: 1, border: "none", padding: 0, fontSize: 13, fontWeight: 500, background: "transparent", color: "#0D1117" }} />
-                      : <span className="inter" style={{ flex: 1, fontSize: 13, fontWeight: 500, color: "#0D1117" }}>{m.title}</span>
-                    }
-                    {isOwner && <span className="inter" style={{ fontSize: 11, color: "#555" }}>{m.unit}</span>}
-                    {m.type === "checkbox"
-                      ? <input type="checkbox" checked={!!m.val} onChange={e => updateLog(m.goalId, m.id, e.target.checked)} />
-                      : <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <SmoothNumber value={m.val} onCommit={v => updateLog(m.goalId, m.id, v)} style={{ width: 54 }} />
-                          <span className="inter" style={{ fontSize: 11, color: "#555" }}>/ {m.target}</span>
-                        </div>
-                    }
-                    {isOwner && <button onClick={() => deleteMeasure(m.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 14 }}>✕</button>}
-                  </div>
-                ))}
-                {measures.length === 0 && isOwner && (
-                  <p className="inter" style={{ fontSize: 13, color: "#888", fontStyle: "italic" }}>No weekly actions yet — add one above.</p>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }
