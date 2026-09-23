@@ -4007,8 +4007,8 @@ function MembershipGuidePage() {
       color: "#1A7A6E",
       emoji: "👊",
       items: [
-        { name: "5-Punch Pass", price: "$90", bestFor: "2–4x/month climbers", tip: "Saves $5 vs day passes" },
-        { name: "10-Punch Pass", price: "$180", bestFor: "Regular but not daily climbers", tip: "Saves $10 — best value for casual regulars" },
+        { name: "5-Punch Pass", price: "$80", bestFor: "2–4x/month climbers", tip: "Saves $15 vs day passes" },
+        { name: "10-Punch Pass", price: "$170", bestFor: "Regular but not daily climbers", tip: "Saves $20 — best value for casual regulars" },
       ],
       talking: ["You get a small savings with each punch — and they never expire, so no pressure.", "A lot of people keep these in their wallet for whenever the mood strikes."],
       script: "\"If you see yourself coming back a few times a month, the punch pass is a nice middle ground — no commitment, just a little savings built in.\"",
@@ -4021,7 +4021,7 @@ function MembershipGuidePage() {
       emoji: "📅",
       items: [
         { name: "Standard Monthly", price: "$75/mo", bestFor: "Regular climbers 2x+/week", tip: "Core membership — best value for consistent visitors" },
-        { name: "Discounted Monthly", price: "$65/mo", bestFor: "Teachers, military, first responders, refugees", tip: "Always ask gently — don't assume" },
+        { name: "Discounted Monthly", price: "$65/mo", bestFor: "Students, teachers, military, first responders, refugees", tip: "Always ask gently — don't assume" },
       ],
       talking: ["At this rate, you're paying less than $4 a visit if you come twice a week.", "Members get to know each other — there's a real community that forms.", "You can put it on hold for $5/month if life gets busy."],
       script: "\"Most people who climb two or three times a week find the membership pays for itself pretty quickly — and the community piece is honestly what people love most.\"",
@@ -4180,7 +4180,7 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
           {[
             ["Day Pass", "$19"], ["Shoe Rental", "$6"],
-            ["5-Punch Pass", "$90"], ["10-Punch Pass", "$180"],
+            ["5-Punch Pass", "$80"], ["10-Punch Pass", "$170"],
             ["Standard Monthly", "$75/mo"], ["Discounted Monthly", "$65/mo"],
             ["Duo Monthly", "$110/mo"], ["Add. Family Member", "$35/mo"],
             ["Annual Standard", "$800/yr"], ["Annual Discounted", "$700/yr"],
