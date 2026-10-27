@@ -4157,6 +4157,12 @@ YOU: "Welcome to Indy! We're stoked to have experienced climbers in the communit
               Every <span style={{ background: "#fff", color: "#C62828", padding: "1px 8px", borderRadius: 6, fontWeight: 800 }}>MINOR (under 18)</span> must have their waiver signed by a parent or legal guardian before climbing.
             </div>
           </div>
+          <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: "12px 14px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>🎉</span>
+            <div className="inter" style={{ fontSize: 14, color: "#fff", lineHeight: 1.5, fontWeight: 600 }}>
+              Kids <span style={{ background: "#fff", color: "#C62828", padding: "1px 8px", borderRadius: 6, fontWeight: 800 }}>3 AND UNDER</span> climb free — no day pass or membership needed.
+            </div>
+          </div>
         </div>
       </div>
 
